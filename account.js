@@ -3,12 +3,32 @@
   if (!cfg?.supabaseUrl || !cfg?.supabaseAnonKey || !window.supabase) return;
 
   const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-    auth: { persistSession: true, autoRefreshToken: true },
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
   });
 
   const title = document.getElementById("dash-title");
   const sub = document.getElementById("dash-sub");
   const logoutBtn = document.getElementById("logout-btn");
+
+  function pickName(profile, user) {
+    const meta = user?.user_metadata || {};
+    const first =
+      profile?.first_name ||
+      meta.first_name ||
+      meta.given_name ||
+      (meta.full_name || meta.name || "").split(" ")[0] ||
+      "";
+    const last =
+      profile?.last_name ||
+      meta.last_name ||
+      meta.family_name ||
+      "";
+    return { first, last };
+  }
 
   async function load() {
     const { data: sessionData } = await client.auth.getSession();
@@ -25,8 +45,7 @@
       .eq("id", user.id)
       .maybeSingle();
 
-    const first = profile?.first_name || user.user_metadata?.first_name || "";
-    const last = profile?.last_name || user.user_metadata?.last_name || "";
+    const { first, last } = pickName(profile, user);
     const name = `${first} ${last}`.trim() || "dig";
     const email = profile?.email || user.email || "";
     const phone = profile?.phone || user.user_metadata?.phone || "";

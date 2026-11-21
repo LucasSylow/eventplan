@@ -8,6 +8,7 @@
   const sub = document.getElementById("auth-sub");
   const statusEl = document.getElementById("auth-status");
   const switchEl = document.getElementById("auth-switch");
+  const socialBtns = document.querySelectorAll("[data-oauth]");
 
   let client = null;
   let mode = "signup";
@@ -25,6 +26,10 @@
       },
     });
     return client;
+  }
+
+  function accountUrl() {
+    return `${window.location.origin}/account.html`;
   }
 
   function setStatus(message, type) {
@@ -45,6 +50,17 @@
     if (!btn) return;
     btn.classList.toggle("is-loading", loading);
     btn.disabled = loading;
+  }
+
+  function setSocialLoading(loading, activeProvider) {
+    socialBtns.forEach((btn) => {
+      btn.disabled = loading;
+      if (loading && btn.dataset.oauth === activeProvider) {
+        btn.classList.add("is-loading");
+      } else {
+        btn.classList.remove("is-loading");
+      }
+    });
   }
 
   function updateSwitch(next) {
@@ -85,13 +101,56 @@
     if (m.includes("password")) return "Adgangskoden skal være mindst 6 tegn.";
     if (m.includes("email")) return "Tjek at emailen er gyldig.";
     if (m.includes("rate")) return "For mange forsøg. Prøv igen om lidt.";
+    if (m.includes("provider is not enabled") || m.includes("unsupported provider"))
+      return "Social login er ikke aktiveret endnu. Tjek Google/Facebook i Supabase.";
+    if (m.includes("redirect")) return "Redirect-URL er ikke tilladt. Tilføj siden i Supabase Auth.";
     return msg;
+  }
+
+  async function startOAuth(provider) {
+    setStatus("");
+    const sb = getClient();
+    if (!sb) {
+      setStatus("Kunne ikke forbinde til login-systemet. Genindlæs siden.", "error");
+      return;
+    }
+
+    setSocialLoading(true, provider);
+    try {
+      const { error } = await sb.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: accountUrl(),
+          queryParams:
+            provider === "google"
+              ? { access_type: "online", prompt: "select_account" }
+              : undefined,
+        },
+      });
+      if (error) throw error;
+      setStatus(
+        provider === "google" ? "Sender dig til Google…" : "Sender dig til Facebook…",
+        "ok"
+      );
+    } catch (err) {
+      setStatus(
+        translateAuthError(err?.message || "Kunne ikke starte social login."),
+        "error"
+      );
+      card.classList.add("shake");
+      window.setTimeout(() => card.classList.remove("shake"), 450);
+      setSocialLoading(false);
+    }
   }
 
   switchEl?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-auth-mode]");
     if (!btn) return;
     switchMode(btn.dataset.authMode);
+  });
+
+  socialBtns.forEach((btn) => {
+    btn.addEventListener("click", () => startOAuth(btn.dataset.oauth));
   });
 
   signupForm?.addEventListener("submit", async (e) => {
@@ -117,7 +176,7 @@
         password,
         options: {
           data: { first_name: firstName, last_name: lastName, phone },
-          emailRedirectTo: `${window.location.origin}/account.html`,
+          emailRedirectTo: accountUrl(),
         },
       });
       if (error) throw error;
@@ -180,6 +239,13 @@
   }
 
   const params = new URLSearchParams(window.location.search);
+  if (params.get("error_description") || params.get("error")) {
+    setStatus(
+      translateAuthError(params.get("error_description") || params.get("error")),
+      "error"
+    );
+  }
+
   if (params.get("mode") === "login") switchMode("login");
   else switchMode("signup");
 
