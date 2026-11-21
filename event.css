@@ -445,7 +445,21 @@ html[data-theme="dark"] .ev-badge.maybe { background: rgba(255,180,60,.16); colo
   white-space: nowrap;
 }
 .seat-preview-room.is-entrance,
-.seat-preview-room.is-exit { border-radius: 999px; }
+.seat-preview-room.is-exit {
+  border-radius: 999px;
+  border-style: solid;
+  font-weight: 800;
+}
+.seat-preview-room.is-entrance {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #14532d;
+}
+.seat-preview-room.is-exit {
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #7f1d1d;
+}
 .seat-preview-room.is-wall { border-radius: 4px; border-style: solid; }
 .seat-preview-table {
   position: absolute;

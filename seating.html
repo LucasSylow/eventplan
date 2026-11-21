@@ -81,6 +81,23 @@
           <span>Byg lokalet, som det ser ud</span>
         </div>
 
+        <p class="seat-side-title">Rumstørrelse</p>
+        <div class="seat-floor-size">
+          <label>
+            Bredde
+            <input type="number" id="floor-width" min="600" max="4000" step="50" value="1600" />
+          </label>
+          <label>
+            Længde
+            <input type="number" id="floor-height" min="400" max="3000" step="50" value="1100" />
+          </label>
+        </div>
+        <div class="seat-floor-presets">
+          <button type="button" class="seat-floor-preset" data-floor="1200x800">Lille</button>
+          <button type="button" class="seat-floor-preset" data-floor="1600x1100">Standard</button>
+          <button type="button" class="seat-floor-preset" data-floor="2200x1500">Stor</button>
+        </div>
+
         <p class="seat-side-title">Borde</p>
         <button type="button" class="seat-tool" data-add-shape="round">
           <span class="seat-tool-preview is-round"></span>
@@ -100,13 +117,13 @@
         </button>
 
         <p class="seat-side-title">Rum</p>
-        <button type="button" class="seat-tool" data-add-room="entrance">
+        <button type="button" class="seat-tool is-entrance" data-add-room="entrance">
           <span class="seat-room-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><path d="M4 20V6.5A2.5 2.5 0 0 1 6.5 4H14v16H6.5A2.5 2.5 0 0 1 4 17.5V20z" stroke="currentColor" stroke-width="1.7"/><path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11A2.5 2.5 0 0 1 17.5 20H14" stroke="currentColor" stroke-width="1.7"/><path d="M9 12h8M14 9l3 3-3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
           <span>Indgang</span>
         </button>
-        <button type="button" class="seat-tool" data-add-room="exit">
+        <button type="button" class="seat-tool is-exit" data-add-room="exit">
           <span class="seat-room-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><path d="M4 20V6.5A2.5 2.5 0 0 1 6.5 4H14v16H6.5A2.5 2.5 0 0 1 4 17.5V20z" stroke="currentColor" stroke-width="1.7"/><path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11A2.5 2.5 0 0 1 17.5 20H14" stroke="currentColor" stroke-width="1.7"/><path d="M17 12H9M12 9l-3 3 3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>

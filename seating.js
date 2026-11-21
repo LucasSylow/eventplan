@@ -115,9 +115,14 @@
   let saveTimer = null;
   let interacting = false;
   let zoom = 1;
+  let floorSaveTimer = null;
   const ZOOM_MIN = 0.5;
   const ZOOM_MAX = 1.75;
   const ZOOM_STEP = 0.1;
+  const FLOOR_MIN_W = 600;
+  const FLOOR_MAX_W = 4000;
+  const FLOOR_MIN_H = 400;
+  const FLOOR_MAX_H = 3000;
 
   function setBooting(on) {
     if (bootEl) bootEl.hidden = !on;
@@ -209,6 +214,51 @@
     canvasInner.style.transform = `scale(${zoom})`;
     canvasInner.style.transformOrigin = "0 0";
     if (zoomLabel) zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
+  }
+
+  function getFloorSize() {
+    return {
+      width: Math.min(FLOOR_MAX_W, Math.max(FLOOR_MIN_W, Number(currentEvent?.floor_width) || 1600)),
+      height: Math.min(FLOOR_MAX_H, Math.max(FLOOR_MIN_H, Number(currentEvent?.floor_height) || 1100)),
+    };
+  }
+
+  function applyFloorSize() {
+    if (!canvasInner || !currentEvent) return;
+    const { width, height } = getFloorSize();
+    canvasInner.style.width = `${width}px`;
+    canvasInner.style.height = `${height}px`;
+    const wInput = document.getElementById("floor-width");
+    const hInput = document.getElementById("floor-height");
+    if (wInput && document.activeElement !== wInput) wInput.value = Math.round(width);
+    if (hInput && document.activeElement !== hInput) hInput.value = Math.round(height);
+  }
+
+  function scheduleFloorSave() {
+    if (!currentEvent?.id) return;
+    setSave("saving", "Gemmer…");
+    window.clearTimeout(floorSaveTimer);
+    floorSaveTimer = window.setTimeout(async () => {
+      const { width, height } = getFloorSize();
+      const { error } = await client
+        .from("events")
+        .update({ floor_width: width, floor_height: height })
+        .eq("id", currentEvent.id);
+      setSave(error ? "" : "saved", error ? "Kunne ikke gemme" : "Gemt");
+      if (!error) {
+        window.setTimeout(() => {
+          if (saveStatus?.textContent === "Gemt") setSave("", "Klar");
+        }, 1200);
+      }
+    }, 320);
+  }
+
+  function setFloorSize(width, height, { save = true } = {}) {
+    if (!currentEvent) return;
+    currentEvent.floor_width = Math.min(FLOOR_MAX_W, Math.max(FLOOR_MIN_W, Math.round(width)));
+    currentEvent.floor_height = Math.min(FLOOR_MAX_H, Math.max(FLOOR_MIN_H, Math.round(height)));
+    applyFloorSize();
+    if (save) scheduleFloorSave();
   }
 
   function setZoom(next) {
@@ -1058,6 +1108,23 @@
     document.getElementById("seat-zoom-out")?.addEventListener("click", () => setZoom(zoom - ZOOM_STEP));
     document.getElementById("seat-zoom-label")?.addEventListener("click", () => setZoom(1));
 
+    const floorWidthInput = document.getElementById("floor-width");
+    const floorHeightInput = document.getElementById("floor-height");
+    const onFloorInput = () => {
+      setFloorSize(
+        Number(floorWidthInput?.value) || 1600,
+        Number(floorHeightInput?.value) || 1100
+      );
+    };
+    floorWidthInput?.addEventListener("change", onFloorInput);
+    floorHeightInput?.addEventListener("change", onFloorInput);
+    document.querySelectorAll("[data-floor]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const [w, h] = String(btn.dataset.floor || "1600x1100").split("x").map(Number);
+        setFloorSize(w, h);
+      });
+    });
+
     canvasInner?.addEventListener("pointerdown", (e) => {
       if (e.target === canvasInner) clearSelection();
     });
@@ -1138,7 +1205,7 @@
   async function fetchEvent(eventId, user) {
     const { data: owned } = await client
       .from("events")
-      .select("id, title, owner_id")
+      .select("id, title, owner_id, floor_width, floor_height")
       .eq("id", eventId)
       .eq("owner_id", user.id)
       .maybeSingle();
@@ -1155,7 +1222,7 @@
 
     const { data: shared } = await client
       .from("events")
-      .select("id, title, owner_id")
+      .select("id, title, owner_id, floor_width, floor_height")
       .eq("id", eventId)
       .maybeSingle();
     return shared;
@@ -1199,6 +1266,7 @@
     await enrichGuestAvatars(eventId);
 
     wireUi();
+    applyFloorSize();
     applyZoom();
     renderCanvas();
     renderProps();
