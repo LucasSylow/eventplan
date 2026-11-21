@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="da" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eventplan — Planlæg events, invitér gæster, hold styr på det hele</title>
+  <meta name="description" content="Eventplan hjælper dig med at planlægge events, sende invitationer, følge RSVP’er og holde overblikket — privat, fest eller virksomhed." />
+  <link rel="icon" href="assets/logo-mark-white.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header" id="site-header">
+    <div class="header-shell">
+      <div class="header-inner">
+        <div class="header-left">
+          <a class="brand-lockup" href="#" aria-label="Eventplan">
+            <img class="brand-logo dark-only" src="assets/logo-white.png" alt="Eventplan" width="148" height="37" />
+            <img class="brand-logo light-only" src="assets/logo-blue.png" alt="Eventplan" width="148" height="37" />
+          </a>
+
+          <nav class="nav-links" aria-label="Hovednavigation">
+            <div class="nav-item" data-nav-dropdown data-mega="explore">
+              <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">
+                <svg class="nav-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M13.55 2.18a1.1 1.1 0 011.5.2l.08.11 6.38 10.2a1.1 1.1 0 01-.34 1.52l-.11.06-2.96.92-1.68 2.78a1.1 1.1 0 01-1.45.42l-.1-.06-8.95-6.48a1.1 1.1 0 01-.3-1.5l.06-.1 1.68-2.78.92-2.96a1.1 1.1 0 011.28-.74l.12.03 4.85 1.78z"/><path fill="currentColor" d="M5.1 15.95c.72-.55 1.86-.2 2.7.7.84.9 1.1 2.04.4 2.72-.95.9-2.95.5-4.2-.84-1.24-1.33-1.5-3.3-.5-4.1.2-.16.4-.27.6-.38z"/><circle cx="15.35" cy="9.05" r="1.25" fill="var(--bg)"/></svg>
+                <span>Udforsk</span>
+                <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.925 14.6732C14.3879 13.4957 15.6927 12.1235 16.8055 10.5927C16.9425 10.4067 17.0161 10.1726 16.9972 9.92417C16.9553 9.37347 16.4749 8.96102 15.9242 9.00293C13.3119 9.20173 10.6882 9.20173 8.07593 9.00293C7.52524 8.96102 7.04484 9.37347 7.00293 9.92417C6.98403 10.1726 7.05757 10.4067 7.19456 10.5927C8.30737 12.1235 9.61223 13.4957 11.0751 14.6732C11.6165 15.109 12.3836 15.109 12.925 14.6732Z" fill="currentColor"/></svg>
+              </button>
+            </div>
+
+            <a class="nav-link" href="#how">
+              <svg class="nav-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.9 3.15 20.4 7.4c.5.28.8.8.8 1.36v.08l-8.35 4.7a1.6 1.6 0 01-1.7 0L2.8 8.84v-.08c0-.56.3-1.08.8-1.36l7.5-4.25c.37-.21.83-.21 1.2 0z"/><path fill="currentColor" opacity=".88" d="M3.1 10.7v5.95c0 .55.3 1.05.78 1.33l7.27 4.12c.26.15.55.22.85.22V13.2L3.1 10.7z"/><path fill="currentColor" d="M20.9 10.7l-8.9 2.5v8.12c.3 0 .59-.07.85-.22l7.27-4.12c.48-.28.78-.78.78-1.33V10.7z"/></svg>
+              <span>Sådan virker det</span>
+            </a>
+            <a class="nav-link" href="#pricing">
+              <svg class="nav-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2.4c.35 0 .68.18.86.48l2.5 4.18 4.72.9c.7.13 1 .9.52 1.4l-3.3 3.45.6 4.95c.09.7-.6 1.23-1.23.93L12 16.95l-4.67 2.74c-.63.3-1.32-.23-1.23-.93l.6-4.95-3.3-3.45c-.48-.5-.18-1.27.52-1.4l4.72-.9 2.5-4.18A1 1 0 0112 2.4z"/></svg>
+              <span>Priser</span>
+            </a>
+
+            <div class="nav-item" data-nav-dropdown data-mega="more">
+              <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">
+                <svg class="nav-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 100 18 9 9 0 000-18zm0 2.1a6.9 6.9 0 110 13.8 6.9 6.9 0 010-13.8z"/><path fill="currentColor" d="M2.9 11.1h18.2a.9.9 0 01.9.9c0 .2 0 .4-.02.58a.9.9 0 01-.88.82H2.9a.9.9 0 01-.88-.82A6 6 0 012 12a.9.9 0 01.9-.9z"/><path fill="currentColor" d="M12 3.2c1.9 0 3.45 3.94 3.45 8.8S13.9 20.8 12 20.8 8.55 16.86 8.55 12 10.1 3.2 12 3.2z"/></svg>
+                <span>Mere</span>
+                <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.925 14.6732C14.3879 13.4957 15.6927 12.1235 16.8055 10.5927C16.9425 10.4067 17.0161 10.1726 16.9972 9.92417C16.9553 9.37347 16.4749 8.96102 15.9242 9.00293C13.3119 9.20173 10.6882 9.20173 8.07593 9.00293C7.52524 8.96102 7.04484 9.37347 7.00293 9.92417C6.98403 10.1726 7.05757 10.4067 7.19456 10.5927C8.30737 12.1235 9.61223 13.4957 11.0751 14.6732C11.6165 15.109 12.3836 15.109 12.925 14.6732Z" fill="currentColor"/></svg>
+              </button>
+            </div>
+          </nav>
+        </div>
+
+        <div class="header-actions">
+          <button class="icon-btn theme-toggle" type="button" id="theme-toggle" aria-label="Skift mellem dark og light mode">
+            <span class="theme-icon sun" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span class="theme-icon moon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M20 13.5A7.5 7.5 0 1110.5 4 6 6 0 0020 13.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </span>
+          </button>
+
+          <a class="login-btn" href="#login">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Login
+          </a>
+
+          <button class="icon-btn nav-burger" type="button" id="nav-burger" aria-label="Åbn menu" aria-expanded="false">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12H20M4 18H20M4 6H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mega-slot" id="mega-slot" hidden>
+      <div class="mega-panel mega-explore" data-mega-panel="explore" hidden>
+        <div class="mega-layout">
+          <div class="mega-main">
+            <div class="mega-head">
+              <p>Udforsk kategorier</p>
+              <a href="#features" class="mega-view-all">
+                Se alle
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.586 5.19a1 1 0 011.078-.06l.098.06 6.007 4.34a1.75 1.75 0 010 2.94l-6.007 4.34a1 1 0 01-1.274-1.518l.098-.082L15.8 12 9.586 7.71a1 1 0 01-.098-1.44l.098-.08z" fill="currentColor"/></svg>
+              </a>
+            </div>
+            <div class="mega-cats">
+              <a class="mega-cat" href="#features">
+                <span class="mega-cat-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M8 7h8M8 12h8M8 17h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="4" y="3" width="16" height="18" rx="3" stroke="currentColor" stroke-width="1.8"/></svg>
+                </span>
+                <span class="mega-cat-copy">
+                  <strong>Funktioner</strong>
+                  <span>Invitationer, RSVP, tjeklister og gæstelister samlet ét sted.</span>
+                </span>
+              </a>
+              <a class="mega-cat" href="#how">
+                <span class="mega-cat-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="mega-cat-copy">
+                  <strong>Sådan virker det</strong>
+                  <span>Opret, invitér og følg med — klar på få minutter.</span>
+                </span>
+              </a>
+              <a class="mega-cat" href="#usecases">
+                <span class="mega-cat-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M16 11a3 3 0 100-6 3 3 0 000 6zM8 11a3 3 0 100-6 3 3 0 000 6zM8 13c-2.7 0-5 1.6-5 4v1h10v-1c0-2.4-2.3-4-5-4zM16 13c-.4 0-.7 0-1.1.1 1.3.9 2.1 2.2 2.1 3.9v1h6v-1c0-2.4-2.3-4-5-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="mega-cat-copy">
+                  <strong>Til dig</strong>
+                  <span>Privat fest, bryllup, firmaevent eller klassefest.</span>
+                </span>
+              </a>
+              <a class="mega-cat" href="#pricing">
+                <span class="mega-cat-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M12 3v18M16.5 7.5c0-1.7-2-3-4.5-3s-4.5 1.3-4.5 3 2 3 4.5 3 4.5 1.3 4.5 3-2 3-4.5 3-4.5-1.3-4.5-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <span class="mega-cat-copy">
+                  <strong>Priser</strong>
+                  <span>Start gratis og opgrader, når dit event vokser.</span>
+                </span>
+              </a>
+              <a class="mega-cat" href="#faq">
+                <span class="mega-cat-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M12 17h.01M9.1 9a3 3 0 015.8 1c0 2-3 2.5-3 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg>
+                </span>
+                <span class="mega-cat-copy">
+                  <strong>FAQ</strong>
+                  <span>Svar på de mest stillede spørgsmål om Eventplan.</span>
+                </span>
+              </a>
+              <a class="mega-cat" href="#login">
+                <span class="mega-cat-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M4 19V7a2 2 0 012-2h9v14H6a2 2 0 01-2-2zM15 5h3a2 2 0 012 2v10a2 2 0 01-2 2h-3" stroke="currentColor" stroke-width="1.8"/><path d="M8 9h5M8 13h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <span class="mega-cat-copy">
+                  <strong>Kom i gang</strong>
+                  <span>Opret dig og planlæg dit første event med det samme.</span>
+                </span>
+              </a>
+            </div>
+          </div>
+
+          <aside class="mega-side">
+            <div class="mega-head">
+              <p>Hurtige valg</p>
+            </div>
+            <div class="mega-side-list">
+              <a href="#pricing">
+                <span class="mega-side-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M12 3l2.2 4.5L19 8.2l-3.5 3.4.8 4.9L12 14.8 7.7 16.5l.8-4.9L5 8.2l4.8-.7L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                </span>
+                <span>
+                  <strong>Start gratis</strong>
+                  <span>Dit første event uden kort</span>
+                </span>
+              </a>
+              <a href="#how">
+                <span class="mega-side-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M8 5v14l11-7L8 5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                </span>
+                <span>
+                  <strong>Se flowet</strong>
+                  <span>Kort guide på 4 trin</span>
+                </span>
+              </a>
+              <a href="#faq">
+                <span class="mega-side-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M4 19V7a2 2 0 012-2h12v14H6a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.6"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                </span>
+                <span>
+                  <strong>Hjælp & FAQ</strong>
+                  <span>Find svar med det samme</span>
+                </span>
+              </a>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <div class="mega-panel mega-more" data-mega-panel="more" hidden>
+        <div class="mega-more-list">
+          <a href="#usecases"><strong>Use cases</strong><span>Privat, fest og virksomhed</span></a>
+          <a href="#faq"><strong>FAQ</strong><span>Svar på almindelige spørgsmål</span></a>
+          <a href="#login"><strong>Support</strong><span>Få hjælp til dit event</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-nav" id="mobile-nav" hidden>
+      <a href="#features">Funktioner</a>
+      <a href="#how">Sådan virker det</a>
+      <a href="#usecases">Til dig</a>
+      <a href="#pricing">Priser</a>
+      <a href="#faq">FAQ</a>
+      <a href="#login">Login</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <nav class="crumb" aria-label="Breadcrumb">
+            <a href="#" aria-label="Hjem">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z"/></svg>
+            </a>
+            <span>/</span>
+            <span>Events</span>
+          </nav>
+          <h1>
+            Planlæg eventet.
+            Invitér gæsterne.
+            <span class="brand">Eventplan</span>
+            holder styr på resten.
+          </h1>
+          <p class="price-line">Fra fødselsdag til firmafest — invitationer, RSVP, tjekliste og oversigt ét sted. Start gratis.</p>
+          <div class="hero-cta">
+            <a class="btn-primary lg" href="#pricing">Opret dit første event</a>
+            <a class="btn-secondary lg" href="#how">Se hvordan det virker</a>
+          </div>
+        </div>
+
+        <div class="hero-events" id="hero-events" aria-label="Eksempler på events">
+          <article class="event-slide is-active">
+            <img src="assets/event-foedselsdag.jpg" alt="" loading="eager" />
+            <span class="event-label">Fødselsdag</span>
+          </article>
+          <article class="event-slide">
+            <img src="assets/event-bryllup.jpg" alt="" loading="lazy" />
+            <span class="event-label">Bryllup</span>
+          </article>
+          <article class="event-slide">
+            <img src="assets/event-konfirmation.jpg" alt="" loading="lazy" />
+            <span class="event-label">Konfirmation</span>
+          </article>
+          <article class="event-slide">
+            <img src="assets/event-begravelse.jpg" alt="" loading="lazy" />
+            <span class="event-label">Begravelse</span>
+          </article>
+          <article class="event-slide">
+            <img src="assets/event-fest.jpg" alt="" loading="lazy" />
+            <span class="event-label">Fest</span>
+          </article>
+          <div class="event-dots" aria-hidden="true">
+            <span class="is-on"></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES CAROUSEL -->
+    <section class="carousel-section is-ready" id="features" aria-label="Funktioner">
+      <div class="carousel" id="carousel">
+        <div class="carousel-track" id="carousel-track">
+          <article class="card">
+            <div class="card-media illu invite">
+              <div class="illu-stack">
+                <span class="chip">Invitation sendt</span>
+                <span class="chip soft">12 gæster</span>
+              </div>
+            </div>
+            <h3>Invitationer på sekunder</h3>
+            <p>Send flotte invitationslinks via SMS, mail eller socialt — gæster svarer uden at oprette konto.</p>
+          </article>
+          <article class="card">
+            <div class="card-media illu rsvp">
+              <div class="illu-bars">
+                <i style="--h:70%"></i><i style="--h:45%"></i><i style="--h:85%"></i>
+              </div>
+            </div>
+            <h3>RSVP i realtid</h3>
+            <p>Se hvem der kommer, måske kommer eller melder afbud — opdateret automatisk, mens svarene ruller ind.</p>
+          </article>
+          <article class="card">
+            <div class="card-media illu checklist">
+              <ul>
+                <li class="done">Bestil kage</li>
+                <li class="done">Book lokale</li>
+                <li>Send påmindelse</li>
+              </ul>
+            </div>
+            <h3>Tjeklister &amp; opgaver</h3>
+            <p>Fordel opgaver til dig selv eller medarrangører, sæt deadlines og hold overblikket frem mod dagen.</p>
+          </article>
+          <article class="card">
+            <div class="card-media illu guests">
+              <div class="avatar-row">
+                <span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <h3>Gæsteliste med detaljer</h3>
+            <p>Allergier, plus-ones, bordplacering og noter — samlet ét sted, så intet falder mellem stolene.</p>
+          </article>
+          <article class="card">
+            <div class="card-media illu share">
+              <div class="share-orb"></div>
+            </div>
+            <h3>Del &amp; samarbejd</h3>
+            <p>Giv medarrangører adgang, så I kan planlægge sammen uden endeløse beskedtråde.</p>
+          </article>
+          <article class="card">
+            <div class="card-media illu remind">
+              <div class="bell"></div>
+            </div>
+            <h3>Påmindelser</h3>
+            <p>Automatiske reminders til gæster før eventet — færre no-shows, mere ro i maven.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-section reveal" id="how">
+      <div class="section-head">
+        <p class="eyebrow">Sådan virker det</p>
+        <h2>Fra idé til færdigt event på fire trin</h2>
+        <p class="section-sub">Ingen kompliceret setup. Du opretter, inviterer og følger med — Eventplan klarer flowet.</p>
+      </div>
+
+      <div class="how-grid">
+        <article class="how-card">
+          <span class="how-bg-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 13v4M10 15h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Opret dit event</h3>
+          <p>Vælg titel, dato, tid og lokation. Tilføj beskrivelse, cover og praktisk info — klar på under et minut.</p>
+        </article>
+        <article class="how-card">
+          <span class="how-bg-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M16 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM8 12a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" stroke="currentColor" stroke-width="1.6"/><path d="M2.5 20c0-2.8 2.5-5 5.5-5h.8c1.2 0 2.3.4 3.2 1M21.5 20c0-2.8-2.5-5-5.5-5h-.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Invitér gæsterne</h3>
+          <p>Del ét link, eller send personlige invitationer. Gæster svarer direkte fra telefonen.</p>
+        </article>
+        <article class="how-card">
+          <span class="how-bg-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M8 6h11M8 12h11M8 18h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4.5 6.2l1.2 1.2 2-2.2M4.5 12.2l1.2 1.2 2-2.2M4.5 18.2l1.2 1.2 2-2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Følg RSVP &amp; planlæg</h3>
+          <p>Se status live, opdater tjeklisten og hold styr på detaljer, mens svarene kommer ind.</p>
+        </article>
+        <article class="how-card">
+          <span class="how-bg-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.6 4.2L18 9l-4.2 1.6L12 15l-1.8-4.4L6 9l4.4-1.8L12 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M18.5 14.5l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9.9-2.3zM5.5 15.5l.7 1.7 1.7.7-1.7.7-.7 1.7-.7-1.7-1.7-.7 1.7-.7.7-1.7z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Afhold med overblik</h3>
+          <p>På dagen har du gæsteliste, opgaver og info samlet — så du kan fokusere på oplevelsen.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- FEATURE HIGHLIGHTS -->
+    <section class="features-section reveal" id="tools">
+      <div class="feature-list">
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M16 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM8 12a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" stroke="currentColor" stroke-width="1.7"/><path d="M2.5 20c0-2.8 2.5-5 5.5-5h.8c1.1 0 2.1.3 2.9.9M21.5 20c0-2.8-2.5-5-5.5-5h-.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Hold styr på deltagere</h3>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16v12a2 2 0 01-2 2H6a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="1.7"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Opret budget til dit event</h3>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 6.5A2.5 2.5 0 016.5 4h11A2.5 2.5 0 0120 6.5v11a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 17.5v-11z" stroke="currentColor" stroke-width="1.7"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="16.5" cy="15.5" r="2.2" stroke="currentColor" stroke-width="1.6"/></svg>
+          </span>
+          <h3>Custom invitation via link eller mail</h3>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 20c.8-3.2 3.7-5 7.5-5s6.7 1.8 7.5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M17.5 8.5h4M19.5 6.5v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Tildel roller til dit event</h3>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.4 7-11a7 7 0 10-14 0c0 5.6 7 11 7 11z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.7"/></svg>
+          </span>
+          <h3>Tilføj nemt lokationskort</h3>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7 7V5.8A1.8 1.8 0 018.8 4h6.4A1.8 1.8 0 0117 5.8V7" stroke="currentColor" stroke-width="1.7"/><path d="M5 7h14l-1.2 12.2A2 2 0 0115.8 21H8.2a2 2 0 01-2-1.8L5 7z" stroke="currentColor" stroke-width="1.7"/><path d="M10 11v5M14 11v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Tilføj indkøbsliste</h3>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 6.5A2.5 2.5 0 017.5 4H14a2 2 0 012 2v7.5A2.5 2.5 0 0113.5 16H8l-3 3v-3.2A2.5 2.5 0 015 13.5v-7z" stroke="currentColor" stroke-width="1.7"/><path d="M16 8h.5A2.5 2.5 0 0119 10.5v7A2.5 2.5 0 0116.5 20H14l-2 2v-2h-.2" stroke="currentColor" stroke-width="1.7"/></svg>
+          </span>
+          <h3>Fælleschat blandt deltagere</h3>
+        </article>
+        <article class="feature-item">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="8" y="3" width="8" height="18" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M11 5.5h2M11 18.5h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Nem administration fra telefonen</h3>
+        </article>
+      </div>
+    </section>
+
+    <!-- USE CASES -->
+    <section class="usecases reveal" id="usecases">
+      <div class="section-head">
+        <p class="eyebrow">Til dig</p>
+        <h2>Uanset hvilken type event du laver</h2>
+      </div>
+      <div class="use-grid">
+        <article class="use-card">
+          <h3>Private fester</h3>
+          <p>Fødselsdag, bryllup, baby shower eller sommerfest — invitationer og RSVP uden Excel-kaos.</p>
+        </article>
+        <article class="use-card">
+          <h3>Virksomhed</h3>
+          <p>Kickoffs, julefrokoster og kundeevents med gæsteliste, påmindelser og fælles planlægning.</p>
+        </article>
+        <article class="use-card">
+          <h3>Clubs &amp; communities</h3>
+          <p>Workshops, meetups og turneringer — del linket, følg tilmeldinger og hold folk opdateret.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PROCESS VIDEO / DEMO -->
+    <section class="process-section reveal">
+      <div class="process-copy">
+        <p>Se flowet: opret → invitér → RSVP → klar til dagen.</p>
+      </div>
+      <div class="process-video-wrap">
+        <video id="process-video" class="process-video" src="assets/process.mp4?v=2" autoplay muted loop playsinline></video>
+        <button type="button" class="pause-btn" id="pause-process-video">Stop afspilning</button>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing reveal" id="pricing">
+      <div class="section-head narrow">
+        <p class="eyebrow">Priser</p>
+        <h2>Start gratis — opgrader når du vokser</h2>
+      </div>
+      <div class="price-cards">
+        <article class="price-card">
+          <h3>Gratis</h3>
+          <p class="price-amount">DKK&nbsp;0<span>/md</span></p>
+          <ul>
+            <li>1 aktivt event ad gangen</li>
+            <li>Op til 30 gæster</li>
+            <li>Invitationer &amp; RSVP</li>
+            <li>Basis tjekliste</li>
+          </ul>
+          <a class="btn-secondary full" href="#">Start gratis</a>
+        </article>
+        <article class="price-card featured">
+          <span class="plan-tag">Mest populære</span>
+          <h3>Pro</h3>
+          <p class="price-amount">DKK&nbsp;79<span>/md</span></p>
+          <ul>
+            <li>Ubegrænsede events</li>
+            <li>Op til 300 gæster</li>
+            <li>Medarrangører</li>
+            <li>Påmindelser &amp; eksport</li>
+          </ul>
+          <a class="btn-primary full" href="#">Vælg Pro</a>
+        </article>
+        <article class="price-card">
+          <h3>Business</h3>
+          <p class="price-amount">DKK&nbsp;199<span>/md</span></p>
+          <ul>
+            <li>Alt i Pro</li>
+            <li>Ubegrænsede gæster</li>
+            <li>Flere workspaces</li>
+            <li>Prioriteret support</li>
+          </ul>
+          <a class="btn-secondary full" href="#">Kontakt os</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq reveal" id="faq">
+      <h2>Ofte stillede spørgsmål</h2>
+      <details open>
+        <summary>Skal mine gæster oprette en konto?</summary>
+        <p>Nej. De åbner invitationslinket og svarer direkte — hurtigt på både mobil og computer.</p>
+      </details>
+      <details>
+        <summary>Kan jeg redigere eventet efter invitationerne er sendt?</summary>
+        <p>Ja. Du kan ændre tid, sted og info. Gæsterne ser den opdaterede side, og du kan sende en opdatering hvis du vil.</p>
+      </details>
+      <details>
+        <summary>Virker Eventplan til både private og firmaevents?</summary>
+        <p>Ja. Samme værktøj — fra intim middag til større virksomhedsarrangementer med medarrangører og lange gæstelister.</p>
+      </details>
+      <details>
+        <summary>Kan jeg eksportere gæstelisten?</summary>
+        <p>På Pro og Business kan du eksportere RSVP-status og gæstedata, så du nemt kan bruge listen offline eller i andre værktøjer.</p>
+      </details>
+    </section>
+
+    <!-- LOGIN ANCHOR PLACEHOLDER -->
+    <section class="login-cta reveal" id="login">
+      <div class="login-box">
+        <h2>Klar til at planlægge dit næste event?</h2>
+        <p>Opret dig på under et minut — dit første event er gratis.</p>
+        <a class="btn-primary lg" href="#pricing">Kom i gang med Eventplan</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer reveal">
+    <div class="footer-inner">
+      <div class="footer-brand-row">
+        <a class="brand-lockup" href="#" aria-label="Eventplan">
+          <img class="brand-logo dark-only" src="assets/logo-white.png" alt="Eventplan" width="170" height="42" />
+          <img class="brand-logo light-only" src="assets/logo-blue.png" alt="Eventplan" width="170" height="42" />
+        </a>
+        <p class="footer-tagline">Planlæg events, invitér gæster og hold overblikket — ét link, hele flowet.</p>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col">
+          <a href="#features">Funktioner</a>
+          <a href="#how">Sådan virker det</a>
+        </div>
+        <div class="footer-col">
+          <a href="#usecases">Private events</a>
+          <a href="#usecases">Virksomhed</a>
+        </div>
+        <div class="footer-col">
+          <a href="#pricing">Priser</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <a href="#">Support</a>
+          <a href="#">Kontakt</a>
+        </div>
+      </div>
+
+      <div class="footer-mid">
+        <div class="footer-about">
+          <p>Eventplan er lavet til dem, der vil holde flotte events uden stress — med invitationer, RSVP og planlægning samlet ét sted.</p>
+        </div>
+        <div class="footer-social">
+          <p class="social-title">Følg med</p>
+          <div class="social-grid">
+            <a href="#">Instagram</a>
+            <a href="#">LinkedIn</a>
+            <a href="#">Facebook</a>
+            <a href="#">TikTok</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-copy">
+          <p>© 2026 Eventplan</p>
+          <p class="disclaimer">Alle rettigheder forbeholdes.</p>
+        </div>
+        <div class="footer-legal">
+          <a href="#">Vilkår</a>
+          <a href="#">Privatliv</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
