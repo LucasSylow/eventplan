@@ -94,17 +94,82 @@
       <main class="dash-content create-content">
         <div class="create-shell">
           <header class="create-head">
-            <p class="create-crumb"><a href="account.html">Dashboard</a> / <strong id="create-crumb-step">Vælg pakke</strong></p>
+            <p class="create-crumb"><a href="account.html">Dashboard</a> / <strong id="create-crumb-step">Vælg kategori</strong></p>
             <div class="create-steps" aria-label="Trin">
-              <span class="is-active" data-step-indicator="1">1. Pakke</span>
-              <span data-step-indicator="2">2. Detaljer</span>
+              <span class="is-active" data-step-indicator="1">1. Kategori</span>
+              <span data-step-indicator="2">2. Pakke</span>
+              <span data-step-indicator="3">3. Detaljer</span>
             </div>
           </header>
 
-          <section class="create-step is-active" id="step-plan" data-step="1">
-            <div class="create-intro">
-              <h1>Vælg pakke til dit event</h1>
-              <p>Engangsbetaling — ingen abonnement. Betaling sætter vi op senere; vælg bare den pakke, der passer.</p>
+          <section class="create-step is-active" id="step-category" data-step="1">
+            <div class="create-hero create-hero-soft">
+              <div class="create-hero-copy">
+                <p class="create-hero-kicker">Nyt event</p>
+                <h1>Hvilken type event planlægger du?</h1>
+                <p>Vælg en kategori, så tilpasser vi resten af flowet. Du kan altid ændre det senere.</p>
+              </div>
+            </div>
+            <div class="category-grid" id="category-grid">
+              <button type="button" class="category-card" data-select-category="birthday">
+                <span class="category-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 7V4M8 10h8v9a2 2 0 01-2 2H10a2 2 0 01-2-2v-9z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8 13h8M8 16h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M9.5 7c.8 1.2 1.7 1.8 2.5 1.8S13.7 8.2 14.5 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </span>
+                <strong>Fødselsdag</strong>
+                <span>Fejr dagen med gæster, ønsker og program</span>
+              </button>
+              <button type="button" class="category-card" data-select-category="wedding">
+                <span class="category-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-6-3.8-6-8.2A3.8 3.8 0 0112 8.5a3.8 3.8 0 016 3.3C18 16.2 12 20 12 20z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                </span>
+                <strong>Bryllup</strong>
+                <span>Bordplan, program og medarrangører</span>
+              </button>
+              <button type="button" class="category-card" data-select-category="party">
+                <span class="category-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M8 19l2.2-8.2a1 1 0 01.97-.75h5.66a1 1 0 01.97.75L20 19H8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 5v3M9 6.5l1.5 1.5M15 6.5L13.5 8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </span>
+                <strong>Fest</strong>
+                <span>Sommerfest, firmafest eller hyggeaften</span>
+              </button>
+              <button type="button" class="category-card" data-select-category="funeral">
+                <span class="category-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v16M8 8h8M9 20h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="6.5" r="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                </span>
+                <strong>Begravelse</strong>
+                <span>Rolig planlægning af mindestund og gæster</span>
+              </button>
+              <button type="button" class="category-card" data-select-category="confirmation">
+                <span class="category-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.2 4.5L19 8.2l-3.5 3.4.8 4.9L12 14.2 7.7 16.5l.8-4.9L5 8.2l4.8-.7L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                </span>
+                <strong>Konfirmation</strong>
+                <span>Gæsteliste, ønsker og dagens program</span>
+              </button>
+              <button type="button" class="category-card" data-select-category="other">
+                <span class="category-ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.7"/><path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </span>
+                <strong>Andet</strong>
+                <span>Noget andet — tilpas frit efter behov</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="create-step" id="step-plan" data-step="2" hidden>
+            <div class="create-hero">
+              <div class="create-hero-glow" aria-hidden="true"></div>
+              <div class="create-hero-copy">
+                <p class="create-hero-kicker">Trin 2 · Pakke</p>
+                <h1>Vælg den pakke der passer til dit event</h1>
+                <p>Engangsbetaling — ingen abonnement. Betaling sætter vi op senere. Start frit, og opgrader når I vokser.</p>
+                <div class="create-hero-pills">
+                  <span>Ingen binding</span>
+                  <span>Skift pakke senere</span>
+                  <span id="selected-category-pill">Kategori valgt</span>
+                </div>
+              </div>
+              <button type="button" class="create-back create-back-on-hero" id="back-to-category">← Skift kategori</button>
             </div>
 
             <div class="plan-grid">
@@ -112,6 +177,7 @@
                 <div class="plan-top">
                   <div class="plan-cube plan-cube-gold" aria-hidden="true"></div>
                   <h2>Standard</h2>
+                  <p class="plan-lead">Perfekt til mindre events, hvor det vigtigste bare skal virke.</p>
                   <p class="plan-price">0 kr <span>engangsbetaling</span></p>
                   <button type="button" class="plan-btn plan-btn-outline" data-select-plan="standard">Vælg Standard</button>
                 </div>
@@ -131,8 +197,9 @@
                 <div class="plan-top">
                   <div class="plan-cube plan-cube-blue" aria-hidden="true"></div>
                   <h2>Premium</h2>
+                  <p class="plan-lead">Mere plads, medarrangører og de værktøjer I bruger mest.</p>
                   <p class="plan-price">75 kr <span>engangsbetaling</span></p>
-                  <button type="button" class="plan-btn plan-btn-solid" data-select-plan="premium">Vælg Premium →</button>
+                  <button type="button" class="plan-btn plan-btn-solid" data-select-plan="premium">Fortsæt med Premium →</button>
                 </div>
                 <div class="plan-features">
                   <p>Inkluderet</p>
@@ -154,6 +221,7 @@
                 <div class="plan-top">
                   <div class="plan-cube plan-cube-violet" aria-hidden="true"></div>
                   <h2>Pro</h2>
+                  <p class="plan-lead">Til de store fejringer — ubegrænset og uden loft.</p>
                   <p class="plan-price">150 kr <span>engangsbetaling</span></p>
                   <button type="button" class="plan-btn plan-btn-outline" data-select-plan="pro">Vælg Pro</button>
                 </div>
@@ -170,7 +238,7 @@
             </div>
           </section>
 
-          <section class="create-step" id="step-details" data-step="2" hidden>
+          <section class="create-step" id="step-details" data-step="3" hidden>
             <div class="create-intro create-intro-row">
               <div>
                 <h1>Fortæl om dit event</h1>
@@ -242,7 +310,10 @@
               <p class="create-form-error" id="create-form-error" hidden></p>
 
               <div class="create-form-actions">
-                <p class="create-selected-plan">Valgt pakke: <strong id="selected-plan-label">Standard</strong></p>
+                <p class="create-selected-plan">
+                  <span>Kategori: <strong id="selected-category-label">—</strong></span>
+                  <span>Pakke: <strong id="selected-plan-label">Standard</strong></span>
+                </p>
                 <button class="btn-primary create-submit" type="submit" id="create-submit">
                   Opret event
                 </button>

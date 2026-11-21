@@ -8,10 +8,13 @@
 
   const app = document.getElementById("dash-app");
   const menuBtn = document.getElementById("dash-menu-btn");
+  const stepCategory = document.getElementById("step-category");
   const stepPlan = document.getElementById("step-plan");
   const stepDetails = document.getElementById("step-details");
   const crumbStep = document.getElementById("create-crumb-step");
   const selectedPlanLabel = document.getElementById("selected-plan-label");
+  const selectedCategoryLabel = document.getElementById("selected-category-label");
+  const selectedCategoryPill = document.getElementById("selected-category-pill");
   const form = document.getElementById("event-details-form");
   const formError = document.getElementById("create-form-error");
   const mapBox = document.getElementById("map-box");
@@ -29,8 +32,22 @@
     premium: "Premium",
     pro: "Pro",
   };
+  const categoryNames = {
+    birthday: "Fødselsdag",
+    wedding: "Bryllup",
+    party: "Fest",
+    funeral: "Begravelse",
+    confirmation: "Konfirmation",
+    other: "Andet",
+  };
+  const stepLabels = {
+    1: "Vælg kategori",
+    2: "Vælg pakke",
+    3: "Eventdetaljer",
+  };
   let currentUser = null;
   let selectedPlan = "standard";
+  let selectedCategory = "";
   let suggestTimer = null;
   let mapTimer = null;
   let activeSuggest = -1;
@@ -77,26 +94,39 @@
   }
 
   function showStep(step) {
-    const isDetails = step === 2;
-    if (stepPlan) {
-      stepPlan.hidden = isDetails;
-      stepPlan.classList.toggle("is-active", !isDetails);
-    }
-    if (stepDetails) {
-      stepDetails.hidden = !isDetails;
-      stepDetails.classList.toggle("is-active", isDetails);
-    }
+    const map = {
+      1: stepCategory,
+      2: stepPlan,
+      3: stepDetails,
+    };
+    Object.entries(map).forEach(([key, el]) => {
+      if (!el) return;
+      const active = Number(key) === step;
+      el.hidden = !active;
+      el.classList.toggle("is-active", active);
+    });
     document.querySelectorAll("[data-step-indicator]").forEach((el) => {
       el.classList.toggle("is-active", Number(el.dataset.stepIndicator) === step);
     });
-    if (crumbStep) crumbStep.textContent = isDetails ? "Eventdetaljer" : "Vælg pakke";
+    if (crumbStep) crumbStep.textContent = stepLabels[step] || "Opret event";
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function selectCategory(category) {
+    if (!categoryNames[category]) return;
+    selectedCategory = category;
+    document.querySelectorAll("[data-select-category]").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.selectCategory === category);
+    });
+    if (selectedCategoryLabel) selectedCategoryLabel.textContent = categoryNames[category];
+    if (selectedCategoryPill) selectedCategoryPill.textContent = categoryNames[category];
+    showStep(2);
   }
 
   function selectPlan(plan) {
     selectedPlan = planNames[plan] ? (plan === "gratis" ? "standard" : plan) : "standard";
     if (selectedPlanLabel) selectedPlanLabel.textContent = planNames[selectedPlan];
-    showStep(2);
+    showStep(3);
   }
 
   function showMap(query) {
@@ -393,11 +423,16 @@
     app?.classList.toggle("is-sidebar-collapsed");
   });
 
+  document.querySelectorAll("[data-select-category]").forEach((btn) => {
+    btn.addEventListener("click", () => selectCategory(btn.dataset.selectCategory));
+  });
+
   document.querySelectorAll("[data-select-plan]").forEach((btn) => {
     btn.addEventListener("click", () => selectPlan(btn.dataset.selectPlan));
   });
 
-  document.getElementById("back-to-plans")?.addEventListener("click", () => showStep(1));
+  document.getElementById("back-to-category")?.addEventListener("click", () => showStep(1));
+  document.getElementById("back-to-plans")?.addEventListener("click", () => showStep(2));
   document.getElementById("map-clear")?.addEventListener("click", () => {
     if (mapBox) mapBox.hidden = true;
   });
@@ -503,6 +538,15 @@
       }
     }
 
+    if (!selectedCategory) {
+      if (formError) {
+        formError.hidden = false;
+        formError.textContent = "Vælg en kategori først.";
+      }
+      showStep(1);
+      return;
+    }
+
     const submitBtn = document.getElementById("create-submit");
     if (submitBtn) submitBtn.disabled = true;
 
@@ -514,6 +558,7 @@
         description: description || null,
         location: location || null,
         plan: selectedPlan,
+        category: selectedCategory,
         starts_at: startsAt.toISOString(),
         ends_at: endsAt ? endsAt.toISOString() : null,
         starts_time: time,

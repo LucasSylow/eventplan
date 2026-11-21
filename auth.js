@@ -28,8 +28,21 @@
     return client;
   }
 
+  function safeNextPath() {
+    const next = new URLSearchParams(window.location.search).get("next");
+    if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+    return next;
+  }
+
   function accountUrl() {
+    const next = safeNextPath();
+    if (next) return `${window.location.origin}${next}`;
     return `${window.location.origin}/account.html`;
+  }
+
+  function postAuthRedirect() {
+    const next = safeNextPath();
+    window.location.href = next || "account.html";
   }
 
   function setStatus(message, type) {
@@ -177,7 +190,7 @@
 
       if (data.session) {
         setStatus("Konto oprettet — sender dig videre…", "ok");
-        window.location.href = "account.html";
+        postAuthRedirect();
         return;
       }
 
@@ -215,7 +228,7 @@
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
       setStatus("Du er logget ind — sender dig videre…", "ok");
-      window.location.href = "account.html";
+      postAuthRedirect();
     } catch (err) {
       setStatus(translateAuthError(err?.message || "Kunne ikke logge ind."), "error");
       card.classList.add("shake");
@@ -229,7 +242,7 @@
     const sb = getClient();
     if (!sb) return;
     const { data } = await sb.auth.getSession();
-    if (data.session) window.location.href = "account.html";
+    if (data.session) postAuthRedirect();
   }
 
   const params = new URLSearchParams(window.location.search);

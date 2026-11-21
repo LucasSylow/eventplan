@@ -75,7 +75,7 @@
           </button>
           <label class="dash-search">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.7"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-            <input type="search" placeholder="Søg i eventet…" />
+            <input type="search" placeholder="Søg i eventet…" id="event-search" />
             <kbd>⌘ F</kbd>
           </label>
           <div class="dash-top-actions">
@@ -91,58 +91,212 @@
         </div>
       </header>
 
-      <main class="dash-content">
-        <div class="ov-shell event-shell">
+      <main class="dash-content event-content is-booting" id="event-content" aria-busy="true">
+        <div class="dash-boot" id="event-boot">
+          <div class="dash-boot-spinner" aria-hidden="true"></div>
+          <p>Henter event-dashboard…</p>
+        </div>
+
+        <div class="ov-shell event-shell" id="event-shell" hidden>
           <header class="dash-page-head event-head">
             <p class="dash-empty-kicker"><a href="account.html">Dashboard</a> / Event</p>
             <div class="event-head-row">
               <div>
-                <h1 id="event-title">Henter event…</h1>
-                <p id="event-sub">Indlæser detaljer</p>
+                <h1 id="event-title">Event</h1>
+                <p id="event-sub">Eventadministration</p>
               </div>
-              <span class="event-plan-pill" id="event-plan">—</span>
+              <div class="event-head-meta">
+                <span class="event-role-pill" id="event-role" hidden>Medarrangør</span>
+                <span class="event-plan-pill" id="event-plan">—</span>
+              </div>
             </div>
           </header>
 
-          <section class="event-grid">
-            <article class="ov-card event-card-main">
-              <div class="ov-card-head">
-                <h2><span class="ov-accent" aria-hidden="true"></span>Event-dashboard</h2>
-              </div>
-              <div class="event-empty">
-                <div class="ov-empty-orb" aria-hidden="true"></div>
-                <p>Dit event er oprettet</p>
-                <span>Her bygger vi snart gæsteliste, invitationer, to-do og mere — inde under dit normale dashboard.</span>
-              </div>
-            </article>
+          <nav class="event-tabs" id="event-tabs" aria-label="Eventsektioner">
+            <button type="button" class="event-tab is-active" data-tab="overview">Overblik</button>
+            <button type="button" class="event-tab" data-tab="guests">Gæster</button>
+            <button type="button" class="event-tab" data-tab="seating">Bordplan</button>
+            <button type="button" class="event-tab" data-tab="wishlist">Ønskeliste</button>
+            <button type="button" class="event-tab" data-tab="todos">To-do</button>
+            <button type="button" class="event-tab" data-tab="collab">Medarrangører</button>
+            <button type="button" class="event-tab" data-tab="program">Programoversigt</button>
+          </nav>
 
-            <article class="ov-card">
-              <div class="ov-card-head">
-                <h2><span class="ov-accent ov-accent-sky" aria-hidden="true"></span>Detaljer</h2>
+          <div class="event-panels">
+            <!-- OVERBLIK -->
+            <section class="event-panel is-active" data-panel="overview" id="panel-overview">
+              <div class="ev-stat-row" id="overview-stats"></div>
+              <div class="event-grid">
+                <article class="ov-card">
+                  <div class="ov-card-head">
+                    <h2><span class="ov-accent" aria-hidden="true"></span>Detaljer</h2>
+                  </div>
+                  <dl class="event-meta">
+                    <div><dt>Startdato</dt><dd id="event-date">—</dd></div>
+                    <div><dt>Tidspunkt</dt><dd id="event-time">—</dd></div>
+                    <div><dt>Slutdato</dt><dd id="event-end-date">—</dd></div>
+                    <div><dt>Lokation</dt><dd id="event-location">Ikke sat endnu</dd></div>
+                  </dl>
+                  <div class="map-box event-map" id="event-map" hidden>
+                    <iframe id="event-map-frame" title="Eventlokation" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                  </div>
+                </article>
+                <article class="ov-card">
+                  <div class="ov-card-head">
+                    <h2><span class="ov-accent ov-accent-amber" aria-hidden="true"></span>Hurtigt overblik</h2>
+                  </div>
+                  <div class="ev-snap" id="overview-snap"></div>
+                </article>
               </div>
-              <dl class="event-meta">
+            </section>
+
+            <!-- GÆSTER -->
+            <section class="event-panel" data-panel="guests" id="panel-guests" hidden>
+              <div class="ev-toolbar">
                 <div>
-                  <dt>Startdato</dt>
-                  <dd id="event-date">—</dd>
+                  <h2 class="ev-section-title">Gæster</h2>
+                  <p class="ev-section-sub">Inviterede, svar og status samlet ét sted.</p>
                 </div>
-                <div>
-                  <dt>Tidspunkt</dt>
-                  <dd id="event-time">—</dd>
-                </div>
-                <div>
-                  <dt>Slutdato</dt>
-                  <dd id="event-end-date">—</dd>
-                </div>
-                <div>
-                  <dt>Lokation</dt>
-                  <dd id="event-location">Ikke sat endnu</dd>
-                </div>
-              </dl>
-              <div class="map-box event-map" id="event-map" hidden>
-                <iframe id="event-map-frame" title="Eventlokation" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <button type="button" class="ev-btn" id="guest-add-btn">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  Tilføj gæst
+                </button>
               </div>
-            </article>
-          </section>
+              <div class="ev-guest-filters" id="guest-filters">
+                <button type="button" class="is-active" data-guest-filter="all">Alle</button>
+                <button type="button" data-guest-filter="attending">Deltager</button>
+                <button type="button" data-guest-filter="invited">Ikke svaret</button>
+                <button type="button" data-guest-filter="declined">Kan ikke</button>
+                <button type="button" data-guest-filter="maybe">Måske</button>
+              </div>
+              <form class="ev-inline-form" id="guest-form" hidden>
+                <input type="text" name="name" placeholder="Navn" required maxlength="120" />
+                <input type="email" name="email" placeholder="Email" maxlength="160" />
+                <select name="status">
+                  <option value="invited">Ikke svaret</option>
+                  <option value="attending">Deltager</option>
+                  <option value="maybe">Måske</option>
+                  <option value="declined">Kan ikke</option>
+                </select>
+                <button type="submit" class="ev-btn">Gem</button>
+                <button type="button" class="ev-btn ev-btn-ghost" id="guest-form-cancel">Annuller</button>
+              </form>
+              <div class="ev-guest-list" id="guest-list"></div>
+            </section>
+
+            <!-- BORDPLAN -->
+            <section class="event-panel" data-panel="seating" id="panel-seating" hidden>
+              <div class="ev-toolbar">
+                <div>
+                  <h2 class="ev-section-title">Bordplan</h2>
+                  <p class="ev-section-sub">Træk borde rundt og placér gæster på pladserne.</p>
+                </div>
+                <div class="ev-toolbar-actions">
+                  <button type="button" class="ev-btn ev-btn-ghost" id="table-add-round">Rundt bord</button>
+                  <button type="button" class="ev-btn" id="table-add-rect">Rektangulært bord</button>
+                </div>
+              </div>
+              <div class="seat-layout">
+                <aside class="seat-sidebar">
+                  <p class="seat-side-title">Uplacerede gæster</p>
+                  <div class="seat-guest-pool" id="seat-guest-pool"></div>
+                </aside>
+                <div class="seat-floor-wrap">
+                  <div class="seat-floor" id="seat-floor"></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ØNSKELISTE -->
+            <section class="event-panel" data-panel="wishlist" id="panel-wishlist" hidden>
+              <div class="ev-toolbar">
+                <div>
+                  <h2 class="ev-section-title">Ønskeliste</h2>
+                  <p class="ev-section-sub">Tilføj ønsker her, eller link til din liste på Ønskeskyen.</p>
+                </div>
+                <button type="button" class="ev-btn" id="wish-add-btn">Tilføj ønske</button>
+              </div>
+              <div class="wish-link-card ov-card">
+                <div class="ov-card-head">
+                  <h2><span class="ov-accent ov-accent-mint" aria-hidden="true"></span>Ønskeskyen</h2>
+                </div>
+                <p class="wish-note">Der findes ikke en officiel offentlig sync-API endnu. Du kan indsætte et offentligt link til din ønskeliste, så gæster hurtigt kan åbne den.</p>
+                <form class="ev-inline-form wish-link-form" id="wish-link-form">
+                  <input type="url" name="url" id="wish-external-url" placeholder="https://onskeskyen.dk/…" maxlength="500" />
+                  <button type="submit" class="ev-btn">Gem link</button>
+                  <a class="ev-btn ev-btn-ghost" id="wish-external-open" href="#" target="_blank" rel="noopener" hidden>Åbn</a>
+                </form>
+              </div>
+              <form class="ev-inline-form" id="wish-form" hidden>
+                <input type="text" name="title" placeholder="Titel" required maxlength="160" />
+                <input type="url" name="url" placeholder="Link (valgfrit)" maxlength="500" />
+                <input type="text" name="price" placeholder="Pris" maxlength="40" />
+                <button type="submit" class="ev-btn">Gem</button>
+                <button type="button" class="ev-btn ev-btn-ghost" id="wish-form-cancel">Annuller</button>
+              </form>
+              <div class="wish-grid" id="wish-list"></div>
+            </section>
+
+            <!-- TO-DO -->
+            <section class="event-panel" data-panel="todos" id="panel-todos" hidden>
+              <div class="ev-toolbar">
+                <div>
+                  <h2 class="ev-section-title">To-do</h2>
+                  <p class="ev-section-sub">Opgaver inden eventet — hak af undervejs.</p>
+                </div>
+              </div>
+              <form class="todo-composer" id="todo-form">
+                <input type="text" name="title" placeholder="Ny opgave…" required maxlength="200" />
+                <input type="date" name="due" />
+                <button type="submit" class="ev-btn">Tilføj</button>
+              </form>
+              <div class="todo-progress" id="todo-progress"></div>
+              <div class="todo-list" id="todo-list"></div>
+            </section>
+
+            <!-- MEDARRANGØRER -->
+            <section class="event-panel" data-panel="collab" id="panel-collab" hidden>
+              <div class="ev-toolbar">
+                <div>
+                  <h2 class="ev-section-title">Medarrangører</h2>
+                  <p class="ev-section-sub">Inviter via email — de får adgang til kun dette event.</p>
+                </div>
+              </div>
+              <form class="ev-inline-form" id="collab-form">
+                <input type="text" name="name" placeholder="Navn" required maxlength="120" />
+                <input type="email" name="email" placeholder="Email" required maxlength="160" />
+                <button type="submit" class="ev-btn">Send invitation</button>
+              </form>
+              <p class="collab-hint" id="collab-hint" hidden></p>
+              <div class="collab-list" id="collab-list"></div>
+            </section>
+
+            <!-- PROGRAM -->
+            <section class="event-panel" data-panel="program" id="panel-program" hidden>
+              <div class="ev-toolbar">
+                <div>
+                  <h2 class="ev-section-title">Programoversigt</h2>
+                  <p class="ev-section-sub">Tidspunkter, steder og hvad der sker — flot og klart.</p>
+                </div>
+                <button type="button" class="ev-btn" id="program-add-btn">Tilføj punkt</button>
+              </div>
+              <form class="program-form ov-card" id="program-form" hidden>
+                <div class="program-form-grid">
+                  <input type="text" name="title" placeholder="Titel" required maxlength="160" />
+                  <input type="text" name="location" placeholder="Lokation" maxlength="200" />
+                  <input type="datetime-local" name="starts_at" />
+                  <input type="datetime-local" name="ends_at" />
+                  <input type="url" name="image_url" placeholder="Billede-URL (valgfrit)" maxlength="500" />
+                  <textarea name="description" placeholder="Beskrivelse" rows="3" maxlength="1000"></textarea>
+                </div>
+                <div class="ev-toolbar-actions">
+                  <button type="button" class="ev-btn ev-btn-ghost" id="program-form-cancel">Annuller</button>
+                  <button type="submit" class="ev-btn">Gem programpunkt</button>
+                </div>
+              </form>
+              <div class="program-timeline" id="program-list"></div>
+            </section>
+          </div>
         </div>
       </main>
     </div>

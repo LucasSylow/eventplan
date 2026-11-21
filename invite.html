@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="da" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Medarrangør-invitation — Eventplan</title>
+  <link rel="icon" href="assets/logo-mark-white.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="event.css" />
+  <style>
+    .invite-page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 45%),
+        var(--bg);
+    }
+    .invite-card {
+      width: min(440px, 100%);
+      padding: 28px 24px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: var(--bg-2);
+      box-shadow: 0 24px 60px rgba(15, 23, 40, 0.12);
+      display: grid;
+      gap: 14px;
+      text-align: center;
+      animation: evPanelIn 0.4s ease both;
+    }
+    .invite-card h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.04em;
+    }
+    .invite-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .invite-actions {
+      display: grid;
+      gap: 8px;
+      margin-top: 6px;
+    }
+  </style>
+  <script>
+    (function () {
+      var saved = localStorage.getItem("eventlink-theme");
+      document.documentElement.setAttribute(
+        "data-theme",
+        saved === "light" || saved === "dark" ? saved : "light"
+      );
+    })();
+  </script>
+</head>
+<body>
+  <main class="invite-page">
+    <div class="invite-card" id="invite-card">
+      <p class="dash-empty-kicker" style="justify-self:center">Eventplan</p>
+      <h1 id="invite-title">Henter invitation…</h1>
+      <p id="invite-sub">Vent et øjeblik.</p>
+      <div class="invite-actions" id="invite-actions"></div>
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+  <script>
+    (() => {
+      const cfg = window.EVENTPLAN_CONFIG;
+      if (!cfg?.supabaseUrl || !cfg?.supabaseAnonKey || !window.supabase) return;
+      const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      });
+
+      const title = document.getElementById("invite-title");
+      const sub = document.getElementById("invite-sub");
+      const actions = document.getElementById("invite-actions");
+      const token = new URLSearchParams(window.location.search).get("token");
+
+      function setActions(html) {
+        actions.innerHTML = html;
+      }
+
+      async function boot() {
+        if (!token) {
+          title.textContent = "Ugyldigt link";
+          sub.textContent = "Invitationslinket mangler eller er forkert.";
+          return;
+        }
+
+        const { data: inviteRows, error } = await client.rpc("get_collab_invite", { p_token: token });
+        const invite = Array.isArray(inviteRows) ? inviteRows[0] : inviteRows;
+        if (error || !invite) {
+          title.textContent = "Invitation ikke fundet";
+          sub.textContent = "Linket kan være brugt eller slettet.";
+          return;
+        }
+
+        const eventTitle = invite.event_title || "et event";
+        title.textContent = `Medarrangør for “${eventTitle}”`;
+
+        if (invite.status === "accepted") {
+          sub.textContent = "Du er allerede tilknyttet. Åbn event-dashboardet for at fortsætte.";
+          setActions(`<a class="ev-btn" href="event.html?id=${encodeURIComponent(invite.event_id)}">Åbn dashboard</a>`);
+          return;
+        }
+
+        const { data: sessionData } = await client.auth.getSession();
+        if (!sessionData.session) {
+          sub.textContent = `Log ind eller opret konto med ${invite.email || "den inviterede email"} for at acceptere.`;
+          const next = encodeURIComponent(`/invite.html?token=${token}`);
+          setActions(`
+            <a class="ev-btn" href="auth.html?mode=login&next=${next}">Log ind og acceptér</a>
+            <a class="ev-btn ev-btn-ghost" href="auth.html?mode=signup&next=${next}">Opret konto</a>
+          `);
+          return;
+        }
+
+        const user = sessionData.session.user;
+        const userEmail = (user.email || "").toLowerCase();
+        if (invite.email && userEmail && invite.email.toLowerCase() !== userEmail) {
+          sub.textContent = `Invitationen er sendt til ${invite.email}. Du er logget ind som ${user.email}.`;
+          setActions(`<a class="ev-btn ev-btn-ghost" href="auth.html?mode=login">Skift konto</a>`);
+          return;
+        }
+
+        sub.textContent = "Du er inviteret til at administrere dette event sammen med ejeren.";
+        setActions(`<button type="button" class="ev-btn" id="accept-btn">Acceptér som medarrangør</button>`);
+        document.getElementById("accept-btn")?.addEventListener("click", async () => {
+          const { data: eventId, error: acceptErr } = await client.rpc("accept_collab_invite", {
+            p_token: token,
+          });
+          if (acceptErr) {
+            sub.textContent = acceptErr.message;
+            return;
+          }
+          window.location.href = `event.html?id=${encodeURIComponent(eventId || invite.event_id)}`;
+        });
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>
