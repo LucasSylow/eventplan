@@ -393,6 +393,8 @@
     const stats = document.getElementById("seat-preview-stats");
     const meta = document.getElementById("seat-preview-meta");
     const editBtn = document.getElementById("seat-edit-btn");
+    const overlay = document.getElementById("seat-preview-overlay");
+    if (overlay) overlay.hidden = true;
     if (editBtn && currentEvent?.id) {
       editBtn.href = `seating.html?id=${encodeURIComponent(currentEvent.id)}`;
     }
@@ -824,10 +826,13 @@
       renderOverview();
     });
 
-    document.getElementById("seat-edit-btn")?.addEventListener("click", (e) => {
+    document.getElementById("seat-edit-btn")?.addEventListener("click", () => {
       const overlay = document.getElementById("seat-preview-overlay");
       if (overlay) overlay.hidden = false;
-      // allow navigation; overlay shows brief loading feedback
+    });
+    window.addEventListener("pageshow", () => {
+      const overlay = document.getElementById("seat-preview-overlay");
+      if (overlay) overlay.hidden = true;
     });
 
     document.getElementById("wish-add-btn")?.addEventListener("click", () => {

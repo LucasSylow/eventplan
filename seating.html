@@ -31,16 +31,46 @@
   <div class="seat-editor" id="seat-editor" hidden>
     <header class="seat-topbar">
       <div class="seat-topbar-left">
-        <a class="seat-back" id="seat-back" href="account.html">← Tilbage til event</a>
-        <div>
-          <p class="seat-kicker">Bordplan-editor</p>
+        <a class="seat-back" id="seat-back" href="account.html">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Tilbage
+        </a>
+        <div class="seat-topbar-divider" aria-hidden="true"></div>
+        <div class="seat-topbar-titleblock">
+          <p class="seat-kicker">Bordplan</p>
           <h1 id="seat-event-title">Event</h1>
         </div>
+        <div class="seat-topbar-meta" id="seat-topbar-meta">
+          <span id="seat-count-label">0 borde</span>
+          <span id="seat-placed-label">0 placeret</span>
+        </div>
       </div>
+
+      <div class="seat-topbar-center">
+        <div class="seat-toolbar-group" role="group" aria-label="Zoom">
+          <button type="button" class="seat-icon-btn" id="seat-zoom-out" title="Zoom ud">−</button>
+          <button type="button" class="seat-zoom-label" id="seat-zoom-label" title="Nulstil zoom">100%</button>
+          <button type="button" class="seat-icon-btn" id="seat-zoom-in" title="Zoom ind">+</button>
+        </div>
+        <div class="seat-toolbar-group" role="group" aria-label="Bordværktøjer">
+          <button type="button" class="seat-icon-btn" id="seat-rotate-ccw" title="Roter venstre" disabled>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true"><path d="M7 8H4v3M4.5 11A7.5 7.5 0 1 0 7 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button type="button" class="seat-icon-btn" id="seat-rotate-cw" title="Roter højre" disabled>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true"><path d="M17 8h3v3M19.5 11A7.5 7.5 0 1 1 17 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button type="button" class="seat-icon-btn" id="seat-duplicate" title="Duplikér (Ctrl+D)" disabled>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 15V6a2 2 0 0 1 2-2h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+          <button type="button" class="seat-icon-btn is-danger" id="seat-delete" title="Slet (Delete)" disabled>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true"><path d="M5 7h14M10 11v5M14 11v5M9 7V5h6v2M7 7l1 12h8l1-12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
       <div class="seat-topbar-right">
         <span class="seat-save-status" id="seat-save-status">Klar</span>
-        <button type="button" class="ev-btn ev-btn-ghost" id="seat-duplicate" title="Ctrl+C / Ctrl+V">Duplikér</button>
-        <button type="button" class="ev-btn ev-btn-danger" id="seat-delete">Slet</button>
+        <a class="ev-btn" id="seat-done" href="account.html">Færdig</a>
       </div>
     </header>
 
@@ -63,10 +93,10 @@
           <span class="seat-tool-preview is-square"></span>
           <span>Kvadratisk</span>
         </button>
-        <p class="seat-hint">Tip: Ctrl/Cmd + C / V kopierer og indsætter. Delete sletter. Træk i hjørner for at ændre størrelse.</p>
+        <p class="seat-hint">Træk borde for at flytte dem. Træk i hjørnerne for at ændre størrelse. Slip gæster direkte på et bord.</p>
       </aside>
 
-      <main class="seat-canvas-wrap">
+      <main class="seat-canvas-wrap" id="seat-canvas-wrap">
         <div class="seat-canvas" id="seat-canvas" tabindex="0">
           <div class="seat-canvas-inner" id="seat-canvas-inner"></div>
         </div>

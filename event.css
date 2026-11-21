@@ -444,6 +444,9 @@ html[data-theme="dark"] .ev-badge.maybe { background: rgba(255,180,60,.16); colo
   font-size: 13.5px;
   font-weight: 650;
 }
+.seat-preview-overlay[hidden] {
+  display: none !important;
+}
 @media (max-width: 900px) {
   .seat-preview-card { grid-template-columns: 1fr; }
   .seat-preview-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }

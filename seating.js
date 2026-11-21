@@ -10,11 +10,16 @@
   const editorEl = document.getElementById("seat-editor");
   const canvas = document.getElementById("seat-canvas");
   const canvasInner = document.getElementById("seat-canvas-inner");
+  const canvasWrap = document.getElementById("seat-canvas-wrap");
   const propsEl = document.getElementById("seat-props");
   const poolEl = document.getElementById("seat-guest-pool");
   const saveStatus = document.getElementById("seat-save-status");
   const titleEl = document.getElementById("seat-event-title");
   const backEl = document.getElementById("seat-back");
+  const doneEl = document.getElementById("seat-done");
+  const countLabel = document.getElementById("seat-count-label");
+  const placedLabel = document.getElementById("seat-placed-label");
+  const zoomLabel = document.getElementById("seat-zoom-label");
 
   const shapeDefaults = {
     round: { width: 170, height: 170, seats: 8 },
@@ -32,6 +37,10 @@
   let dragGuestId = null;
   let saveTimer = null;
   let interacting = false;
+  let zoom = 1;
+  const ZOOM_MIN = 0.5;
+  const ZOOM_MAX = 1.75;
+  const ZOOM_STEP = 0.1;
 
   function setBooting(on) {
     if (bootEl) bootEl.hidden = !on;
@@ -77,10 +86,61 @@
     return tables.find((t) => t.id === selectedId) || null;
   }
 
-  function selectTable(id) {
+  function updateHeaderMeta() {
+    const placed = guests.filter((g) => g.table_id).length;
+    if (countLabel) countLabel.textContent = `${tables.length} borde`;
+    if (placedLabel) placedLabel.textContent = `${placed}/${guests.length || 0} placeret`;
+  }
+
+  function updateActionButtons() {
+    const has = Boolean(selectedId);
+    ["seat-duplicate", "seat-delete", "seat-rotate-ccw", "seat-rotate-cw"].forEach((id) => {
+      const btn = document.getElementById(id);
+      if (btn) btn.disabled = !has;
+    });
+  }
+
+  function applyZoom() {
+    if (!canvasInner) return;
+    canvasInner.style.transform = `scale(${zoom})`;
+    canvasInner.style.transformOrigin = "0 0";
+    if (zoomLabel) zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
+  }
+
+  function setZoom(next) {
+    zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(next * 100) / 100));
+    applyZoom();
+  }
+
+  function selectTable(id, { refresh = true } = {}) {
     selectedId = id;
-    renderCanvas();
-    renderProps();
+    updateActionButtons();
+    if (refresh) {
+      renderCanvas();
+      renderProps();
+    } else {
+      syncSelectionUi();
+    }
+  }
+
+  function syncSelectionUi() {
+    if (!canvasInner) return;
+    canvasInner.querySelectorAll(".ed-table").forEach((node) => {
+      const id = node.dataset.id;
+      const selected = id === selectedId;
+      node.classList.toggle("is-selected", selected);
+      node.querySelectorAll(".ed-handle").forEach((h) => h.remove());
+      if (selected) appendHandles(node);
+    });
+  }
+
+  function appendHandles(el) {
+    ["nw", "ne", "sw", "se"].forEach((dir) => {
+      const handle = document.createElement("div");
+      handle.className = `ed-handle ${dir}`;
+      handle.dataset.resize = dir;
+      el.appendChild(handle);
+    });
   }
 
   function renderPool() {
@@ -163,20 +223,25 @@
     heightInput.value = Math.round(table.height || 96);
     rotInput.value = Math.round(table.rotation || 0);
 
-    const apply = (patch) => {
+    const apply = (patch, { redraw = true } = {}) => {
       Object.assign(table, patch);
       if (table.shape === "round" || table.shape === "square") {
-        const size = Math.max(table.width || 150, table.height || 150);
-        if (patch.width != null || patch.height != null || patch.shape) {
-          if (patch.width != null) table.height = table.width;
-          else if (patch.height != null) table.width = table.height;
-          else {
-            table.width = size;
-            table.height = size;
-          }
+        if (patch.width != null) table.height = table.width;
+        else if (patch.height != null) table.width = table.height;
+        else if (patch.shape) {
+          const size = Math.max(table.width || 150, table.height || 150);
+          table.width = size;
+          table.height = size;
         }
       }
-      renderCanvas();
+      if (redraw) renderCanvas();
+      else {
+        const el = canvasInner?.querySelector(`.ed-table[data-id="${table.id}"]`);
+        if (el) applyTableStyles(el, table);
+      }
+      if (widthInput) widthInput.value = Math.round(table.width || 150);
+      if (heightInput) heightInput.value = Math.round(table.height || 96);
+      if (rotInput) rotInput.value = Math.round(table.rotation || 0);
       scheduleSave(table);
     };
 
@@ -196,18 +261,23 @@
     );
   }
 
+  function applyTableStyles(el, table) {
+    el.style.left = `${table.x || 0}px`;
+    el.style.top = `${table.y || 0}px`;
+    el.style.width = `${table.width || 150}px`;
+    el.style.height = `${table.height || 96}px`;
+    el.style.transform = `rotate(${table.rotation || 0}deg)`;
+    el.className = `ed-table is-${table.shape || "rect"}${table.id === selectedId ? " is-selected" : ""}`;
+  }
+
   function renderCanvas() {
-    if (!canvasInner) return;
+    if (!canvasInner || interacting) return;
     canvasInner.innerHTML = "";
+    applyZoom();
+
     tables.forEach((table) => {
       const el = document.createElement("div");
-      const shape = table.shape || "rect";
-      el.className = `ed-table is-${shape}${table.id === selectedId ? " is-selected" : ""}`;
-      el.style.left = `${table.x || 0}px`;
-      el.style.top = `${table.y || 0}px`;
-      el.style.width = `${table.width || 150}px`;
-      el.style.height = `${table.height || 96}px`;
-      el.style.transform = `rotate(${table.rotation || 0}deg)`;
+      applyTableStyles(el, table);
       el.dataset.id = table.id;
 
       const seated = guests.filter((g) => g.table_id === table.id);
@@ -239,14 +309,7 @@
         seatWrap.appendChild(slot);
       }
 
-      if (table.id === selectedId) {
-        ["nw", "ne", "sw", "se"].forEach((dir) => {
-          const handle = document.createElement("div");
-          handle.className = `ed-handle ${dir}`;
-          handle.dataset.resize = dir;
-          el.appendChild(handle);
-        });
-      }
+      if (table.id === selectedId) appendHandles(el);
 
       el.addEventListener("pointerdown", (e) => onTablePointerDown(e, table, el));
       el.addEventListener("dragover", (e) => {
@@ -263,30 +326,51 @@
 
       canvasInner.appendChild(el);
     });
+
+    updateHeaderMeta();
+    updateActionButtons();
+  }
+
+  function canvasPoint(clientX, clientY) {
+    const rect = canvasInner.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) / zoom,
+      y: (clientY - rect.top) / zoom,
+    };
   }
 
   function onTablePointerDown(e, table, el) {
+    if (e.button != null && e.button !== 0) return;
     if (e.target.closest(".ed-slot")) return;
-    selectTable(table.id);
-    canvas?.focus();
 
-    const resizeDir = e.target.closest("[data-resize]")?.dataset.resize;
-    const startX = e.clientX;
-    const startY = e.clientY;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const resizeDir = e.target.closest("[data-resize]")?.dataset.resize || null;
+    selectedId = table.id;
+    updateActionButtons();
+    syncSelectionUi();
+
+    const start = canvasPoint(e.clientX, e.clientY);
     const orig = {
-      x: table.x || 0,
-      y: table.y || 0,
-      width: table.width || 150,
-      height: table.height || 96,
+      x: Number(table.x) || 0,
+      y: Number(table.y) || 0,
+      width: Number(table.width) || 150,
+      height: Number(table.height) || 96,
     };
     interacting = true;
-    el.setPointerCapture(e.pointerId);
+    el.classList.add("is-dragging");
+
+    const liveEl = () => canvasInner?.querySelector(`.ed-table[data-id="${table.id}"]`) || el;
 
     const onMove = (ev) => {
-      const dx = ev.clientX - startX;
-      const dy = ev.clientY - startY;
+      const point = canvasPoint(ev.clientX, ev.clientY);
+      const dx = point.x - start.x;
+      const dy = point.y - start.y;
+      const node = liveEl();
+
       if (resizeDir) {
-        let { x, y, width, height } = orig;
+        let { x, y, width, height } = { ...orig };
         if (resizeDir.includes("e")) width = orig.width + dx;
         if (resizeDir.includes("s")) height = orig.height + dy;
         if (resizeDir.includes("w")) {
@@ -301,6 +385,8 @@
         height = Math.min(480, Math.max(80, height));
         if (table.shape === "round" || table.shape === "square") {
           const size = Math.max(width, height);
+          if (resizeDir.includes("w")) x = orig.x + orig.width - size;
+          if (resizeDir.includes("n")) y = orig.y + orig.height - size;
           width = size;
           height = size;
         }
@@ -312,23 +398,30 @@
         table.x = Math.max(0, orig.x + dx);
         table.y = Math.max(0, orig.y + dy);
       }
-      el.style.left = `${table.x}px`;
-      el.style.top = `${table.y}px`;
-      el.style.width = `${table.width}px`;
-      el.style.height = `${table.height}px`;
+
+      if (node) {
+        node.style.left = `${table.x}px`;
+        node.style.top = `${table.y}px`;
+        node.style.width = `${table.width}px`;
+        node.style.height = `${table.height}px`;
+      }
     };
 
     const onUp = () => {
       interacting = false;
-      el.releasePointerCapture(e.pointerId);
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerup", onUp);
+      liveEl()?.classList.remove("is-dragging");
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
       scheduleSave(table);
       renderProps();
+      updateHeaderMeta();
     };
 
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerup", onUp);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    canvas?.focus();
   }
 
   async function assignGuest(guestId, tableId) {
@@ -347,6 +440,7 @@
     guest.seat_index = tableId == null ? null : seatedCount;
     renderCanvas();
     renderPool();
+    updateHeaderMeta();
   }
 
   async function addTable(shape) {
@@ -407,6 +501,20 @@
     renderCanvas();
     renderProps();
     renderPool();
+    updateActionButtons();
+  }
+
+  function rotateSelected(delta) {
+    const table = getSelected();
+    if (!table) return;
+    let next = (Number(table.rotation) || 0) + delta;
+    if (next > 180) next -= 360;
+    if (next < -180) next += 360;
+    table.rotation = next;
+    const el = canvasInner?.querySelector(`.ed-table[data-id="${table.id}"]`);
+    if (el) el.style.transform = `rotate(${table.rotation}deg)`;
+    scheduleSave(table);
+    renderProps();
   }
 
   function copySelected() {
@@ -454,14 +562,30 @@
     });
     document.getElementById("seat-duplicate")?.addEventListener("click", () => duplicateSelected());
     document.getElementById("seat-delete")?.addEventListener("click", () => deleteSelected());
+    document.getElementById("seat-rotate-ccw")?.addEventListener("click", () => rotateSelected(-15));
+    document.getElementById("seat-rotate-cw")?.addEventListener("click", () => rotateSelected(15));
+    document.getElementById("seat-zoom-in")?.addEventListener("click", () => setZoom(zoom + ZOOM_STEP));
+    document.getElementById("seat-zoom-out")?.addEventListener("click", () => setZoom(zoom - ZOOM_STEP));
+    document.getElementById("seat-zoom-label")?.addEventListener("click", () => setZoom(1));
 
     canvasInner?.addEventListener("pointerdown", (e) => {
       if (e.target === canvasInner) {
         selectedId = null;
+        updateActionButtons();
         renderCanvas();
         renderProps();
       }
     });
+
+    canvasWrap?.addEventListener(
+      "wheel",
+      (e) => {
+        if (!(e.ctrlKey || e.metaKey)) return;
+        e.preventDefault();
+        setZoom(zoom + (e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
+      },
+      { passive: false }
+    );
 
     window.addEventListener("keydown", (e) => {
       const tag = document.activeElement?.tagName;
@@ -479,14 +603,51 @@
         e.preventDefault();
         duplicateSelected();
       }
+      if ((mod && (e.key === "=" || e.key === "+")) || e.key === "+") {
+        e.preventDefault();
+        setZoom(zoom + ZOOM_STEP);
+      }
+      if (mod && e.key === "-") {
+        e.preventDefault();
+        setZoom(zoom - ZOOM_STEP);
+      }
+      if (mod && e.key === "0") {
+        e.preventDefault();
+        setZoom(1);
+      }
       if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
         deleteSelected();
       }
+      if (e.key === "[" ) {
+        e.preventDefault();
+        rotateSelected(-15);
+      }
+      if (e.key === "]" ) {
+        e.preventDefault();
+        rotateSelected(15);
+      }
       if (e.key === "Escape") {
         selectedId = null;
+        updateActionButtons();
         renderCanvas();
         renderProps();
+      }
+      if (!mod && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown")) {
+        const table = getSelected();
+        if (!table) return;
+        e.preventDefault();
+        const step = e.shiftKey ? 10 : 1;
+        if (e.key === "ArrowLeft") table.x = Math.max(0, (table.x || 0) - step);
+        if (e.key === "ArrowRight") table.x = (table.x || 0) + step;
+        if (e.key === "ArrowUp") table.y = Math.max(0, (table.y || 0) - step);
+        if (e.key === "ArrowDown") table.y = (table.y || 0) + step;
+        const node = canvasInner?.querySelector(`.ed-table[data-id="${table.id}"]`);
+        if (node) {
+          node.style.left = `${table.x}px`;
+          node.style.top = `${table.y}px`;
+        }
+        scheduleSave(table);
       }
     });
   }
@@ -539,8 +700,10 @@
       return;
     }
 
+    const eventHref = `event.html?id=${encodeURIComponent(currentEvent.id)}&tab=seating`;
     if (titleEl) titleEl.textContent = currentEvent.title || "Event";
-    if (backEl) backEl.href = `event.html?id=${encodeURIComponent(currentEvent.id)}&tab=seating`;
+    if (backEl) backEl.href = eventHref;
+    if (doneEl) doneEl.href = eventHref;
 
     const [{ data: tableRows }, { data: guestRows }] = await Promise.all([
       client.from("event_tables").select("*").eq("event_id", eventId).order("created_at", { ascending: true }),
@@ -550,9 +713,12 @@
     guests = guestRows || [];
 
     wireUi();
+    applyZoom();
     renderCanvas();
     renderProps();
     renderPool();
+    updateHeaderMeta();
+    updateActionButtons();
     setBooting(false);
     canvas?.focus();
   }
