@@ -128,6 +128,12 @@
   font-weight: 700;
 }
 
+.plan-top {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  min-height: 210px;
+}
 .plan-cube {
   width: 40px;
   height: 40px;
@@ -178,7 +184,8 @@
   font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
-  margin-bottom: 12px;
+  margin-top: auto;
+  margin-bottom: 0;
   transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
 }
 .plan-btn:hover { transform: translateY(-1px); }
@@ -198,9 +205,10 @@
 }
 
 .plan-features {
-  margin-top: auto;
+  margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--line);
+  flex: 1 1 auto;
 }
 .plan-features > p {
   margin: 0 0 8px;

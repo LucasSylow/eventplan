@@ -99,11 +99,13 @@
             </div>
 
             <div class="plan-grid">
-              <article class="plan-card" data-plan="gratis">
-                <div class="plan-cube plan-cube-gold" aria-hidden="true"></div>
-                <h2>Gratis</h2>
-                <p class="plan-price">0 kr <span>engangsbetaling</span></p>
-                <button type="button" class="plan-btn plan-btn-outline" data-select-plan="gratis">Vælg Gratis</button>
+              <article class="plan-card" data-plan="standard">
+                <div class="plan-top">
+                  <div class="plan-cube plan-cube-gold" aria-hidden="true"></div>
+                  <h2>Standard</h2>
+                  <p class="plan-price">0 kr <span>engangsbetaling</span></p>
+                  <button type="button" class="plan-btn plan-btn-outline" data-select-plan="standard">Vælg Standard</button>
+                </div>
                 <div class="plan-features">
                   <p>Inkluderet</p>
                   <ul>
@@ -117,10 +119,12 @@
 
               <article class="plan-card plan-card-popular" data-plan="premium">
                 <p class="plan-badge">★ Mest populær</p>
-                <div class="plan-cube plan-cube-blue" aria-hidden="true"></div>
-                <h2>Premium</h2>
-                <p class="plan-price">75 kr <span>engangsbetaling</span></p>
-                <button type="button" class="plan-btn plan-btn-solid" data-select-plan="premium">Vælg Premium →</button>
+                <div class="plan-top">
+                  <div class="plan-cube plan-cube-blue" aria-hidden="true"></div>
+                  <h2>Premium</h2>
+                  <p class="plan-price">75 kr <span>engangsbetaling</span></p>
+                  <button type="button" class="plan-btn plan-btn-solid" data-select-plan="premium">Vælg Premium →</button>
+                </div>
                 <div class="plan-features">
                   <p>Inkluderet</p>
                   <ul>
@@ -138,10 +142,12 @@
               </article>
 
               <article class="plan-card" data-plan="pro">
-                <div class="plan-cube plan-cube-violet" aria-hidden="true"></div>
-                <h2>Pro</h2>
-                <p class="plan-price">150 kr <span>engangsbetaling</span></p>
-                <button type="button" class="plan-btn plan-btn-outline" data-select-plan="pro">Vælg Pro</button>
+                <div class="plan-top">
+                  <div class="plan-cube plan-cube-violet" aria-hidden="true"></div>
+                  <h2>Pro</h2>
+                  <p class="plan-price">150 kr <span>engangsbetaling</span></p>
+                  <button type="button" class="plan-btn plan-btn-outline" data-select-plan="pro">Vælg Pro</button>
+                </div>
                 <div class="plan-features">
                   <p>Inkluderet</p>
                   <ul>
@@ -227,7 +233,7 @@
               <p class="create-form-error" id="create-form-error" hidden></p>
 
               <div class="create-form-actions">
-                <p class="create-selected-plan">Valgt pakke: <strong id="selected-plan-label">Gratis</strong></p>
+                <p class="create-selected-plan">Valgt pakke: <strong id="selected-plan-label">Standard</strong></p>
                 <button class="btn-primary create-submit" type="submit" id="create-submit">
                   Opret event
                 </button>

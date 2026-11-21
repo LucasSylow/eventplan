@@ -23,9 +23,14 @@
   const avatarImg = document.getElementById("dash-avatar-img");
   const avatarInitials = document.getElementById("dash-avatar-initials");
 
-  const planNames = { gratis: "Gratis", premium: "Premium", pro: "Pro" };
+  const planNames = {
+    standard: "Standard",
+    gratis: "Standard",
+    premium: "Premium",
+    pro: "Pro",
+  };
   let currentUser = null;
-  let selectedPlan = "gratis";
+  let selectedPlan = "standard";
   let suggestTimer = null;
   let mapTimer = null;
   let activeSuggest = -1;
@@ -89,7 +94,7 @@
   }
 
   function selectPlan(plan) {
-    selectedPlan = planNames[plan] ? plan : "gratis";
+    selectedPlan = planNames[plan] ? (plan === "gratis" ? "standard" : plan) : "standard";
     if (selectedPlanLabel) selectedPlanLabel.textContent = planNames[selectedPlan];
     showStep(2);
   }

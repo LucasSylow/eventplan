@@ -21,7 +21,12 @@
   const mapBox = document.getElementById("event-map");
   const mapFrame = document.getElementById("event-map-frame");
 
-  const planNames = { gratis: "Gratis", premium: "Premium", pro: "Pro" };
+  const planNames = {
+    standard: "Standard",
+    gratis: "Standard",
+    premium: "Premium",
+    pro: "Pro",
+  };
 
   function setTheme(theme) {
     const next = theme === "dark" ? "dark" : "light";
@@ -149,7 +154,7 @@
         ? event.description.trim()
         : "Event-dashboardet er klar til næste features.";
     }
-    if (planEl) planEl.textContent = planNames[event.plan] || event.plan || "Gratis";
+    if (planEl) planEl.textContent = planNames[event.plan] || event.plan || "Standard";
     if (dateEl) dateEl.textContent = formatDate(event.starts_at);
     const endDateEl = document.getElementById("event-end-date");
     if (endDateEl) {
