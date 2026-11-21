@@ -764,18 +764,26 @@
     updateHeaderMeta();
   }
 
-  async function addTable(shape) {
+  async function addTable(shape, at = null) {
     const defaults = shapeDefaults[shape] || shapeDefaults.rect;
+    const width = defaults.width;
+    const height = defaults.height;
+    const x = at
+      ? Math.max(0, at.x - width / 2)
+      : 80 + (tables.length % 5) * 36;
+    const y = at
+      ? Math.max(0, at.y - height / 2)
+      : 80 + Math.floor(tables.length / 5) * 36;
     const payload = {
       event_id: currentEvent.id,
       owner_id: currentUser.id,
       name: `Bord ${tables.length + 1}`,
       seats: defaults.seats,
       shape,
-      x: 80 + (tables.length % 5) * 36,
-      y: 80 + Math.floor(tables.length / 5) * 36,
-      width: defaults.width,
-      height: defaults.height,
+      x,
+      y,
+      width,
+      height,
       rotation: 0,
     };
     const { data, error } = await client.from("event_tables").insert(payload).select("*").single();
@@ -784,24 +792,97 @@
     selectItem("table", data.id);
   }
 
-  async function addRoom(kind) {
+  async function addRoom(kind, at = null) {
     const meta = roomCatalog[kind];
     if (!meta) return;
+    const width = meta.width;
+    const height = meta.height;
+    const x = at
+      ? Math.max(0, at.x - width / 2)
+      : 120 + (rooms.length % 4) * 40;
+    const y = at
+      ? Math.max(0, at.y - height / 2)
+      : 120 + Math.floor(rooms.length / 4) * 40;
     const payload = {
       event_id: currentEvent.id,
       owner_id: currentUser.id,
       kind,
       label: meta.label,
-      x: 120 + (rooms.length % 4) * 40,
-      y: 120 + Math.floor(rooms.length / 4) * 40,
-      width: meta.width,
-      height: meta.height,
+      x,
+      y,
+      width,
+      height,
       rotation: 0,
     };
     const { data, error } = await client.from("event_room_items").insert(payload).select("*").single();
     if (error) return alert(error.message);
     rooms.push(data);
     selectItem("room", data.id);
+  }
+
+  function startToolboxDrag(e, kind, key) {
+    if (e.button != null && e.button !== 0) return;
+    e.preventDefault();
+
+    const meta = kind === "table"
+      ? (shapeDefaults[key] || shapeDefaults.rect)
+      : roomCatalog[key];
+    if (!meta) return;
+
+    const width = meta.width;
+    const height = meta.height;
+    const label = kind === "table"
+      ? ({ round: "Rundbord", oval: "Ovalt bord", rect: "Rektangulært", square: "Kvadratisk" }[key] || "Bord")
+      : (meta.label || key);
+
+    const ghost = document.createElement("div");
+    ghost.className = `seat-drag-ghost is-${kind === "table" ? key : key}`;
+    ghost.style.width = `${width * zoom}px`;
+    ghost.style.height = `${height * zoom}px`;
+    ghost.innerHTML = `<span></span>`;
+    ghost.querySelector("span").textContent = label;
+    document.body.appendChild(ghost);
+
+    const moveGhost = (clientX, clientY) => {
+      ghost.style.left = `${clientX - (width * zoom) / 2}px`;
+      ghost.style.top = `${clientY - (height * zoom) / 2}px`;
+    };
+    moveGhost(e.clientX, e.clientY);
+
+    let placed = false;
+    const overCanvas = (clientX, clientY) => {
+      if (!canvasWrap) return false;
+      const rect = canvasWrap.getBoundingClientRect();
+      return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+    };
+
+    document.body.classList.add("is-toolbox-dragging");
+    canvasWrap?.classList.add("is-drop-target");
+
+    const onMove = (ev) => {
+      moveGhost(ev.clientX, ev.clientY);
+      ghost.classList.toggle("is-over-canvas", overCanvas(ev.clientX, ev.clientY));
+    };
+
+    const onUp = async (ev) => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      document.body.classList.remove("is-toolbox-dragging");
+      canvasWrap?.classList.remove("is-drop-target");
+      ghost.remove();
+
+      if (!overCanvas(ev.clientX, ev.clientY) || !canvasInner) return;
+      const point = canvasPoint(ev.clientX, ev.clientY);
+      placed = true;
+      if (kind === "table") await addTable(key, point);
+      else await addRoom(key, point);
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    return () => placed;
   }
 
   async function duplicateSelected() {
@@ -958,10 +1039,16 @@
 
   function wireUi() {
     document.querySelectorAll("[data-add-shape]").forEach((btn) => {
-      btn.addEventListener("click", () => addTable(btn.dataset.addShape));
+      btn.style.touchAction = "none";
+      btn.addEventListener("pointerdown", (e) => {
+        startToolboxDrag(e, "table", btn.dataset.addShape);
+      });
     });
     document.querySelectorAll("[data-add-room]").forEach((btn) => {
-      btn.addEventListener("click", () => addRoom(btn.dataset.addRoom));
+      btn.style.touchAction = "none";
+      btn.addEventListener("pointerdown", (e) => {
+        startToolboxDrag(e, "room", btn.dataset.addRoom);
+      });
     });
     document.getElementById("seat-duplicate")?.addEventListener("click", () => duplicateSelected());
     document.getElementById("seat-delete")?.addEventListener("click", () => deleteSelected());
