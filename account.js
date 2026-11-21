@@ -54,6 +54,10 @@
     });
   }
 
+  function isMobileNav() {
+    return window.matchMedia("(max-width: 920px)").matches;
+  }
+
   function closeSidebar() {
     app?.classList.remove("is-sidebar-open");
     if (backdrop) backdrop.hidden = true;
@@ -62,6 +66,21 @@
   function openSidebar() {
     app?.classList.add("is-sidebar-open");
     if (backdrop) backdrop.hidden = false;
+  }
+
+  function toggleSidebar() {
+    if (isMobileNav()) {
+      if (app?.classList.contains("is-sidebar-open")) closeSidebar();
+      else openSidebar();
+      return;
+    }
+    app?.classList.toggle("is-sidebar-collapsed");
+    const collapsed = app?.classList.contains("is-sidebar-collapsed");
+    if (menuBtn) {
+      menuBtn.setAttribute("aria-label", collapsed ? "Vis navigation" : "Skjul navigation");
+      menuBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    }
+    localStorage.setItem("eventplan-sidebar", collapsed ? "collapsed" : "open");
   }
 
   function closeProfileMenu() {
@@ -118,10 +137,15 @@
     });
   });
 
-  menuBtn?.addEventListener("click", () => {
-    if (app?.classList.contains("is-sidebar-open")) closeSidebar();
-    else openSidebar();
-  });
+  menuBtn?.addEventListener("click", toggleSidebar);
+
+  if (!isMobileNav() && localStorage.getItem("eventplan-sidebar") === "collapsed") {
+    app?.classList.add("is-sidebar-collapsed");
+    menuBtn?.setAttribute("aria-label", "Vis navigation");
+    menuBtn?.setAttribute("aria-expanded", "false");
+  } else {
+    menuBtn?.setAttribute("aria-expanded", "true");
+  }
 
   backdrop?.addEventListener("click", () => {
     closeSidebar();
