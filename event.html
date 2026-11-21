@@ -113,13 +113,34 @@
           </header>
 
           <nav class="event-tabs" id="event-tabs" aria-label="Eventsektioner">
-            <button type="button" class="event-tab is-active" data-tab="overview">Overblik</button>
-            <button type="button" class="event-tab" data-tab="guests">Gæster</button>
-            <button type="button" class="event-tab" data-tab="seating">Bordplan</button>
-            <button type="button" class="event-tab" data-tab="wishlist">Ønskeliste</button>
-            <button type="button" class="event-tab" data-tab="todos">To-do</button>
-            <button type="button" class="event-tab" data-tab="collab">Medarrangører</button>
-            <button type="button" class="event-tab" data-tab="program">Programoversigt</button>
+            <button type="button" class="event-tab is-active" data-tab="overview">
+              <svg class="event-tab-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M4.2 11.1 11.3 5a1.2 1.2 0 011.4 0l7.1 6.1c.5.43.36 1.23-.27 1.4l-.14.03H17v5.3c0 .66-.54 1.2-1.2 1.2h-2.1a1 1 0 01-1-1v-3.1h-1.4v3.1a1 1 0 01-1 1H8.2A1.2 1.2 0 017 17.8v-5.3H4.6c-.7 0-1.1-.8-.6-1.3l.2-.1z"/></svg>
+              <span>Overblik</span>
+            </button>
+            <button type="button" class="event-tab" data-tab="guests">
+              <svg class="event-tab-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M9.2 11.4a3.4 3.4 0 110-6.8 3.4 3.4 0 010 6.8zm7.1-.6a2.8 2.8 0 10-2.55-4.05A6.4 6.4 0 0116.3 10.8z"/><path fill="currentColor" d="M3.6 18.6c.7-2.7 3.1-4.5 5.6-4.5s4.9 1.8 5.6 4.5c.16.6-.3 1.2-.92 1.2H4.52c-.62 0-1.08-.6-.92-1.2z"/><path fill="currentColor" opacity=".88" d="M15.2 14.2c1.9.15 3.55 1.45 4.15 3.35.2.65-.28 1.3-.95 1.3h-2.7a1.2 1.2 0 01-.1-.35c-.45-1.7-1.45-3.1-2.8-3.95a4.7 4.7 0 012.4-.35z"/></svg>
+              <span>Gæster</span>
+            </button>
+            <button type="button" class="event-tab" data-tab="seating">
+              <svg class="event-tab-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M7.2 5.2h9.6c.66 0 1.2.54 1.2 1.2v2.2H6V6.4c0-.66.54-1.2 1.2-1.2z"/><path fill="currentColor" d="M4.8 10.1h14.4c.66 0 1.2.54 1.2 1.2v1.5c0 .66-.54 1.2-1.2 1.2H4.8c-.66 0-1.2-.54-1.2-1.2v-1.5c0-.66.54-1.2 1.2-1.2z"/><path fill="currentColor" opacity=".9" d="M7.1 15.4h1.8v3.3c0 .5-.4.9-.9.9h0c-.5 0-.9-.4-.9-.9v-3.3zm7.9 0h1.8v3.3c0 .5-.4.9-.9.9h0c-.5 0-.9-.4-.9-.9v-3.3z"/></svg>
+              <span>Bordplan</span>
+            </button>
+            <button type="button" class="event-tab" data-tab="wishlist">
+              <svg class="event-tab-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2.4c.35 0 .68.18.86.48l2.5 4.18 4.72.9c.7.13 1 .9.52 1.4l-3.3 3.45.6 4.95c.09.7-.6 1.23-1.23.93L12 16.95l-4.67 2.74c-.63.3-1.32-.23-1.23-.93l.6-4.95-3.3-3.45c-.48-.5-.18-1.27.52-1.4l4.72-.9 2.5-4.18A1 1 0 0112 2.4z"/></svg>
+              <span>Ønskeliste</span>
+            </button>
+            <button type="button" class="event-tab" data-tab="todos">
+              <svg class="event-tab-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M7.2 3.8h9.6c1 0 1.8.8 1.8 1.8v12.6c0 1-.8 1.8-1.8 1.8H7.2c-1 0-1.8-.8-1.8-1.8V5.6c0-1 .8-1.8 1.8-1.8z"/><path fill="var(--bg-2)" d="M8.2 8.1h7.6a.8.8 0 010 1.6H8.2a.8.8 0 010-1.6zm0 3.5h7.6a.8.8 0 010 1.6H8.2a.8.8 0 010-1.6zm0 3.5h5.1a.8.8 0 010 1.6H8.2a.8.8 0 010-1.6z"/></svg>
+              <span>To-do</span>
+            </button>
+            <button type="button" class="event-tab" data-tab="collab">
+              <svg class="event-tab-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8.6 10.8a3.1 3.1 0 110-6.2 3.1 3.1 0 010 6.2zm6.8 0a3.1 3.1 0 110-6.2 3.1 3.1 0 010 6.2z"/><path fill="currentColor" d="M2.9 18.3c.55-2.35 2.55-3.9 4.85-3.9 1.35 0 2.55.55 3.45 1.45.9-.9 2.1-1.45 3.45-1.45 2.3 0 4.3 1.55 4.85 3.9.14.6-.32 1.2-.94 1.2H3.84c-.62 0-1.08-.6-.94-1.2z"/></svg>
+              <span>Medarrangører</span>
+            </button>
+            <button type="button" class="event-tab" data-tab="program">
+              <svg class="event-tab-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M7.4 3.6h9.2c1.1 0 2 .9 2 2v12.8c0 1.1-.9 2-2 2H7.4c-1.1 0-2-.9-2-2V5.6c0-1.1.9-2 2-2z"/><path fill="var(--bg-2)" d="M8.3 7.4h7.4a.75.75 0 010 1.5H8.3a.75.75 0 010-1.5zm0 3.2h7.4a.75.75 0 010 1.5H8.3a.75.75 0 010-1.5zm0 3.2h4.8a.75.75 0 010 1.5H8.3a.75.75 0 010-1.5z"/><path fill="currentColor" d="M8.8 2.7h1.5v2.1H8.8V2.7zm4.9 0h1.5v2.1h-1.5V2.7z"/></svg>
+              <span>Programoversigt</span>
+            </button>
           </nav>
 
           <div class="event-panels">
@@ -148,6 +169,14 @@
                   <div class="ev-snap" id="overview-snap"></div>
                 </article>
               </div>
+              <article class="ov-card overview-todo-card">
+                <div class="ov-card-head">
+                  <h2><span class="ov-accent ov-accent-amber" aria-hidden="true"></span>To-do</h2>
+                  <button type="button" class="ev-btn ev-btn-ghost" data-goto-tab="todos">Se alle</button>
+                </div>
+                <div class="todo-progress" id="overview-todo-progress"></div>
+                <div class="todo-list overview-todo-list" id="overview-todo-list"></div>
+              </article>
             </section>
 
             <!-- GÆSTER -->
@@ -189,20 +218,27 @@
               <div class="ev-toolbar">
                 <div>
                   <h2 class="ev-section-title">Bordplan</h2>
-                  <p class="ev-section-sub">Træk borde rundt og placér gæster på pladserne.</p>
+                  <p class="ev-section-sub">Se planen her — åbn editoren for at oprette, tilpasse og placere.</p>
                 </div>
                 <div class="ev-toolbar-actions">
-                  <button type="button" class="ev-btn ev-btn-ghost" id="table-add-round">Rundt bord</button>
-                  <button type="button" class="ev-btn" id="table-add-rect">Rektangulært bord</button>
+                  <a class="ev-btn" id="seat-edit-btn" href="#">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true"><path d="M4 20h4.5L19 9.5 14.5 5 4 15.5V20z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12.8 6.7l4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                    Rediger bordplan
+                  </a>
                 </div>
               </div>
-              <div class="seat-layout">
-                <aside class="seat-sidebar">
-                  <p class="seat-side-title">Uplacerede gæster</p>
-                  <div class="seat-guest-pool" id="seat-guest-pool"></div>
-                </aside>
-                <div class="seat-floor-wrap">
-                  <div class="seat-floor" id="seat-floor"></div>
+              <div class="seat-preview-card">
+                <div class="seat-preview-stats" id="seat-preview-stats"></div>
+                <div class="seat-preview-stage">
+                  <div class="seat-preview-floor" id="seat-preview-floor"></div>
+                  <div class="seat-preview-overlay" id="seat-preview-overlay" hidden>
+                    <div class="dash-boot-spinner" aria-hidden="true"></div>
+                    <p>Åbner editor…</p>
+                  </div>
+                </div>
+                <div class="seat-preview-aside">
+                  <p class="seat-side-title">Placering</p>
+                  <div id="seat-preview-meta"></div>
                 </div>
               </div>
             </section>
@@ -212,29 +248,42 @@
               <div class="ev-toolbar">
                 <div>
                   <h2 class="ev-section-title">Ønskeliste</h2>
-                  <p class="ev-section-sub">Tilføj ønsker her, eller link til din liste på Ønskeskyen.</p>
+                  <p class="ev-section-sub">Samlet liste med ønsker, priser og reservationer — plus link til Ønskeskyen.</p>
                 </div>
                 <button type="button" class="ev-btn" id="wish-add-btn">Tilføj ønske</button>
               </div>
-              <div class="wish-link-card ov-card">
-                <div class="ov-card-head">
-                  <h2><span class="ov-accent ov-accent-mint" aria-hidden="true"></span>Ønskeskyen</h2>
+              <div class="wish-stats" id="wish-stats"></div>
+              <div class="wish-layout">
+                <div class="wish-main">
+                  <form class="wish-form ov-card" id="wish-form" hidden>
+                    <div class="wish-form-grid">
+                      <label class="seat-field"><span>Titel</span><input type="text" name="title" placeholder="Fx Blomstervase" required maxlength="160" /></label>
+                      <label class="seat-field"><span>Pris</span><input type="text" name="price" placeholder="Fx 299 kr" maxlength="40" /></label>
+                      <label class="seat-field wish-span-2"><span>Link til produkt</span><input type="url" name="url" placeholder="https://…" maxlength="500" /></label>
+                      <label class="seat-field wish-span-2"><span>Billede-URL</span><input type="url" name="image_url" placeholder="https://… (valgfrit)" maxlength="500" /></label>
+                      <label class="seat-field wish-span-2"><span>Note</span><textarea name="notes" rows="2" placeholder="Farve, størrelse, butik…" maxlength="500"></textarea></label>
+                    </div>
+                    <div class="ev-toolbar-actions">
+                      <button type="button" class="ev-btn ev-btn-ghost" id="wish-form-cancel">Annuller</button>
+                      <button type="submit" class="ev-btn">Gem ønske</button>
+                    </div>
+                  </form>
+                  <div class="wish-grid" id="wish-list"></div>
                 </div>
-                <p class="wish-note">Der findes ikke en officiel offentlig sync-API endnu. Du kan indsætte et offentligt link til din ønskeliste, så gæster hurtigt kan åbne den.</p>
-                <form class="ev-inline-form wish-link-form" id="wish-link-form">
-                  <input type="url" name="url" id="wish-external-url" placeholder="https://onskeskyen.dk/…" maxlength="500" />
-                  <button type="submit" class="ev-btn">Gem link</button>
-                  <a class="ev-btn ev-btn-ghost" id="wish-external-open" href="#" target="_blank" rel="noopener" hidden>Åbn</a>
-                </form>
+                <aside class="wish-side ov-card">
+                  <div class="ov-card-head">
+                    <h2><span class="ov-accent ov-accent-mint" aria-hidden="true"></span>Ønskeskyen</h2>
+                  </div>
+                  <p class="wish-note">Indsæt et offentligt link til din ønskeliste, så gæster nemt kan åbne den. Fuld sync kræver officielt API, som endnu ikke er offentligt.</p>
+                  <form class="wish-link-form" id="wish-link-form">
+                    <input type="url" name="url" id="wish-external-url" placeholder="https://onskeskyen.dk/…" maxlength="500" />
+                    <div class="ev-toolbar-actions">
+                      <button type="submit" class="ev-btn">Gem link</button>
+                      <a class="ev-btn ev-btn-ghost" id="wish-external-open" href="#" target="_blank" rel="noopener" hidden>Åbn liste</a>
+                    </div>
+                  </form>
+                </aside>
               </div>
-              <form class="ev-inline-form" id="wish-form" hidden>
-                <input type="text" name="title" placeholder="Titel" required maxlength="160" />
-                <input type="url" name="url" placeholder="Link (valgfrit)" maxlength="500" />
-                <input type="text" name="price" placeholder="Pris" maxlength="40" />
-                <button type="submit" class="ev-btn">Gem</button>
-                <button type="button" class="ev-btn ev-btn-ghost" id="wish-form-cancel">Annuller</button>
-              </form>
-              <div class="wish-grid" id="wish-list"></div>
             </section>
 
             <!-- TO-DO -->
@@ -242,15 +291,27 @@
               <div class="ev-toolbar">
                 <div>
                   <h2 class="ev-section-title">To-do</h2>
-                  <p class="ev-section-sub">Opgaver inden eventet — hak af undervejs.</p>
+                  <p class="ev-section-sub">Opgaver med frist og ansvarlig — hak af her eller under Overblik.</p>
                 </div>
               </div>
               <form class="todo-composer" id="todo-form">
                 <input type="text" name="title" placeholder="Ny opgave…" required maxlength="200" />
-                <input type="date" name="due" />
+                <input type="date" name="due" aria-label="Frist" />
+                <select name="assignee" id="todo-assignee" aria-label="Ansvarlig">
+                  <option value="">Ingen ansvarlig</option>
+                </select>
+                <input type="text" name="notes" placeholder="Note (valgfrit)" maxlength="300" />
                 <button type="submit" class="ev-btn">Tilføj</button>
               </form>
-              <div class="todo-progress" id="todo-progress"></div>
+              <div class="todo-head-row">
+                <div class="todo-progress" id="todo-progress"></div>
+                <p class="todo-progress-label" id="todo-progress-label"></p>
+              </div>
+              <div class="todo-filters" id="todo-filters">
+                <button type="button" class="is-active" data-todo-filter="open">Åbne</button>
+                <button type="button" data-todo-filter="done">Fuldført</button>
+                <button type="button" data-todo-filter="all">Alle</button>
+              </div>
               <div class="todo-list" id="todo-list"></div>
             </section>
 
@@ -276,22 +337,37 @@
               <div class="ev-toolbar">
                 <div>
                   <h2 class="ev-section-title">Programoversigt</h2>
-                  <p class="ev-section-sub">Tidspunkter, steder og hvad der sker — flot og klart.</p>
+                  <p class="ev-section-sub">Tilføj punkter med tid, titel og billede — de sorteres automatisk efter tidspunkt.</p>
                 </div>
                 <button type="button" class="ev-btn" id="program-add-btn">Tilføj punkt</button>
               </div>
               <form class="program-form ov-card" id="program-form" hidden>
                 <div class="program-form-grid">
-                  <input type="text" name="title" placeholder="Titel" required maxlength="160" />
-                  <input type="text" name="location" placeholder="Lokation" maxlength="200" />
-                  <input type="datetime-local" name="starts_at" />
-                  <input type="datetime-local" name="ends_at" />
-                  <input type="url" name="image_url" placeholder="Billede-URL (valgfrit)" maxlength="500" />
-                  <textarea name="description" placeholder="Beskrivelse" rows="3" maxlength="1000"></textarea>
+                  <label class="program-field">
+                    <span>Titel</span>
+                    <input type="text" name="title" placeholder="Fx Velkomstdrink" required maxlength="160" />
+                  </label>
+                  <label class="program-field">
+                    <span>Tidspunkt</span>
+                    <input type="time" name="time" required value="18:00" />
+                  </label>
+                  <label class="program-field program-field-full">
+                    <span>Lokation <em>(valgfrit)</em></span>
+                    <input type="text" name="location" placeholder="Fx Haven / Storsalen" maxlength="200" />
+                  </label>
+                  <label class="program-field program-field-full">
+                    <span>Beskrivelse</span>
+                    <textarea name="description" rows="3" placeholder="Hvad sker der her?" maxlength="1000"></textarea>
+                  </label>
+                  <label class="program-field program-field-full">
+                    <span>Billede</span>
+                    <input type="file" name="image" id="program-image" accept="image/jpeg,image/png,image/webp,image/gif" />
+                    <em class="program-file-hint" id="program-file-hint">JPG, PNG eller WebP — max 5 MB</em>
+                  </label>
                 </div>
                 <div class="ev-toolbar-actions">
                   <button type="button" class="ev-btn ev-btn-ghost" id="program-form-cancel">Annuller</button>
-                  <button type="submit" class="ev-btn">Gem programpunkt</button>
+                  <button type="submit" class="ev-btn" id="program-submit">Gem programpunkt</button>
                 </div>
               </form>
               <div class="program-timeline" id="program-list"></div>

@@ -42,7 +42,7 @@
   let currentEvent = null;
   let isOwner = false;
   let guestFilter = "all";
-  let dragGuestId = null;
+  let todoFilter = "open";
 
   const state = {
     guests: [],
@@ -99,17 +99,51 @@
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
+  function formatClock(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
+  }
+
   function formatTimeRange(start, end) {
-    const fmt = (v) => {
-      if (!v) return "";
-      const d = new Date(v);
-      if (Number.isNaN(d.getTime())) return "";
-      return d.toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
-    };
-    const a = fmt(start);
-    const b = fmt(end);
+    const a = formatClock(start);
+    const b = formatClock(end);
     if (a && b) return `${a} – ${b}`;
     return a || b || "Tid ikke sat";
+  }
+
+  function programDateBase() {
+    const base = currentEvent?.starts_at ? new Date(currentEvent.starts_at) : new Date();
+    if (Number.isNaN(base.getTime())) return new Date();
+    return base;
+  }
+
+  function timeToIso(timeStr) {
+    const match = String(timeStr || "").match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return null;
+    const base = programDateBase();
+    const d = new Date(base);
+    d.setHours(Number(match[1]), Number(match[2]), 0, 0);
+    return d.toISOString();
+  }
+
+  async function uploadProgramImage(file) {
+    if (!file || !currentUser || !currentEvent) return null;
+    const maxBytes = 5 * 1024 * 1024;
+    if (file.size > maxBytes) throw new Error("Billedet må max være 5 MB.");
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowed.includes(file.type)) throw new Error("Vælg JPG, PNG, WebP eller GIF.");
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `${currentUser.id}/${currentEvent.id}/${crypto.randomUUID?.() || Date.now()}.${ext}`;
+    const { error } = await client.storage.from("program-images").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type,
+    });
+    if (error) throw error;
+    const { data } = client.storage.from("program-images").getPublicUrl(path);
+    return data?.publicUrl || null;
   }
 
   function initials(name, email) {
@@ -191,11 +225,106 @@
     return counts;
   }
 
+  function assigneeName(todo) {
+    if (!todo?.assignee_collab_id) return "";
+    const person = state.collabs.find((c) => c.id === todo.assignee_collab_id);
+    return person?.name || person?.email || "Medarrangør";
+  }
+
+  function fillAssigneeSelect() {
+    const select = document.getElementById("todo-assignee");
+    if (!select) return;
+    const current = select.value;
+    select.innerHTML = `<option value="">Ingen ansvarlig</option>`;
+    state.collabs.forEach((person) => {
+      const opt = document.createElement("option");
+      opt.value = person.id;
+      opt.textContent = person.name || person.email || "Medarrangør";
+      select.appendChild(opt);
+    });
+    if ([...select.options].some((o) => o.value === current)) select.value = current;
+  }
+
+  async function toggleTodo(todo) {
+    const { error } = await client
+      .from("event_todos")
+      .update({ done: !todo.done })
+      .eq("id", todo.id);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    todo.done = !todo.done;
+    renderTodos();
+    renderOverview();
+  }
+
+  function renderTodoRows(listEl, items, { compact = false } = {}) {
+    if (!listEl) return;
+    listEl.innerHTML = "";
+    if (!items.length) {
+      listEl.innerHTML = `<div class="ev-empty">${compact ? "Ingen åbne opgaver." : "Ingen opgaver i denne visning."}</div>`;
+      return;
+    }
+    items.forEach((todo, i) => {
+      const row = document.createElement("div");
+      row.className = `todo-item${todo.done ? " is-done" : ""}`;
+      row.style.animationDelay = `${i * 0.03}s`;
+      row.innerHTML = `
+        <button type="button" class="todo-check" aria-label="Marker færdig">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div>
+          <p class="todo-title"></p>
+          <div class="todo-meta"></div>
+          <p class="todo-notes" hidden></p>
+        </div>
+        ${compact ? "" : `<button type="button" class="ev-icon-btn" data-todo-del aria-label="Slet">×</button>`}`;
+      row.querySelector(".todo-title").textContent = todo.title;
+      const meta = row.querySelector(".todo-meta");
+      if (todo.due_at) {
+        const due = document.createElement("span");
+        due.className = "todo-chip is-due";
+        due.textContent = `Frist ${formatDateShort(todo.due_at)}`;
+        meta.appendChild(due);
+      }
+      const person = assigneeName(todo);
+      if (person) {
+        const chip = document.createElement("span");
+        chip.className = "todo-chip is-person";
+        chip.textContent = person;
+        meta.appendChild(chip);
+      }
+      if (!todo.due_at && !person) {
+        const chip = document.createElement("span");
+        chip.className = "todo-chip";
+        chip.textContent = todo.done ? "Fuldført" : "Ingen frist";
+        meta.appendChild(chip);
+      }
+      const notesEl = row.querySelector(".todo-notes");
+      if (notesEl && todo.notes && !compact) {
+        notesEl.hidden = false;
+        notesEl.textContent = todo.notes;
+      }
+      row.querySelector(".todo-check").addEventListener("click", () => toggleTodo(todo));
+      row.querySelector("[data-todo-del]")?.addEventListener("click", async () => {
+        const { error } = await client.from("event_todos").delete().eq("id", todo.id);
+        if (!error) {
+          state.todos = state.todos.filter((t) => t.id !== todo.id);
+          renderTodos();
+          renderOverview();
+        }
+      });
+      listEl.appendChild(row);
+    });
+  }
+
   function renderOverview() {
     const stats = document.getElementById("overview-stats");
     const snap = document.getElementById("overview-snap");
     const c = guestCounts();
     const todosDone = state.todos.filter((t) => t.done).length;
+    const claimed = state.wishes.filter((w) => w.claimed).length;
     if (stats) {
       stats.innerHTML = `
         <div class="ev-stat"><b>${c.all}</b><span>gæster</span></div>
@@ -206,10 +335,16 @@
     if (snap) {
       snap.innerHTML = `
         <div class="ev-snap-row"><strong>Bordplan</strong><span>${state.tables.length} borde · ${state.guests.filter((g) => g.table_id).length} placeret</span></div>
-        <div class="ev-snap-row"><strong>Ønskeliste</strong><span>${state.wishes.length} ønsker</span></div>
+        <div class="ev-snap-row"><strong>Ønskeliste</strong><span>${state.wishes.length} ønsker · ${claimed} reserveret</span></div>
         <div class="ev-snap-row"><strong>Medarrangører</strong><span>${state.collabs.length}</span></div>
         <div class="ev-snap-row"><strong>Ikke svaret</strong><span>${c.invited}</span></div>`;
     }
+
+    const ovProgress = document.getElementById("overview-todo-progress");
+    const pct = state.todos.length ? Math.round((todosDone / state.todos.length) * 100) : 0;
+    if (ovProgress) ovProgress.innerHTML = `<span style="width:${pct}%"></span>`;
+    const openTodos = state.todos.filter((t) => !t.done).slice(0, 5);
+    renderTodoRows(document.getElementById("overview-todo-list"), openTodos, { compact: true });
   }
 
   function renderGuests() {
@@ -254,158 +389,83 @@
   }
 
   function renderSeating() {
-    const pool = document.getElementById("seat-guest-pool");
-    const floor = document.getElementById("seat-floor");
-    if (!pool || !floor) return;
-
-    const unplaced = state.guests.filter((g) => !g.table_id);
-    pool.innerHTML = "";
-    if (!unplaced.length) {
-      pool.innerHTML = `<div class="ev-empty">Alle gæster er placeret</div>`;
-    } else {
-      unplaced.forEach((guest) => {
-        const chip = document.createElement("div");
-        chip.className = "seat-chip";
-        chip.draggable = true;
-        chip.dataset.guestId = guest.id;
-        chip.textContent = guest.name || guest.email || "Gæst";
-        chip.addEventListener("dragstart", (e) => {
-          dragGuestId = guest.id;
-          chip.classList.add("is-dragging");
-          e.dataTransfer.setData("text/plain", guest.id);
-          e.dataTransfer.effectAllowed = "move";
-        });
-        chip.addEventListener("dragend", () => {
-          chip.classList.remove("is-dragging");
-          dragGuestId = null;
-        });
-        pool.appendChild(chip);
-      });
+    const floor = document.getElementById("seat-preview-floor");
+    const stats = document.getElementById("seat-preview-stats");
+    const meta = document.getElementById("seat-preview-meta");
+    const editBtn = document.getElementById("seat-edit-btn");
+    if (editBtn && currentEvent?.id) {
+      editBtn.href = `seating.html?id=${encodeURIComponent(currentEvent.id)}`;
     }
 
+    const placed = state.guests.filter((g) => g.table_id).length;
+    const unplaced = state.guests.length - placed;
+    if (stats) {
+      stats.innerHTML = `
+        <div class="ev-stat"><b>${state.tables.length}</b><span>borde</span></div>
+        <div class="ev-stat"><b>${placed}</b><span>placeret</span></div>
+        <div class="ev-stat"><b>${unplaced}</b><span>uplaceret</span></div>
+        <div class="ev-stat"><b>${state.tables.reduce((n, t) => n + (t.seats || 0), 0)}</b><span>pladser</span></div>`;
+    }
+    if (meta) {
+      meta.innerHTML = state.tables.length
+        ? state.tables
+            .slice(0, 6)
+            .map((t) => {
+              const count = state.guests.filter((g) => g.table_id === t.id).length;
+              return `<div class="ev-snap-row"><strong></strong><span>${count}/${t.seats || 0} gæster</span></div>`;
+            })
+            .join("")
+        : `<div class="ev-empty">Ingen borde endnu. Åbn editoren for at starte.</div>`;
+      if (state.tables.length) {
+        meta.querySelectorAll(".ev-snap-row strong").forEach((el, i) => {
+          el.textContent = state.tables[i]?.name || "Bord";
+        });
+      }
+    }
+
+    if (!floor) return;
     floor.innerHTML = "";
-    state.tables.forEach((table) => {
-      const el = document.createElement("div");
-      el.className = `seat-table${table.shape === "round" ? " is-round" : ""}`;
-      el.style.left = `${table.x || 80}px`;
-      el.style.top = `${table.y || 80}px`;
-      el.style.width = `${table.width || 150}px`;
-      el.style.minHeight = `${table.height || 96}px`;
-      el.dataset.tableId = table.id;
-
-      const seated = state.guests.filter((g) => g.table_id === table.id);
-      const seats = Math.max(table.seats || 8, seated.length);
-      const slots = Array.from({ length: seats }, (_, idx) => seated[idx] || null);
-
-      el.innerHTML = `
-        <div class="seat-table-head">
-          <input class="seat-table-name" value="" maxlength="40" />
-          <button type="button" class="ev-icon-btn" data-table-del="${table.id}" aria-label="Slet bord">×</button>
-        </div>
-        <div class="seat-table-seats"></div>`;
-      el.querySelector(".seat-table-name").value = table.name || "Bord";
-      const seatWrap = el.querySelector(".seat-table-seats");
-      slots.forEach((guest, idx) => {
-        const slot = document.createElement("div");
-        slot.className = `seat-slot${guest ? " has-guest" : ""}`;
-        slot.dataset.seatIndex = String(idx);
-        if (guest) {
-          slot.textContent = guest.name || "Gæst";
-          slot.draggable = true;
-          slot.dataset.guestId = guest.id;
-          slot.addEventListener("dragstart", (e) => {
-            dragGuestId = guest.id;
-            e.dataTransfer.setData("text/plain", guest.id);
-          });
-          slot.addEventListener("dblclick", () => assignGuest(guest.id, null, null));
-        } else {
-          slot.textContent = `Plads ${idx + 1}`;
-        }
-        seatWrap.appendChild(slot);
-      });
-
-      el.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        el.classList.add("is-over");
-      });
-      el.addEventListener("dragleave", () => el.classList.remove("is-over"));
-      el.addEventListener("drop", (e) => {
-        e.preventDefault();
-        el.classList.remove("is-over");
-        const id = e.dataTransfer.getData("text/plain") || dragGuestId;
-        if (id) assignGuest(id, table.id, seated.length);
-      });
-
-      el.querySelector(".seat-table-name").addEventListener("change", async (e) => {
-        const name = e.target.value.trim() || "Bord";
-        await client.from("event_tables").update({ name }).eq("id", table.id);
-        table.name = name;
-      });
-
-      enableTableDrag(el, table);
-      floor.appendChild(el);
-    });
-
     if (!state.tables.length) {
-      floor.innerHTML = `<div class="ev-empty" style="margin:40px">Tilføj et bord for at starte bordplanen.</div>`;
-    }
-  }
-
-  function enableTableDrag(el, table) {
-    let startX = 0;
-    let startY = 0;
-    let origX = 0;
-    let origY = 0;
-    let moving = false;
-
-    el.addEventListener("pointerdown", (e) => {
-      if (e.target.closest("input,button,.seat-slot")) return;
-      moving = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      origX = table.x || 80;
-      origY = table.y || 80;
-      el.setPointerCapture(e.pointerId);
-    });
-    el.addEventListener("pointermove", (e) => {
-      if (!moving) return;
-      table.x = Math.max(0, origX + (e.clientX - startX));
-      table.y = Math.max(0, origY + (e.clientY - startY));
-      el.style.left = `${table.x}px`;
-      el.style.top = `${table.y}px`;
-    });
-    el.addEventListener("pointerup", async () => {
-      if (!moving) return;
-      moving = false;
-      await client
-        .from("event_tables")
-        .update({ x: table.x, y: table.y })
-        .eq("id", table.id);
-    });
-  }
-
-  async function assignGuest(guestId, tableId, seatIndex) {
-    const guest = state.guests.find((g) => g.id === guestId);
-    if (!guest) return;
-    const payload = {
-      table_id: tableId,
-      seat_index: tableId == null ? null : seatIndex ?? 0,
-    };
-    const { error } = await client.from("event_guests").update(payload).eq("id", guestId);
-    if (error) {
-      alert(error.message);
+      floor.innerHTML = `<div class="ev-empty">Ingen bordplan endnu</div>`;
       return;
     }
-    guest.table_id = tableId;
-    guest.seat_index = payload.seat_index;
-    renderSeating();
-    renderOverview();
+
+    const maxX = Math.max(...state.tables.map((t) => (t.x || 0) + (t.width || 150)), 400);
+    const maxY = Math.max(...state.tables.map((t) => (t.y || 0) + (t.height || 96)), 300);
+    const scale = Math.min(1, 560 / maxX, 320 / maxY);
+    floor.style.width = `${Math.max(560, maxX * scale + 40)}px`;
+    floor.style.height = `${Math.max(280, maxY * scale + 40)}px`;
+
+    state.tables.forEach((table) => {
+      const el = document.createElement("div");
+      const shape = table.shape || "rect";
+      el.className = `seat-preview-table is-${shape}`;
+      el.style.left = `${(table.x || 0) * scale + 16}px`;
+      el.style.top = `${(table.y || 0) * scale + 16}px`;
+      el.style.width = `${(table.width || 150) * scale}px`;
+      el.style.height = `${(table.height || 96) * scale}px`;
+      if (table.rotation) el.style.transform = `rotate(${table.rotation}deg)`;
+      const seated = state.guests.filter((g) => g.table_id === table.id).length;
+      el.innerHTML = `<strong></strong><span></span>`;
+      el.querySelector("strong").textContent = table.name || "Bord";
+      el.querySelector("span").textContent = `${seated}/${table.seats || 0}`;
+      floor.appendChild(el);
+    });
   }
 
   function renderWishlist() {
     const list = document.getElementById("wish-list");
+    const stats = document.getElementById("wish-stats");
     const open = document.getElementById("wish-external-open");
     const input = document.getElementById("wish-external-url");
+    const claimed = state.wishes.filter((w) => w.claimed).length;
+    const openCount = state.wishes.length - claimed;
+    if (stats) {
+      stats.innerHTML = `
+        <div class="ev-stat"><b>${state.wishes.length}</b><span>ønsker</span></div>
+        <div class="ev-stat"><b>${openCount}</b><span>ledige</span></div>
+        <div class="ev-stat"><b>${claimed}</b><span>reserveret</span></div>`;
+    }
     if (input) input.value = currentEvent?.wishlist_external_url || "";
     if (open) {
       const url = currentEvent?.wishlist_external_url || "";
@@ -414,18 +474,24 @@
     }
     if (!list) return;
     if (!state.wishes.length) {
-      list.innerHTML = `<div class="ev-empty">Ingen ønsker endnu. Tilføj det første.</div>`;
+      list.innerHTML = `<div class="ev-empty">Ingen ønsker endnu. Tilføj det første, eller link til Ønskeskyen i siden.</div>`;
       return;
     }
     list.innerHTML = "";
     state.wishes.forEach((item, i) => {
-      const card = document.createElement("div");
-      card.className = "wish-card";
+      const card = document.createElement("article");
+      card.className = `wish-card${item.claimed ? " is-claimed" : ""}`;
       card.style.animationDelay = `${i * 0.03}s`;
       card.innerHTML = `
+        <div class="wish-card-media">
+          <span class="wish-card-media-fallback">Ønske</span>
+          <img alt="" hidden />
+          <span class="wish-card-badge" hidden>Reserveret</span>
+        </div>
         <div class="wish-card-body">
           <strong></strong>
-          <span></span>
+          <p class="wish-card-price"></p>
+          <p class="wish-card-note" hidden></p>
           <div class="wish-card-actions">
             <a class="ev-btn ev-btn-ghost" target="_blank" rel="noopener" hidden>Åbn link</a>
             <button type="button" class="ev-btn ev-btn-ghost" data-wish-claim></button>
@@ -433,14 +499,27 @@
           </div>
         </div>`;
       card.querySelector("strong").textContent = item.title;
-      card.querySelector("span").textContent = item.price || (item.claimed ? "Reserveret" : "Ønske");
+      card.querySelector(".wish-card-price").textContent = item.price || "Pris ikke angivet";
+      const note = card.querySelector(".wish-card-note");
+      if (item.notes) {
+        note.hidden = false;
+        note.textContent = item.notes;
+      }
+      const img = card.querySelector("img");
+      if (item.image_url) {
+        img.hidden = false;
+        img.src = item.image_url;
+        card.querySelector(".wish-card-media-fallback").hidden = true;
+      }
+      const badge = card.querySelector(".wish-card-badge");
+      if (item.claimed) badge.hidden = false;
       const link = card.querySelector("a");
       if (item.url) {
         link.hidden = false;
         link.href = item.url;
       }
       const claimBtn = card.querySelector("[data-wish-claim]");
-      claimBtn.textContent = item.claimed ? "Frigiv" : "Markér reserveret";
+      claimBtn.textContent = item.claimed ? "Frigiv" : "Reservér";
       claimBtn.addEventListener("click", async () => {
         const { error } = await client
           .from("event_wishlist_items")
@@ -449,6 +528,7 @@
         if (!error) {
           item.claimed = !item.claimed;
           renderWishlist();
+          renderOverview();
         }
       });
       card.querySelector("[data-wish-del]").addEventListener("click", async () => {
@@ -464,55 +544,20 @@
   }
 
   function renderTodos() {
+    fillAssigneeSelect();
     const list = document.getElementById("todo-list");
     const progress = document.getElementById("todo-progress");
+    const label = document.getElementById("todo-progress-label");
     const done = state.todos.filter((t) => t.done).length;
     const pct = state.todos.length ? Math.round((done / state.todos.length) * 100) : 0;
     if (progress) progress.innerHTML = `<span style="width:${pct}%"></span>`;
-    if (!list) return;
-    if (!state.todos.length) {
-      list.innerHTML = `<div class="ev-empty">Ingen opgaver endnu. Tilføj den første ovenfor.</div>`;
-      return;
-    }
-    list.innerHTML = "";
-    state.todos.forEach((todo, i) => {
-      const row = document.createElement("div");
-      row.className = `todo-item${todo.done ? " is-done" : ""}`;
-      row.style.animationDelay = `${i * 0.03}s`;
-      row.innerHTML = `
-        <button type="button" class="todo-check" aria-label="Marker færdig">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <div>
-          <p class="todo-title"></p>
-          <p class="todo-meta"></p>
-        </div>
-        <button type="button" class="ev-icon-btn" data-todo-del aria-label="Slet">×</button>`;
-      row.querySelector(".todo-title").textContent = todo.title;
-      row.querySelector(".todo-meta").textContent = todo.due_at
-        ? `Frist ${formatDateShort(todo.due_at)}`
-        : "Ingen frist";
-      row.querySelector(".todo-check").addEventListener("click", async () => {
-        const { error } = await client
-          .from("event_todos")
-          .update({ done: !todo.done })
-          .eq("id", todo.id);
-        if (!error) {
-          todo.done = !todo.done;
-          renderTodos();
-          renderOverview();
-        }
-      });
-      row.querySelector("[data-todo-del]").addEventListener("click", async () => {
-        const { error } = await client.from("event_todos").delete().eq("id", todo.id);
-        if (!error) {
-          state.todos = state.todos.filter((t) => t.id !== todo.id);
-          renderTodos();
-          renderOverview();
-        }
-      });
-      list.appendChild(row);
+    if (label) label.textContent = `${done} af ${state.todos.length} fuldført`;
+    const items = state.todos.filter((t) => {
+      if (todoFilter === "open") return !t.done;
+      if (todoFilter === "done") return t.done;
+      return true;
     });
+    renderTodoRows(list, items);
   }
 
   function renderCollabs() {
@@ -597,7 +642,7 @@
       return ta - tb || (a.sort_order || 0) - (b.sort_order || 0);
     });
     if (!items.length) {
-      list.innerHTML = `<div class="ev-empty">Ingen programpunkter endnu.</div>`;
+      list.innerHTML = `<div class="ev-empty">Ingen programpunkter endnu. Tilføj titel, tidspunkt og gerne et billede.</div>`;
       return;
     }
     list.innerHTML = "";
@@ -607,19 +652,24 @@
       row.style.animationDelay = `${i * 0.04}s`;
       row.innerHTML = `
         <div class="program-time"></div>
-        <div class="program-body">
-          <h3></h3>
-          <p class="program-desc"></p>
-          <p class="program-loc" hidden></p>
+        <div class="program-card">
           <img class="program-img" alt="" hidden />
-          <div class="program-actions">
-            <button type="button" class="ev-btn ev-btn-danger" data-program-del>Slet</button>
+          <div class="program-body">
+            <h3></h3>
+            <p class="program-desc" hidden></p>
+            <p class="program-loc" hidden></p>
+            <div class="program-actions">
+              <button type="button" class="ev-btn ev-btn-danger" data-program-del>Slet</button>
+            </div>
           </div>
         </div>`;
-      row.querySelector(".program-time").textContent = formatTimeRange(item.starts_at, item.ends_at);
+      row.querySelector(".program-time").textContent = formatClock(item.starts_at) || "—";
       row.querySelector("h3").textContent = item.title;
       const desc = row.querySelector(".program-desc");
-      desc.textContent = item.description || "Ingen beskrivelse";
+      if (item.description) {
+        desc.hidden = false;
+        desc.textContent = item.description;
+      }
       const loc = row.querySelector(".program-loc");
       if (item.location) {
         loc.hidden = false;
@@ -629,6 +679,7 @@
       if (item.image_url) {
         img.hidden = false;
         img.src = item.image_url;
+        img.alt = item.title || "Programbillede";
       }
       row.querySelector("[data-program-del]").addEventListener("click", async () => {
         const { error } = await client.from("event_program_items").delete().eq("id", item.id);
@@ -706,6 +757,9 @@
     document.querySelectorAll(".event-tab").forEach((btn) => {
       btn.addEventListener("click", () => switchTab(btn.dataset.tab));
     });
+    document.querySelectorAll("[data-goto-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.gotoTab));
+    });
 
     document.getElementById("guest-add-btn")?.addEventListener("click", () => {
       const form = document.getElementById("guest-form");
@@ -770,24 +824,10 @@
       renderOverview();
     });
 
-    document.getElementById("table-add-rect")?.addEventListener("click", () => addTable("rect"));
-    document.getElementById("table-add-round")?.addEventListener("click", () => addTable("round"));
-    document.getElementById("seat-floor")?.addEventListener("click", async (e) => {
-      const btn = e.target.closest("[data-table-del]");
-      if (!btn) return;
-      const id = btn.dataset.tableDel;
-      await client.from("event_guests").update({ table_id: null, seat_index: null }).eq("table_id", id);
-      const { error } = await client.from("event_tables").delete().eq("id", id);
-      if (error) return alert(error.message);
-      state.guests.forEach((g) => {
-        if (g.table_id === id) {
-          g.table_id = null;
-          g.seat_index = null;
-        }
-      });
-      state.tables = state.tables.filter((t) => t.id !== id);
-      renderSeating();
-      renderOverview();
+    document.getElementById("seat-edit-btn")?.addEventListener("click", (e) => {
+      const overlay = document.getElementById("seat-preview-overlay");
+      if (overlay) overlay.hidden = false;
+      // allow navigation; overlay shows brief loading feedback
     });
 
     document.getElementById("wish-add-btn")?.addEventListener("click", () => {
@@ -807,6 +847,8 @@
         title: String(fd.get("title") || "").trim(),
         url: String(fd.get("url") || "").trim() || null,
         price: String(fd.get("price") || "").trim() || null,
+        image_url: String(fd.get("image_url") || "").trim() || null,
+        notes: String(fd.get("notes") || "").trim() || null,
         sort_order: state.wishes.length,
       };
       const { data, error } = await client.from("event_wishlist_items").insert(payload).select("*").single();
@@ -829,21 +871,35 @@
       renderWishlist();
     });
 
+    document.getElementById("todo-filters")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-todo-filter]");
+      if (!btn) return;
+      todoFilter = btn.dataset.todoFilter;
+      document.querySelectorAll("#todo-filters button").forEach((b) => {
+        b.classList.toggle("is-active", b === btn);
+      });
+      renderTodos();
+    });
+
     document.getElementById("todo-form")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
       const due = String(fd.get("due") || "");
+      const assignee = String(fd.get("assignee") || "").trim();
       const payload = {
         event_id: currentEvent.id,
         owner_id: currentUser.id,
         title: String(fd.get("title") || "").trim(),
+        notes: String(fd.get("notes") || "").trim() || null,
         due_at: due ? new Date(`${due}T12:00:00`).toISOString() : null,
+        assignee_collab_id: assignee || null,
         sort_order: state.todos.length,
       };
       const { data, error } = await client.from("event_todos").insert(payload).select("*").single();
       if (error) return alert(error.message);
       state.todos.push(data);
       e.target.reset();
+      fillAssigneeSelect();
       renderTodos();
       renderOverview();
     });
@@ -878,6 +934,7 @@
       }
       logActivity(`Medarrangør inviteret: ${name}`);
       renderCollabs();
+      fillAssigneeSelect();
       renderOverview();
     });
 
@@ -887,51 +944,74 @@
     });
     document.getElementById("program-form-cancel")?.addEventListener("click", () => {
       const form = document.getElementById("program-form");
-      if (form) form.hidden = true;
+      if (form) {
+        form.reset();
+        form.hidden = true;
+      }
+      const hint = document.getElementById("program-file-hint");
+      if (hint) hint.textContent = "JPG, PNG eller WebP — max 5 MB";
+    });
+    document.getElementById("program-image")?.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      const hint = document.getElementById("program-file-hint");
+      if (!hint) return;
+      hint.textContent = file ? file.name : "JPG, PNG eller WebP — max 5 MB";
     });
     document.getElementById("program-form")?.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const fd = new FormData(e.target);
-      const starts = String(fd.get("starts_at") || "");
-      const ends = String(fd.get("ends_at") || "");
+      const form = e.target;
+      const fd = new FormData(form);
+      const title = String(fd.get("title") || "").trim();
+      const time = String(fd.get("time") || "").trim();
+      if (!title || !time) return alert("Udfyld titel og tidspunkt.");
+      const startsAt = timeToIso(time);
+      if (!startsAt) return alert("Ugyldigt tidspunkt.");
+
+      const submitBtn = document.getElementById("program-submit");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Gemmer…";
+      }
+
+      let imageUrl = null;
+      try {
+        const file = fd.get("image");
+        if (file instanceof File && file.size > 0) {
+          imageUrl = await uploadProgramImage(file);
+        }
+      } catch (err) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Gem programpunkt";
+        }
+        return alert(err?.message || "Kunne ikke uploade billede.");
+      }
+
       const payload = {
         event_id: currentEvent.id,
         owner_id: currentUser.id,
-        title: String(fd.get("title") || "").trim(),
+        title,
         description: String(fd.get("description") || "").trim() || null,
         location: String(fd.get("location") || "").trim() || null,
-        image_url: String(fd.get("image_url") || "").trim() || null,
-        starts_at: starts ? new Date(starts).toISOString() : null,
-        ends_at: ends ? new Date(ends).toISOString() : null,
+        image_url: imageUrl,
+        starts_at: startsAt,
+        ends_at: null,
         sort_order: state.program.length,
       };
       const { data, error } = await client.from("event_program_items").insert(payload).select("*").single();
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Gem programpunkt";
+      }
       if (error) return alert(error.message);
       state.program.push(data);
-      e.target.reset();
-      e.target.hidden = true;
+      form.reset();
+      form.hidden = true;
+      const hint = document.getElementById("program-file-hint");
+      if (hint) hint.textContent = "JPG, PNG eller WebP — max 5 MB";
       renderProgram();
       renderOverview();
     });
-  }
-
-  async function addTable(shape) {
-    const payload = {
-      event_id: currentEvent.id,
-      owner_id: currentUser.id,
-      name: `Bord ${state.tables.length + 1}`,
-      seats: shape === "round" ? 8 : 10,
-      shape,
-      x: 60 + (state.tables.length % 4) * 40,
-      y: 60 + Math.floor(state.tables.length / 4) * 40,
-      width: shape === "round" ? 170 : 180,
-      height: shape === "round" ? 170 : 110,
-    };
-    const { data, error } = await client.from("event_tables").insert(payload).select("*").single();
-    if (error) return alert(error.message);
-    state.tables.push(data);
-    renderSeating();
-    renderOverview();
   }
 
   document.querySelectorAll("[data-theme-set]").forEach((btn) => {
