@@ -14,7 +14,7 @@
     const { data: sessionData } = await client.auth.getSession();
     const session = sessionData.session;
     if (!session) {
-      window.location.href = "index.html?auth=login";
+      window.location.href = "auth.html?mode=login";
       return;
     }
 
@@ -41,7 +41,7 @@
 
   logoutBtn?.addEventListener("click", async () => {
     await client.auth.signOut();
-    window.location.href = "index.html?auth=login";
+    window.location.href = "auth.html?mode=login";
   });
 
   load();

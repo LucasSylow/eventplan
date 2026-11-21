@@ -1,26 +1,22 @@
 (() => {
-  const overlay = document.getElementById("auth-overlay");
   const card = document.getElementById("auth-card");
-  if (!overlay || !card) return;
+  const signupForm = document.getElementById("signup-form");
+  const loginForm = document.getElementById("login-form");
+  if (!card || (!signupForm && !loginForm)) return;
 
   const tabs = document.querySelectorAll(".auth-tab");
   const tabWrap = document.querySelector(".auth-tabs");
-  const signupForm = document.getElementById("signup-form");
-  const loginForm = document.getElementById("login-form");
   const title = document.getElementById("auth-title");
   const sub = document.getElementById("auth-sub");
   const statusEl = document.getElementById("auth-status");
 
   let client = null;
-  let mode = "signup";
 
   function getClient() {
     if (client) return client;
     const cfg = window.EVENTPLAN_CONFIG;
     const lib = window.supabase;
-    if (!cfg?.supabaseUrl || !cfg?.supabaseAnonKey || !lib?.createClient) {
-      return null;
-    }
+    if (!cfg?.supabaseUrl || !cfg?.supabaseAnonKey || !lib?.createClient) return null;
     client = lib.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
       auth: {
         persistSession: true,
@@ -52,7 +48,6 @@
   }
 
   function switchMode(next) {
-    mode = next;
     const isLogin = next === "login";
     tabs.forEach((tab) => {
       const active = tab.dataset.tab === next;
@@ -69,55 +64,11 @@
         : "Kom i gang på under et minut — så kan du oprette dit første event.";
     }
     setStatus("");
+    const url = new URL(window.location.href);
+    if (isLogin) url.searchParams.set("mode", "login");
+    else url.searchParams.delete("mode");
+    window.history.replaceState({}, "", url);
   }
-
-  function openAuth(nextMode = "signup") {
-    switchMode(nextMode === "login" ? "login" : "signup");
-    overlay.hidden = false;
-    // force reflow so CSS transition runs
-    void overlay.offsetWidth;
-    overlay.classList.add("is-open");
-    document.body.classList.add("auth-open");
-    const firstInput = overlay.querySelector(
-      nextMode === "login"
-        ? "#login-form input[name='email']"
-        : "#signup-form input[name='first_name']"
-    );
-    window.setTimeout(() => firstInput?.focus(), 50);
-  }
-
-  function closeAuth() {
-    overlay.classList.remove("is-open");
-    document.body.classList.remove("auth-open");
-    window.setTimeout(() => {
-      if (!overlay.classList.contains("is-open")) overlay.hidden = true;
-    }, 280);
-    setStatus("");
-  }
-
-  window.EventplanAuth = { open: openAuth, close: closeAuth };
-
-  // Event delegation so buttons always work
-  document.addEventListener("click", (e) => {
-    const openBtn = e.target.closest("[data-auth-open]");
-    if (openBtn) {
-      e.preventDefault();
-      openAuth(openBtn.getAttribute("data-auth-open") || "signup");
-      return;
-    }
-    if (e.target.closest("[data-auth-close]")) {
-      e.preventDefault();
-      closeAuth();
-    }
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && overlay.classList.contains("is-open")) closeAuth();
-  });
-
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => switchMode(tab.dataset.tab));
-  });
 
   function translateAuthError(msg) {
     const m = String(msg || "").toLowerCase();
@@ -129,6 +80,10 @@
     if (m.includes("rate")) return "For mange forsøg. Prøv igen om lidt.";
     return msg;
   }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => switchMode(tab.dataset.tab));
+  });
 
   signupForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -208,9 +163,16 @@
     }
   });
 
-  const params = new URLSearchParams(window.location.search);
-  const authParam = params.get("auth");
-  if (authParam === "login" || authParam === "signup") {
-    openAuth(authParam);
+  async function redirectIfLoggedIn() {
+    const sb = getClient();
+    if (!sb) return;
+    const { data } = await sb.auth.getSession();
+    if (data.session) window.location.href = "account.html";
   }
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("mode") === "login") switchMode("login");
+  else switchMode("signup");
+
+  redirectIfLoggedIn();
 })();
