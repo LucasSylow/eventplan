@@ -91,12 +91,20 @@
     btn.addEventListener("click", () => setTheme(btn.dataset.themeSet));
   });
 
-  document.querySelectorAll(".dash-nav-toggle").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const group = btn.closest(".dash-nav-group");
-      const open = group?.classList.toggle("is-open");
+  function toggleNavGroup(trigger) {
+    const group = trigger.closest(".dash-nav-group");
+    if (!group) return;
+    const open = group.classList.toggle("is-open");
+    group.querySelectorAll(".dash-nav-toggle").forEach((btn) => {
       btn.setAttribute("aria-expanded", open ? "true" : "false");
     });
+    group.querySelectorAll("[data-nav-caret]").forEach((btn) => {
+      btn.setAttribute("aria-label", open ? "Skjul events" : "Vis events");
+    });
+  }
+
+  document.querySelectorAll(".dash-nav-toggle, [data-nav-caret]").forEach((btn) => {
+    btn.addEventListener("click", () => toggleNavGroup(btn));
   });
 
   menuBtn?.addEventListener("click", () => {
