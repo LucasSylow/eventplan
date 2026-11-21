@@ -223,16 +223,25 @@
     return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
-  function eventDayKeys(events) {
-    const keys = new Set();
+  function eventsByDay(events) {
+    const map = {};
     (events || []).forEach((event) => {
       const raw = event.starts_at || event.created_at;
       if (!raw) return;
       const d = new Date(raw);
       if (Number.isNaN(d.getTime())) return;
-      keys.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
+      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      if (!map[key]) map[key] = [];
+      map[key].push(event);
     });
-    return keys;
+    return map;
+  }
+
+  function formatTimeShort(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
   }
 
   function renderSidebarEvents(events) {
@@ -258,7 +267,23 @@
     });
   }
 
-  function renderOverviewEvents(events) {
+  function daysUntilParts(startsAt) {
+    if (!startsAt) return { value: "—", label: "dato" };
+    const start = new Date(startsAt);
+    if (Number.isNaN(start.getTime())) return { value: "—", label: "dato" };
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const day = new Date(start);
+    day.setHours(0, 0, 0, 0);
+    const diff = Math.round((day - today) / 86400000);
+    if (diff === 0) return { value: "I dag", label: "starter" };
+    if (diff === 1) return { value: "1", label: "dag til" };
+    if (diff > 1) return { value: String(diff), label: "dage til" };
+    if (diff === -1) return { value: "1", label: "dag siden" };
+    return { value: String(Math.abs(diff)), label: "dage siden" };
+  }
+
+  function renderOverviewEvents(events, guestStats = {}) {
     if (!overviewEvents) return;
     if (eventsCount) eventsCount.textContent = String(events?.length || 0);
     overviewEvents.innerHTML = "";
@@ -274,22 +299,36 @@
     }
 
     events.forEach((event, index) => {
-      const row = document.createElement("article");
+      const stats = guestStats[event.id] || { invited: 0, attending: 0 };
+      const row = document.createElement("a");
       row.className = "ov-event";
+      row.href = `event.html?id=${encodeURIComponent(event.id)}`;
       row.style.animationDelay = `${index * 0.04}s`;
       row.innerHTML = `
-        <div class="ov-event-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="3.5" y="5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 3.5V7M16 3.5V7M3.5 10h17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <div class="ov-event-top">
+          <div class="ov-event-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="3.5" y="5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 3.5V7M16 3.5V7M3.5 10h17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </div>
+          <div class="ov-event-copy">
+            <strong></strong>
+            <span class="ov-event-meta"></span>
+          </div>
+          <span class="ov-event-status">Aktiv</span>
         </div>
-        <div>
-          <strong></strong>
-          <span></span>
-        </div>
-        <span class="ov-event-status">Aktiv</span>`;
+        <div class="ov-event-stats">
+          <div class="ov-event-stat"><b class="stat-days"></b><span class="stat-days-label">dage til</span></div>
+          <div class="ov-event-stat"><b class="stat-invited"></b><span>inviteret</span></div>
+          <div class="ov-event-stat"><b class="stat-attending"></b><span>deltager</span></div>
+        </div>`;
+      const countdown = daysUntilParts(event.starts_at);
       row.querySelector("strong").textContent = event.title || "Untitled event";
-      row.querySelector("span:not(.ov-event-status)").textContent = formatDate(
+      row.querySelector(".ov-event-meta").textContent = formatDate(
         event.starts_at || event.created_at
       );
+      row.querySelector(".stat-days").textContent = countdown.value;
+      row.querySelector(".stat-days-label").textContent = countdown.label;
+      row.querySelector(".stat-invited").textContent = String(stats.invited);
+      row.querySelector(".stat-attending").textContent = String(stats.attending);
       overviewEvents.appendChild(row);
     });
   }
@@ -344,13 +383,13 @@
       row.className = "ov-activity-item";
       row.innerHTML = `
         <span class="ov-activity-dot" aria-hidden="true"></span>
-        <div>
-          <strong></strong>
-          <span></span>
+        <div class="ov-activity-body">
+          <p class="ov-activity-msg"></p>
+          <p class="ov-activity-sub"></p>
         </div>
         <span class="ov-activity-time"></span>`;
-      row.querySelector("strong").textContent = item.message || "Aktivitet";
-      row.querySelector("div span").textContent = item.event_title || "Event";
+      row.querySelector(".ov-activity-msg").textContent = item.message || "Aktivitet";
+      row.querySelector(".ov-activity-sub").textContent = item.event_title || "Event";
       row.querySelector(".ov-activity-time").textContent = formatRelative(item.created_at);
       overviewActivity.appendChild(row);
     });
@@ -372,7 +411,7 @@
     const startWeekday = (firstDay.getDay() + 6) % 7; // Monday first
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const prevDays = new Date(year, month, 0).getDate();
-    const marked = eventDayKeys(cachedEvents);
+    const byDay = eventsByDay(cachedEvents);
     const today = new Date();
 
     const weekdays = ["Ma", "Ti", "On", "To", "Fr", "Lø", "Sø"]
@@ -386,12 +425,32 @@
     }
     for (let day = 1; day <= daysInMonth; day += 1) {
       const key = `${year}-${month}-${day}`;
+      const dayEvents = byDay[key] || [];
       const isToday =
         today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
       const classes = ["ov-cal-day"];
       if (isToday) classes.push("is-today");
-      if (marked.has(key)) classes.push("has-event");
-      cells.push(`<button type="button" class="${classes.join(" ")}">${day}</button>`);
+      if (dayEvents.length) classes.push("has-event");
+
+      let tip = "";
+      if (dayEvents.length) {
+        const items = dayEvents
+          .slice(0, 3)
+          .map((event) => {
+            const time = formatTimeShort(event.starts_at);
+            return `<div class="ov-cal-tip-item"><strong></strong><span>${time || "Heldags"}</span></div>`;
+          })
+          .join("");
+        const more =
+          dayEvents.length > 3
+            ? `<p class="ov-cal-tip-more">+${dayEvents.length - 3} mere</p>`
+            : "";
+        tip = `<div class="ov-cal-tip" role="tooltip"><p class="ov-cal-tip-kicker">Events</p><div class="ov-cal-tip-list">${items}</div>${more}</div>`;
+      }
+
+      cells.push(
+        `<button type="button" class="${classes.join(" ")}" data-cal-key="${key}">${day}${tip}</button>`
+      );
     }
     while (cells.length % 7 !== 0) {
       const day = cells.length - (startWeekday + daysInMonth) + 1;
@@ -399,32 +458,58 @@
     }
 
     calMonth.innerHTML = `<div class="ov-cal-weekdays">${weekdays}</div><div class="ov-cal-days">${cells.join("")}</div>`;
+
+    calMonth.querySelectorAll(".ov-cal-day.has-event").forEach((btn) => {
+      const key = btn.dataset.calKey;
+      const dayEvents = byDay[key] || [];
+      btn.querySelectorAll(".ov-cal-tip-item strong").forEach((el, index) => {
+        el.textContent = dayEvents[index]?.title || "Event";
+      });
+      btn.addEventListener("click", () => {
+        const first = dayEvents[0];
+        if (first?.id) window.location.href = `event.html?id=${encodeURIComponent(first.id)}`;
+      });
+    });
   }
 
   async function loadOverviewData(userId) {
     currentUserId = userId;
-    const [{ data: events }, { data: collabs }, { data: activity }] = await Promise.all([
-      client
-        .from("events")
-        .select("id, title, starts_at, created_at, status")
-        .eq("owner_id", userId)
-        .order("created_at", { ascending: false }),
-      client
-        .from("event_collaborators")
-        .select("id, name, avatar_url, event_id")
-        .eq("owner_id", userId)
-        .order("created_at", { ascending: false }),
-      client
-        .from("event_activity")
-        .select("id, message, created_at, event_id, events(title)")
-        .eq("owner_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(12),
-    ]);
+    const [{ data: events }, { data: collabs }, { data: activity }, { data: guests }] =
+      await Promise.all([
+        client
+          .from("events")
+          .select("id, title, starts_at, created_at, status")
+          .eq("owner_id", userId)
+          .order("created_at", { ascending: false }),
+        client
+          .from("event_collaborators")
+          .select("id, name, avatar_url, event_id")
+          .eq("owner_id", userId)
+          .order("created_at", { ascending: false }),
+        client
+          .from("event_activity")
+          .select("id, message, created_at, event_id, events(title)")
+          .eq("owner_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(12),
+        client
+          .from("event_guests")
+          .select("event_id, status")
+          .eq("owner_id", userId),
+      ]);
+
+    const guestStats = {};
+    (guests || []).forEach((guest) => {
+      if (!guestStats[guest.event_id]) {
+        guestStats[guest.event_id] = { invited: 0, attending: 0 };
+      }
+      guestStats[guest.event_id].invited += 1;
+      if (guest.status === "attending") guestStats[guest.event_id].attending += 1;
+    });
 
     cachedEvents = events || [];
     renderSidebarEvents(cachedEvents);
-    renderOverviewEvents(cachedEvents);
+    renderOverviewEvents(cachedEvents, guestStats);
     renderCollaborators(collabs || []);
     renderActivity(
       (activity || []).map((item) => ({

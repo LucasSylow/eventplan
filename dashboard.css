@@ -737,51 +737,95 @@ html[data-theme="dark"] .dash-badge.ok {
 }
 .ov-event {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 12px;
-  align-items: center;
-  padding: 12px;
+  gap: 10px;
+  padding: 12px 12px 11px;
   border-radius: 16px;
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--bg) 65%, var(--bg-2));
   transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
   animation: ovCardIn 0.4s ease both;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 .ov-event:hover {
   transform: translateY(-1px);
   border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
 }
+.ov-event-top {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
 .ov-event-ico {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--accent);
+  flex-shrink: 0;
 }
-.ov-event strong {
+.ov-event-copy {
+  min-width: 0;
+}
+.ov-event-copy strong {
   display: block;
   font-size: 14.5px;
   color: var(--text);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.ov-event span {
+.ov-event-meta {
   display: block;
   margin-top: 2px;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--muted);
+  font-weight: 600;
 }
 .ov-event-status {
   padding: 5px 9px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   background: #d9f5e4;
   color: #117a45;
+  white-space: nowrap;
 }
 html[data-theme="dark"] .ov-event-status {
   background: rgba(60, 200, 120, 0.16);
   color: #8eecc0;
+}
+.ov-event-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.ov-event-stat {
+  display: grid;
+  gap: 1px;
+  padding: 8px 8px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-2) 70%, var(--bg));
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  text-align: center;
+}
+.ov-event-stat b {
+  font-size: 14px;
+  font-weight: 750;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.ov-event-stat span {
+  font-size: 10.5px;
+  font-weight: 650;
+  color: var(--muted);
+  letter-spacing: 0.01em;
 }
 
 .ov-empty {
@@ -876,37 +920,52 @@ html[data-theme="dark"] .ov-event-status {
 }
 .ov-activity-item {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 10px;
-  align-items: start;
-  padding: 10px 10px;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  column-gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
   border-radius: 14px;
   background: color-mix(in srgb, var(--bg) 55%, transparent);
+  min-width: 0;
 }
 .ov-activity-dot {
-  width: 10px;
-  height: 10px;
-  margin-top: 5px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+  flex-shrink: 0;
 }
-.ov-activity-item strong {
-  display: block;
-  font-size: 13.5px;
+.ov-activity-body {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.ov-activity-msg {
+  margin: 0;
+  font-size: 13px;
   color: var(--text);
   font-weight: 650;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
-.ov-activity-item span {
-  display: block;
-  margin-top: 2px;
+.ov-activity-sub {
+  margin: 0;
   font-size: 12px;
   color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .ov-activity-time {
   font-size: 11.5px;
   color: var(--muted);
+  font-weight: 650;
   white-space: nowrap;
+  align-self: start;
+  padding-top: 1px;
 }
 
 .ov-cal-nav {
@@ -935,8 +994,11 @@ html[data-theme="dark"] .ov-event-status {
 }
 .ov-cal-nav button:hover { background: var(--bg-3); }
 
+.ov-card-calendar {
+  overflow: visible;
+}
 .ov-cal-viewport {
-  overflow: hidden;
+  overflow: visible;
   border-radius: 16px;
 }
 .ov-cal-track {
@@ -983,6 +1045,7 @@ html[data-theme="dark"] .ov-event-status {
   font-weight: 650;
   cursor: default;
   position: relative;
+  z-index: 1;
 }
 .ov-cal-day.is-muted { color: color-mix(in srgb, var(--muted) 55%, transparent); }
 .ov-cal-day.is-today {
@@ -993,6 +1056,7 @@ html[data-theme="dark"] .ov-event-status {
   background: color-mix(in srgb, var(--accent) 16%, transparent);
   color: var(--accent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent);
+  cursor: pointer;
 }
 .ov-cal-day.has-event::after {
   content: "";
@@ -1004,6 +1068,94 @@ html[data-theme="dark"] .ov-event-status {
   border-radius: 50%;
   background: var(--accent);
   transform: translateX(-50%);
+}
+.ov-cal-day.has-event:hover,
+.ov-cal-day.has-event:focus-visible {
+  z-index: 8;
+  filter: brightness(1.03);
+}
+
+.ov-cal-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(6px) scale(0.96);
+  width: max(180px, 100%);
+  min-width: 170px;
+  padding: 10px 11px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  box-shadow:
+    0 14px 34px rgba(15, 23, 40, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  text-align: left;
+  color: var(--text);
+}
+html[data-theme="dark"] .ov-cal-tip {
+  background: rgba(18, 26, 43, 0.72);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.ov-cal-day.has-event:hover .ov-cal-tip,
+.ov-cal-day.has-event:focus-visible .ov-cal-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+.ov-cal-tip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  margin-top: -5px;
+  transform: rotate(45deg);
+  background: inherit;
+  border-right: 1px solid rgba(255, 255, 255, 0.35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+}
+.ov-cal-tip-kicker {
+  margin: 0 0 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ov-cal-tip-list {
+  display: grid;
+  gap: 6px;
+}
+.ov-cal-tip-item {
+  display: grid;
+  gap: 1px;
+}
+.ov-cal-tip-item strong {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.ov-cal-tip-item span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.ov-cal-tip-more {
+  margin: 6px 0 0;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--accent);
 }
 .ov-cal-legend {
   display: inline-flex;
