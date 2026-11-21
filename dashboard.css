@@ -568,27 +568,27 @@ html[data-theme="dark"] .dash-badge.ok {
 
 .dash-content {
   flex: 1;
-  padding: 24px 22px 40px;
+  padding: 20px 18px 36px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+}
+
+.ov-shell {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .dash-page-head {
   display: grid;
-  gap: 6px;
-  padding: 4px 2px 2px;
-}
-.dash-page-head-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 4px;
+  padding: 2px 2px 0;
 }
 .dash-empty-kicker {
   margin: 0;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -596,7 +596,7 @@ html[data-theme="dark"] .dash-badge.ok {
 }
 .dash-page-head h1 {
   margin: 0;
-  font-size: clamp(26px, 2.8vw, 34px);
+  font-size: clamp(24px, 2.4vw, 30px);
   letter-spacing: -0.04em;
   line-height: 1.12;
   color: var(--text);
@@ -605,34 +605,34 @@ html[data-theme="dark"] .dash-badge.ok {
   margin: 2px 0 0;
   max-width: 48ch;
   color: var(--muted);
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .ov-create-btn {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px 12px 12px;
+  gap: 8px;
+  padding: 8px 12px 8px 8px;
   border: 0;
-  border-radius: 16px;
+  border-radius: 12px;
   background: linear-gradient(145deg, #1e54e8, #3b78ff);
   color: #fff;
-  font-size: 14.5px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 28%, transparent);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 24%, transparent);
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 .ov-create-btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   filter: brightness(1.04);
-  box-shadow: 0 18px 34px color-mix(in srgb, var(--accent) 34%, transparent);
+  box-shadow: 0 12px 22px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 .ov-create-ico {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.18);
@@ -640,28 +640,30 @@ html[data-theme="dark"] .dash-badge.ok {
 
 .ov-grid {
   display: grid;
-  grid-template-columns: 1.45fr 0.9fr;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
   grid-template-areas:
     "events collab"
-    "events calendar"
-    "activity calendar";
-  gap: 16px;
+    "events activity"
+    "calendar activity";
+  gap: 14px;
   align-items: stretch;
 }
-.ov-card-events { grid-area: events; min-height: 360px; }
+.ov-card-events { grid-area: events; min-height: 300px; }
 .ov-card-collab { grid-area: collab; }
-.ov-card-activity { grid-area: activity; min-height: 240px; }
+.ov-card-activity { grid-area: activity; min-height: 220px; }
 .ov-card-calendar { grid-area: calendar; }
 
 .ov-card {
   background: var(--bg-2);
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  padding: 18px;
-  box-shadow: 0 10px 30px rgba(15, 23, 40, 0.05);
+  border: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
+  border-radius: 22px;
+  padding: 14px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 40, 0.03),
+    0 10px 24px rgba(15, 23, 40, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   animation: ovCardIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .ov-card:nth-child(2) { animation-delay: 0.05s; }
@@ -678,12 +680,17 @@ html[data-theme="dark"] .dash-badge.ok {
   justify-content: space-between;
   gap: 10px;
 }
+.ov-card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
 .ov-card-head h2 {
   margin: 0;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-size: 16px;
+  gap: 8px;
+  font-size: 14.5px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text);
@@ -769,22 +776,22 @@ html[data-theme="dark"] .ov-event-status {
 
 .ov-empty {
   flex: 1;
-  min-height: 180px;
-  border-radius: 18px;
-  border: 1px dashed color-mix(in srgb, var(--line) 90%, var(--muted));
+  min-height: 150px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
   background:
-    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%),
-    color-mix(in srgb, var(--bg) 50%, transparent);
+    radial-gradient(circle at 28% 18%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 52%),
+    color-mix(in srgb, var(--bg) 62%, var(--bg-2));
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 6px;
+  gap: 5px;
   text-align: center;
-  padding: 28px 18px;
+  padding: 22px 16px;
   position: relative;
   overflow: hidden;
 }
-.ov-empty-sm { min-height: 140px; }
+.ov-empty-sm { min-height: 118px; }
 .ov-empty p {
   margin: 0;
   font-size: 16px;
@@ -854,7 +861,7 @@ html[data-theme="dark"] .ov-event-status {
   display: grid;
   gap: 8px;
   align-content: start;
-  max-height: 280px;
+  max-height: 320px;
   overflow: auto;
 }
 .ov-activity-item {
@@ -1079,8 +1086,8 @@ html[data-theme="dark"] .ov-event-status {
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "events events"
-      "collab calendar"
-      "activity activity";
+      "collab activity"
+      "calendar calendar";
   }
 }
 @media (max-width: 720px) {
@@ -1089,11 +1096,13 @@ html[data-theme="dark"] .ov-event-status {
     grid-template-areas:
       "events"
       "collab"
-      "activity"
-      "calendar";
+      "calendar"
+      "activity";
   }
-  .dash-page-head-row { align-items: stretch; }
-  .ov-create-btn { width: 100%; justify-content: center; }
+  .ov-card-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 .dash-backdrop {

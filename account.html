@@ -114,82 +114,84 @@
       </header>
 
       <main class="dash-content" id="dash-content">
-        <header class="dash-page-head dash-page-head-row">
-          <div>
+        <div class="ov-shell">
+          <header class="dash-page-head">
             <p class="dash-empty-kicker">Dashboard</p>
             <h1 id="dash-title">Velkommen</h1>
             <p id="dash-sub">Dit overblik over events, aktivitet og medarrangører.</p>
-          </div>
-          <button class="ov-create-btn" type="button" id="overview-create">
-            <span class="ov-create-ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-            </span>
-            Opret event
-          </button>
-        </header>
+          </header>
 
-        <section class="ov-grid" aria-label="Oversigt">
-          <article class="ov-card ov-card-events">
-            <div class="ov-card-head">
-              <h2><span class="ov-accent" aria-hidden="true"></span>Mine events</h2>
-              <span class="ov-count" id="events-count">0</span>
-            </div>
-            <div class="ov-events" id="overview-events">
-              <div class="ov-empty" id="events-empty-state">
-                <div class="ov-empty-orb" aria-hidden="true"></div>
-                <p>Ingen events</p>
-                <span>Opret dit første event og få overblikket her.</span>
+          <section class="ov-grid" aria-label="Oversigt">
+            <article class="ov-card ov-card-events">
+              <div class="ov-card-head">
+                <h2><span class="ov-accent" aria-hidden="true"></span>Mine events</h2>
+                <div class="ov-card-actions">
+                  <span class="ov-count" id="events-count">0</span>
+                  <button class="ov-create-btn" type="button" id="overview-create">
+                    <span class="ov-create-ico" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                    </span>
+                    Opret
+                  </button>
+                </div>
               </div>
-            </div>
-          </article>
+              <div class="ov-events" id="overview-events">
+                <div class="ov-empty" id="events-empty-state">
+                  <div class="ov-empty-orb" aria-hidden="true"></div>
+                  <p>Ingen events</p>
+                  <span>Opret dit første event og få overblikket her.</span>
+                </div>
+              </div>
+            </article>
 
-          <article class="ov-card ov-card-collab">
-            <div class="ov-card-head">
-              <h2><span class="ov-accent ov-accent-mint" aria-hidden="true"></span>Medarrangører</h2>
-            </div>
-            <div class="ov-collab" id="overview-collab">
-              <div class="ov-empty ov-empty-sm">
-                <p>Ingen</p>
-                <span>Når du inviterer medarrangører, vises de her.</span>
+            <article class="ov-card ov-card-collab">
+              <div class="ov-card-head">
+                <h2><span class="ov-accent ov-accent-mint" aria-hidden="true"></span>Medarrangører</h2>
               </div>
-            </div>
-          </article>
+              <div class="ov-collab" id="overview-collab">
+                <div class="ov-empty ov-empty-sm">
+                  <p>Ingen</p>
+                  <span>Når du inviterer medarrangører, vises de her.</span>
+                </div>
+              </div>
+            </article>
 
-          <article class="ov-card ov-card-activity">
-            <div class="ov-card-head">
-              <h2><span class="ov-accent ov-accent-amber" aria-hidden="true"></span>Seneste aktivitet</h2>
-            </div>
-            <div class="ov-activity" id="overview-activity">
-              <div class="ov-empty ov-empty-sm">
-                <p>Ingen aktivitet endnu</p>
-                <span>Handlingerne på dine events dukker op her.</span>
+            <article class="ov-card ov-card-calendar">
+              <div class="ov-card-head">
+                <h2><span class="ov-accent ov-accent-sky" aria-hidden="true"></span>Kalender</h2>
+                <div class="ov-cal-nav">
+                  <button type="button" id="cal-prev" aria-label="Forrige måned">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <p id="cal-label">Marts 2026</p>
+                  <button type="button" id="cal-next" aria-label="Næste måned">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
               </div>
-            </div>
-          </article>
+              <div class="ov-cal-viewport">
+                <div class="ov-cal-track" id="cal-track">
+                  <div class="ov-cal-month" id="cal-month"></div>
+                </div>
+              </div>
+              <div class="ov-cal-legend">
+                <span class="ov-cal-dot"></span> Dag med event
+              </div>
+            </article>
 
-          <article class="ov-card ov-card-calendar">
-            <div class="ov-card-head">
-              <h2><span class="ov-accent ov-accent-sky" aria-hidden="true"></span>Kalender</h2>
-              <div class="ov-cal-nav">
-                <button type="button" id="cal-prev" aria-label="Forrige måned">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-                <p id="cal-label">Marts 2026</p>
-                <button type="button" id="cal-next" aria-label="Næste måned">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
+            <article class="ov-card ov-card-activity">
+              <div class="ov-card-head">
+                <h2><span class="ov-accent ov-accent-amber" aria-hidden="true"></span>Seneste aktivitet</h2>
               </div>
-            </div>
-            <div class="ov-cal-viewport">
-              <div class="ov-cal-track" id="cal-track">
-                <div class="ov-cal-month" id="cal-month"></div>
+              <div class="ov-activity" id="overview-activity">
+                <div class="ov-empty ov-empty-sm">
+                  <p>Ingen aktivitet endnu</p>
+                  <span>Handlingerne på dine events dukker op her.</span>
+                </div>
               </div>
-            </div>
-            <div class="ov-cal-legend">
-              <span class="ov-cal-dot"></span> Dag med event
-            </div>
-          </article>
-        </section>
+            </article>
+          </section>
+        </div>
       </main>
     </div>
   </div>
