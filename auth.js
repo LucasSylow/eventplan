@@ -4,13 +4,13 @@
   const loginForm = document.getElementById("login-form");
   if (!card || (!signupForm && !loginForm)) return;
 
-  const tabs = document.querySelectorAll(".auth-tab");
-  const tabWrap = document.querySelector(".auth-tabs");
   const title = document.getElementById("auth-title");
   const sub = document.getElementById("auth-sub");
   const statusEl = document.getElementById("auth-status");
+  const switchEl = document.getElementById("auth-switch");
 
   let client = null;
+  let mode = "signup";
 
   function getClient() {
     if (client) return client;
@@ -47,22 +47,29 @@
     btn.disabled = loading;
   }
 
+  function updateSwitch(next) {
+    if (!switchEl) return;
+    if (next === "login") {
+      switchEl.innerHTML =
+        'Har du ikke en konto? <button type="button" data-auth-mode="signup">Opret bruger</button>';
+    } else {
+      switchEl.innerHTML =
+        'Har du allerede en bruger? <button type="button" data-auth-mode="login">Log ind</button>';
+    }
+  }
+
   function switchMode(next) {
-    const isLogin = next === "login";
-    tabs.forEach((tab) => {
-      const active = tab.dataset.tab === next;
-      tab.classList.toggle("is-active", active);
-      tab.setAttribute("aria-selected", active ? "true" : "false");
-    });
-    tabWrap?.setAttribute("data-mode", next);
+    mode = next === "login" ? "login" : "signup";
+    const isLogin = mode === "login";
     if (signupForm) signupForm.hidden = isLogin;
     if (loginForm) loginForm.hidden = !isLogin;
     if (title) title.textContent = isLogin ? "Velkommen tilbage" : "Opret din konto";
     if (sub) {
       sub.textContent = isLogin
         ? "Log ind for at fortsætte med dine events."
-        : "Kom i gang på under et minut — så kan du oprette dit første event.";
+        : "Udfyld dig selv — så er du klar til dit første event.";
     }
+    updateSwitch(mode);
     setStatus("");
     const url = new URL(window.location.href);
     if (isLogin) url.searchParams.set("mode", "login");
@@ -81,8 +88,10 @@
     return msg;
   }
 
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => switchMode(tab.dataset.tab));
+  switchEl?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-auth-mode]");
+    if (!btn) return;
+    switchMode(btn.dataset.authMode);
   });
 
   signupForm?.addEventListener("submit", async (e) => {
