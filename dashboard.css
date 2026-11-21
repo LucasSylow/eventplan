@@ -330,10 +330,11 @@ html[data-theme="dark"] .dash-badge.ok {
 }
 
 .dash-avatar {
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 0;
+  border: 2px solid color-mix(in srgb, var(--bg-2) 70%, var(--line));
   background: linear-gradient(145deg, #1e54e8, #3b78ff);
   color: #fff;
   font-size: 12px;
@@ -343,11 +344,48 @@ html[data-theme="dark"] .dash-badge.ok {
   place-items: center;
   cursor: pointer;
   overflow: hidden;
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.dash-avatar img {
+.dash-avatar:hover {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.dash-avatar:active { transform: scale(0.96); }
+.dash-avatar.is-open {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.dash-avatar-lg {
+  width: 44px;
+  height: 44px;
+  font-size: 13px;
+  cursor: default;
+  border-width: 0;
+}
+.dash-avatar-lg:hover {
+  transform: none;
+  box-shadow: none;
+}
+.dash-avatar-fallback {
+  position: relative;
+  z-index: 0;
+}
+.dash-avatar-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+  z-index: 1;
+  background: var(--bg-3);
+}
+.dash-avatar-img[hidden] {
+  display: none !important;
+}
+.dash-avatar.has-photo .dash-avatar-fallback {
+  opacity: 0;
 }
 
 .dash-content {
@@ -404,41 +442,95 @@ html[data-theme="dark"] .dash-badge.ok {
 
 .dash-profile-menu {
   position: fixed;
-  top: 68px;
-  right: 18px;
+  top: 64px;
+  right: 16px;
   z-index: 50;
-  width: min(240px, calc(100vw - 24px));
-  padding: 12px;
-  border-radius: 16px;
+  width: min(280px, calc(100vw - 24px));
+  padding: 0;
+  border: 0;
+  background: transparent;
+  transform-origin: top right;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.96);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dash-profile-menu.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.dash-profile-menu[hidden] {
+  display: block !important;
+  visibility: hidden;
+}
+.dash-profile-menu.is-open[hidden] {
+  visibility: visible;
+}
+
+.dash-profile-card {
+  border-radius: 18px;
   border: 1px solid var(--line);
   background: var(--bg-2);
-  box-shadow: 0 18px 40px rgba(15, 23, 40, 0.16);
-  display: grid;
-  gap: 4px;
+  box-shadow:
+    0 18px 50px rgba(15, 23, 40, 0.16),
+    0 2px 8px rgba(15, 23, 40, 0.06);
+  overflow: hidden;
+  animation: profileCardIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.dash-profile-menu[hidden] { display: none !important; }
+@keyframes profileCardIn {
+  from { filter: blur(2px); }
+  to { filter: blur(0); }
+}
+
+.dash-profile-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px 12px;
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--accent) 10%, transparent),
+      transparent 70%
+    );
+}
+
+.dash-profile-meta {
+  min-width: 0;
+}
 .dash-profile-name {
   margin: 0;
-  padding: 6px 8px 0;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   color: var(--text);
+  letter-spacing: -0.02em;
 }
 .dash-profile-email {
-  margin: 0 0 8px;
-  padding: 0 8px 8px;
+  margin: 3px 0 0;
   font-size: 12.5px;
   color: var(--muted);
-  border-bottom: 1px solid var(--line);
   word-break: break-all;
+  line-height: 1.35;
 }
-.dash-profile-menu a,
-.dash-profile-menu button {
-  display: block;
+
+.dash-profile-actions {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border-top: 1px solid var(--line);
+}
+.dash-profile-actions a,
+.dash-profile-actions button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   text-align: left;
-  padding: 10px 8px;
-  border-radius: 10px;
+  padding: 11px 12px;
+  border-radius: 12px;
   border: 0;
   background: transparent;
   color: var(--text);
@@ -446,13 +538,22 @@ html[data-theme="dark"] .dash-badge.ok {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
-.dash-profile-menu a:hover,
-.dash-profile-menu button:hover {
+.dash-profile-actions a svg,
+.dash-profile-actions button svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.dash-profile-actions a:hover,
+.dash-profile-actions button:hover {
   background: var(--bg-3);
+  transform: translateX(2px);
 }
 #logout-btn { color: #c0392b; }
-html[data-theme="dark"] #logout-btn { color: #ff8f8f; }
+#logout-btn svg { color: #c0392b; }
+html[data-theme="dark"] #logout-btn,
+html[data-theme="dark"] #logout-btn svg { color: #ff8f8f; }
 
 @media (max-width: 920px) {
   .dash-app,
