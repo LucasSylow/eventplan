@@ -110,12 +110,25 @@
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
               Opret
             </a>
-            <button class="dash-icon-btn has-dot" type="button" aria-label="Kladder">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M8 4h8a2 2 0 012 2v13l-6-3-6 3V6a2 2 0 012-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
-            </button>
-            <button class="dash-icon-btn has-dot" type="button" aria-label="Notifikationer">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M6 17h12l-1.2-1.8a2 2 0 01-.3-1V10a4.5 4.5 0 00-9 0v4.2a2 2 0 01-.3 1L6 17zM10 19a2 2 0 004 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
+            <div class="dash-notif" id="dash-notif">
+              <button class="dash-icon-btn" type="button" id="dash-notif-btn" aria-label="Notifikationer" aria-expanded="false" aria-haspopup="true" aria-controls="dash-notif-menu">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M6 17h12l-1.2-1.8a2 2 0 01-.3-1V10a4.5 4.5 0 00-9 0v4.2a2 2 0 01-.3 1L6 17zM10 19a2 2 0 004 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="dash-notif-menu" id="dash-notif-menu" hidden role="menu" aria-label="Seneste aktivitet">
+                <div class="dash-notif-card">
+                  <div class="dash-notif-head">
+                    <p>Notifikationer</p>
+                    <span id="dash-notif-count">0</span>
+                  </div>
+                  <div class="dash-notif-list" id="dash-notif-list">
+                    <div class="dash-notif-empty">
+                      <p>Ingen aktivitet endnu</p>
+                      <span>Når der sker noget på dine events, dukker det op her.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <button class="dash-avatar" type="button" id="dash-avatar" aria-label="Profilmenu" title="Profil" aria-expanded="false" aria-haspopup="true">
               <span class="dash-avatar-fallback" id="dash-avatar-initials">EP</span>
               <img class="dash-avatar-img" id="dash-avatar-img" alt="" hidden />

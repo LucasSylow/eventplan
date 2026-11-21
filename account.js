@@ -35,13 +35,21 @@
   const calLabel = document.getElementById("cal-label");
   const calMonth = document.getElementById("cal-month");
   const calTrack = document.getElementById("cal-track");
+  const notifRoot = document.getElementById("dash-notif");
+  const notifBtn = document.getElementById("dash-notif-btn");
+  const notifMenu = document.getElementById("dash-notif-menu");
+  const notifList = document.getElementById("dash-notif-list");
+  const notifCount = document.getElementById("dash-notif-count");
   let menuOpen = false;
+  let notifOpen = false;
   let menuCloseTimer = null;
+  let notifCloseTimer = null;
   let setupRunning = false;
   let hydratedOnce = false;
   let currentUserId = null;
   let cachedEvents = [];
   let cachedGuestStats = {};
+  let cachedActivity = [];
   let calCursor = new Date();
   calCursor.setDate(1);
 
@@ -159,9 +167,9 @@
 
   function openProfileMenu() {
     if (!profileMenu) return;
+    closeNotifMenu();
     window.clearTimeout(menuCloseTimer);
     profileMenu.hidden = false;
-    // force reflow so transition plays
     void profileMenu.offsetWidth;
     profileMenu.classList.add("is-open");
     avatarBtn?.classList.add("is-open");
@@ -192,6 +200,80 @@
   function toggleProfileMenu() {
     if (menuOpen) closeProfileMenu();
     else openProfileMenu();
+  }
+
+  function openNotifMenu() {
+    if (!notifMenu) return;
+    closeProfileMenu();
+    window.clearTimeout(notifCloseTimer);
+    notifMenu.hidden = false;
+    void notifMenu.offsetWidth;
+    notifMenu.classList.add("is-open");
+    notifBtn?.classList.add("is-open");
+    notifBtn?.setAttribute("aria-expanded", "true");
+    notifOpen = true;
+  }
+
+  function closeNotifMenu() {
+    if (!notifMenu || !notifOpen) {
+      if (notifMenu) {
+        notifMenu.classList.remove("is-open");
+        notifMenu.hidden = true;
+      }
+      notifBtn?.classList.remove("is-open");
+      notifBtn?.setAttribute("aria-expanded", "false");
+      notifOpen = false;
+      return;
+    }
+    notifMenu.classList.remove("is-open");
+    notifBtn?.classList.remove("is-open");
+    notifBtn?.setAttribute("aria-expanded", "false");
+    notifOpen = false;
+    notifCloseTimer = window.setTimeout(() => {
+      if (!notifOpen) notifMenu.hidden = true;
+    }, 200);
+  }
+
+  function toggleNotifMenu() {
+    if (notifOpen) closeNotifMenu();
+    else openNotifMenu();
+  }
+
+  function renderNotifications(list) {
+    const items = list || [];
+    if (notifCount) notifCount.textContent = String(items.length);
+    notifBtn?.classList.toggle("has-dot", items.length > 0);
+
+    if (!notifList) return;
+    notifList.innerHTML = "";
+
+    if (!items.length) {
+      notifList.innerHTML = `
+        <div class="dash-notif-empty">
+          <p>Ingen aktivitet endnu</p>
+          <span>Når der sker noget på dine events, dukker det op her.</span>
+        </div>`;
+      return;
+    }
+
+    items.slice(0, 8).forEach((item) => {
+      const row = document.createElement(item.event_id ? "a" : "div");
+      row.className = "dash-notif-item";
+      if (item.event_id) {
+        row.href = `event.html?id=${encodeURIComponent(item.event_id)}`;
+      }
+      row.innerHTML = `
+        <span class="dash-notif-dot" aria-hidden="true"></span>
+        <div class="dash-notif-body">
+          <strong></strong>
+          <span></span>
+        </div>
+        <time class="dash-notif-time"></time>`;
+      row.querySelector("strong").textContent = item.message || "Aktivitet";
+      row.querySelector(".dash-notif-body span").textContent = item.event_title || "Event";
+      row.querySelector("time").textContent = formatRelative(item.created_at);
+      notifList.appendChild(row);
+    });
   }
 
   function formatDate(value) {
@@ -389,6 +471,9 @@
   }
 
   function renderActivity(list) {
+    cachedActivity = list || [];
+    renderNotifications(cachedActivity);
+
     if (!overviewActivity) return;
     overviewActivity.innerHTML = "";
     if (!list?.length) {
@@ -725,6 +810,7 @@
   backdrop?.addEventListener("click", () => {
     closeSidebar();
     closeProfileMenu();
+    closeNotifMenu();
   });
 
   avatarBtn?.addEventListener("click", (e) => {
@@ -732,14 +818,25 @@
     toggleProfileMenu();
   });
 
+  notifBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleNotifMenu();
+  });
+
   document.addEventListener("click", (e) => {
-    if (!menuOpen) return;
-    if (profileMenu?.contains(e.target) || avatarBtn?.contains(e.target)) return;
-    closeProfileMenu();
+    if (menuOpen && !profileMenu?.contains(e.target) && !avatarBtn?.contains(e.target)) {
+      closeProfileMenu();
+    }
+    if (notifOpen && !notifRoot?.contains(e.target)) {
+      closeNotifMenu();
+    }
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeProfileMenu();
+    if (e.key === "Escape") {
+      closeProfileMenu();
+      closeNotifMenu();
+    }
   });
 
   document.getElementById("cal-prev")?.addEventListener("click", () => {
