@@ -425,8 +425,16 @@ html[data-theme="dark"] .ev-badge.maybe { background: rgba(255,180,60,.16); colo
 }
 .seat-preview-floor {
   position: relative;
-  min-width: 100%;
-  min-height: 320px;
+  width: 100%;
+  min-height: 260px;
+  margin: 0 auto;
+  overflow: hidden;
+  background:
+    linear-gradient(transparent 23px, color-mix(in srgb, var(--line) 40%, transparent) 24px),
+    linear-gradient(90deg, transparent 23px, color-mix(in srgb, var(--line) 40%, transparent) 24px),
+    color-mix(in srgb, var(--bg) 70%, #e8edf5);
+  background-size: 24px 24px, 24px 24px, auto;
+  border-radius: 12px;
 }
 .seat-preview-room {
   position: absolute;
@@ -463,34 +471,46 @@ html[data-theme="dark"] .ev-badge.maybe { background: rgba(255,180,60,.16); colo
 .seat-preview-room.is-wall { border-radius: 4px; border-style: solid; }
 .seat-preview-table {
   position: absolute;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+.seat-preview-surface {
+  position: absolute;
+  inset: 10%;
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 2px;
-  padding: 6px;
-  border-radius: 12px;
-  border: 1.5px solid color-mix(in srgb, var(--accent) 35%, var(--line));
-  background: color-mix(in srgb, var(--bg-2) 92%, var(--accent) 8%);
-  box-shadow: 0 8px 18px rgba(15, 23, 40, 0.08);
+  gap: 1px;
   text-align: center;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.28), transparent 42%),
+    linear-gradient(145deg, #d7b48a 0%, #c49a6c 42%, #a97848 100%);
+  border: 1.5px solid #8b5e34;
+  box-shadow:
+    0 6px 14px rgba(15, 23, 40, 0.12),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.12);
   overflow: hidden;
 }
-.seat-preview-table.is-round,
-.seat-preview-table.is-oval { border-radius: 999px; }
-.seat-preview-table.is-square { border-radius: 14px; }
+.seat-preview-table.is-round .seat-preview-surface,
+.seat-preview-table.is-oval .seat-preview-surface { border-radius: 999px; }
+.seat-preview-table.is-rect .seat-preview-surface { border-radius: 12px; }
+.seat-preview-table.is-square .seat-preview-surface { border-radius: 10px; }
 .seat-preview-table strong {
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: -0.01em;
-  color: var(--text);
-  max-width: 100%;
+  color: #3b2412;
+  max-width: 90%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .seat-preview-table span {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  color: var(--muted);
+  color: rgba(59, 36, 18, 0.72);
 }
 .seat-preview-aside {
   border-radius: 16px;

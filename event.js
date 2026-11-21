@@ -484,20 +484,22 @@
       return;
     }
 
-    const items = [...state.tables, ...state.rooms];
-    const maxX = Math.max(...items.map((t) => (t.x || 0) + (t.width || 150)), 400);
-    const maxY = Math.max(...items.map((t) => (t.y || 0) + (t.height || 96)), 300);
-    const scale = Math.min(1, 560 / maxX, 320 / maxY);
-    floor.style.width = `${Math.max(560, maxX * scale + 40)}px`;
-    floor.style.height = `${Math.max(280, maxY * scale + 40)}px`;
+    const floorW = Math.max(600, Number(currentEvent?.floor_width) || 1600);
+    const floorH = Math.max(400, Number(currentEvent?.floor_height) || 1100);
+    const stage = floor.parentElement;
+    const viewW = Math.max(320, (stage?.clientWidth || 560) - 8);
+    const viewH = Math.max(260, Math.min(420, viewW * 0.62));
+    const scale = Math.min(viewW / floorW, viewH / floorH);
+    floor.style.width = `${Math.round(floorW * scale)}px`;
+    floor.style.height = `${Math.round(floorH * scale)}px`;
 
     state.rooms.forEach((room) => {
       const el = document.createElement("div");
       el.className = `seat-preview-room is-${room.kind || "wall"}`;
-      el.style.left = `${(room.x || 0) * scale + 16}px`;
-      el.style.top = `${(room.y || 0) * scale + 16}px`;
-      el.style.width = `${(room.width || 120) * scale}px`;
-      el.style.height = `${(room.height || 56) * scale}px`;
+      el.style.left = `${(room.x || 0) * scale}px`;
+      el.style.top = `${(room.y || 0) * scale}px`;
+      el.style.width = `${Math.max(10, (room.width || 120) * scale)}px`;
+      el.style.height = `${Math.max(8, (room.height || 56) * scale)}px`;
       if (room.rotation) el.style.transform = `rotate(${room.rotation}deg)`;
       el.textContent = room.label || room.kind || "Rum";
       floor.appendChild(el);
@@ -507,13 +509,13 @@
       const el = document.createElement("div");
       const shape = table.shape || "rect";
       el.className = `seat-preview-table is-${shape}`;
-      el.style.left = `${(table.x || 0) * scale + 16}px`;
-      el.style.top = `${(table.y || 0) * scale + 16}px`;
-      el.style.width = `${(table.width || 150) * scale}px`;
-      el.style.height = `${(table.height || 96) * scale}px`;
+      el.style.left = `${(table.x || 0) * scale}px`;
+      el.style.top = `${(table.y || 0) * scale}px`;
+      el.style.width = `${Math.max(18, (table.width || 150) * scale)}px`;
+      el.style.height = `${Math.max(18, (table.height || 96) * scale)}px`;
       if (table.rotation) el.style.transform = `rotate(${table.rotation}deg)`;
       const seated = state.guests.filter((g) => g.table_id === table.id).length;
-      el.innerHTML = `<strong></strong><span></span>`;
+      el.innerHTML = `<div class="seat-preview-surface"><strong></strong><span></span></div>`;
       el.querySelector("strong").textContent = table.name || "Bord";
       el.querySelector("span").textContent = `${seated}/${table.seats || 0}`;
       floor.appendChild(el);
@@ -800,7 +802,7 @@
   async function fetchEventForUser(eventId, user) {
     const { data: owned } = await client
       .from("events")
-      .select("id, title, description, location, plan, starts_at, ends_at, starts_time, owner_id, wishlist_external_url, guest_invite_token")
+      .select("id, title, description, location, plan, starts_at, ends_at, starts_time, owner_id, wishlist_external_url, guest_invite_token, floor_width, floor_height")
       .eq("id", eventId)
       .eq("owner_id", user.id)
       .maybeSingle();
@@ -817,7 +819,7 @@
 
     const { data: shared } = await client
       .from("events")
-      .select("id, title, description, location, plan, starts_at, ends_at, starts_time, owner_id, wishlist_external_url, guest_invite_token")
+      .select("id, title, description, location, plan, starts_at, ends_at, starts_time, owner_id, wishlist_external_url, guest_invite_token, floor_width, floor_height")
       .eq("id", eventId)
       .maybeSingle();
     return { event: shared, owner: false };

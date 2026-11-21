@@ -211,8 +211,14 @@
 
   function applyZoom() {
     if (!canvasInner) return;
+    const { width, height } = getFloorSize();
     canvasInner.style.transform = `scale(${zoom})`;
     canvasInner.style.transformOrigin = "0 0";
+    // Keep scroll area aligned with the visually scaled floor
+    if (canvas) {
+      canvas.style.width = `${Math.ceil(width * zoom)}px`;
+      canvas.style.height = `${Math.ceil(height * zoom)}px`;
+    }
     if (zoomLabel) zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
   }
 
@@ -223,15 +229,57 @@
     };
   }
 
-  function applyFloorSize() {
+  function syncFloorPresetButtons() {
+    const { width, height } = getFloorSize();
+    const key = `${Math.round(width)}x${Math.round(height)}`;
+    document.querySelectorAll("[data-floor]").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.floor === key);
+    });
+  }
+
+  function updateFloorBadge() {
+    const badge = document.getElementById("seat-floor-badge");
+    if (!badge) return;
+    const { width, height } = getFloorSize();
+    badge.textContent = `Rum ${Math.round(width)} × ${Math.round(height)}`;
+  }
+
+  function fitFloorInView() {
+    if (!canvasWrap) return;
+    const { width, height } = getFloorSize();
+    const pad = 64;
+    const availW = Math.max(120, canvasWrap.clientWidth - pad);
+    const availH = Math.max(120, canvasWrap.clientHeight - pad);
+    const next = Math.min(availW / width, availH / height, 1);
+    setZoom(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(next * 100) / 100)));
+    window.requestAnimationFrame(() => {
+      if (!canvasWrap) return;
+      canvasWrap.scrollLeft = 0;
+      canvasWrap.scrollTop = 0;
+    });
+  }
+
+  function applyFloorSize({ animate = false } = {}) {
     if (!canvasInner || !currentEvent) return;
     const { width, height } = getFloorSize();
     canvasInner.style.width = `${width}px`;
     canvasInner.style.height = `${height}px`;
+    canvasInner.dataset.floorW = String(Math.round(width));
+    canvasInner.dataset.floorH = String(Math.round(height));
+    if (animate) {
+      canvasInner.classList.remove("is-resizing");
+      // force reflow so animation retriggers
+      void canvasInner.offsetWidth;
+      canvasInner.classList.add("is-resizing");
+      window.setTimeout(() => canvasInner.classList.remove("is-resizing"), 450);
+    }
     const wInput = document.getElementById("floor-width");
     const hInput = document.getElementById("floor-height");
     if (wInput && document.activeElement !== wInput) wInput.value = Math.round(width);
     if (hInput && document.activeElement !== hInput) hInput.value = Math.round(height);
+    updateFloorBadge();
+    syncFloorPresetButtons();
+    applyZoom();
   }
 
   function scheduleFloorSave() {
@@ -253,11 +301,12 @@
     }, 320);
   }
 
-  function setFloorSize(width, height, { save = true } = {}) {
+  function setFloorSize(width, height, { save = true, fit = true } = {}) {
     if (!currentEvent) return;
-    currentEvent.floor_width = Math.min(FLOOR_MAX_W, Math.max(FLOOR_MIN_W, Math.round(width)));
-    currentEvent.floor_height = Math.min(FLOOR_MAX_H, Math.max(FLOOR_MIN_H, Math.round(height)));
-    applyFloorSize();
+    currentEvent.floor_width = Math.min(FLOOR_MAX_W, Math.max(FLOOR_MIN_W, Math.round(Number(width) || 1600)));
+    currentEvent.floor_height = Math.min(FLOOR_MAX_H, Math.max(FLOOR_MIN_H, Math.round(Number(height) || 1100)));
+    applyFloorSize({ animate: true });
+    if (fit) fitFloorInView();
     if (save) scheduleFloorSave();
   }
 
@@ -607,6 +656,79 @@
     }
   }
 
+  function renderTableChairs(wrap, table, occupiedCount) {
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    const seats = Math.max(2, Math.min(24, Number(table.seats) || 8));
+    const shape = table.shape || "rect";
+    for (let i = 0; i < seats; i += 1) {
+      const chair = document.createElement("div");
+      chair.className = `ed-chair${i < occupiedCount ? " is-filled" : ""}`;
+      let x = 50;
+      let y = 50;
+      if (shape === "round" || shape === "oval") {
+        const angle = (i / seats) * Math.PI * 2 - Math.PI / 2;
+        const rx = shape === "oval" ? 48 : 46;
+        const ry = shape === "oval" ? 42 : 46;
+        x = 50 + Math.cos(angle) * rx;
+        y = 50 + Math.sin(angle) * ry;
+      } else {
+        const perSide = Math.max(1, Math.ceil(seats / 4));
+        const side = Math.floor(i / perSide) % 4;
+        const idx = i % perSide;
+        const t = (idx + 1) / (perSide + 1);
+        if (side === 0) { x = t * 100; y = 4; }
+        if (side === 1) { x = 96; y = t * 100; }
+        if (side === 2) { x = t * 100; y = 96; }
+        if (side === 3) { x = 4; y = t * 100; }
+      }
+      chair.style.left = `${x}%`;
+      chair.style.top = `${y}%`;
+      wrap.appendChild(chair);
+    }
+  }
+
+  async function resetFloorPlan(width, height) {
+    if (!currentEvent?.id) return;
+    setSave("saving", "Rydder…");
+
+    const [{ error: tableErr }, { error: roomErr }] = await Promise.all([
+      client.from("event_tables").delete().eq("event_id", currentEvent.id),
+      client.from("event_room_items").delete().eq("event_id", currentEvent.id),
+    ]);
+    if (tableErr || roomErr) {
+      setSave("", "Kunne ikke slette");
+      return alert(tableErr?.message || roomErr?.message || "Kunne ikke slette planen");
+    }
+
+    await client
+      .from("event_guests")
+      .update({ table_id: null, seat_index: null, seat_side: null })
+      .eq("event_id", currentEvent.id);
+
+    guests.forEach((g) => {
+      g.table_id = null;
+      g.seat_index = null;
+      g.seat_side = null;
+    });
+    tables = [];
+    rooms = [];
+    clearSelection({ refresh: false });
+    setFloorSize(width, height);
+    renderCanvas();
+    renderProps();
+    renderPool();
+    updateHeaderMeta();
+    updateActionButtons();
+    setSave("saved", "Plan ryddet");
+    window.setTimeout(() => {
+      if (saveStatus?.textContent === "Plan ryddet") setSave("", "Klar");
+    }, 1200);
+
+    const panel = document.getElementById("seat-reset-panel");
+    if (panel) panel.hidden = true;
+  }
+
   function renderCanvas() {
     if (!canvasInner || interacting) return;
     canvasInner.innerHTML = "";
@@ -636,16 +758,18 @@
 
       const seated = guests.filter((g) => g.table_id === table.id);
       el.innerHTML = `
+        <div class="ed-chairs" aria-hidden="true"></div>
+        <div class="ed-table-surface">
+          <div class="ed-table-name"></div>
+          <div class="ed-table-meta"></div>
+        </div>
         <div class="ed-side ed-side-n" data-side="n"></div>
         <div class="ed-side ed-side-e" data-side="e"></div>
         <div class="ed-side ed-side-s" data-side="s"></div>
-        <div class="ed-side ed-side-w" data-side="w"></div>
-        <div class="ed-table-core">
-          <div class="ed-table-name"></div>
-          <div class="ed-table-meta"></div>
-        </div>`;
+        <div class="ed-side ed-side-w" data-side="w"></div>`;
       el.querySelector(".ed-table-name").textContent = table.name || "Bord";
       el.querySelector(".ed-table-meta").textContent = `${seated.length}/${table.seats || 0}`;
+      renderTableChairs(el.querySelector(".ed-chairs"), table, seated.length);
 
       ["n", "e", "s", "w"].forEach((side) => {
         const rail = el.querySelector(`.ed-side-${side}`);
@@ -1110,18 +1234,49 @@
 
     const floorWidthInput = document.getElementById("floor-width");
     const floorHeightInput = document.getElementById("floor-height");
-    const onFloorInput = () => {
+    const onFloorCommit = () => {
       setFloorSize(
         Number(floorWidthInput?.value) || 1600,
-        Number(floorHeightInput?.value) || 1100
+        Number(floorHeightInput?.value) || 1100,
+        { fit: true }
       );
     };
-    floorWidthInput?.addEventListener("change", onFloorInput);
-    floorHeightInput?.addEventListener("change", onFloorInput);
+    floorWidthInput?.addEventListener("change", onFloorCommit);
+    floorHeightInput?.addEventListener("change", onFloorCommit);
+    floorWidthInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onFloorCommit();
+        floorWidthInput.blur();
+      }
+    });
+    floorHeightInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onFloorCommit();
+        floorHeightInput.blur();
+      }
+    });
     document.querySelectorAll("[data-floor]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const [w, h] = String(btn.dataset.floor || "1600x1100").split("x").map(Number);
-        setFloorSize(w, h);
+        setFloorSize(w, h, { fit: true });
+      });
+    });
+
+    const resetPanel = document.getElementById("seat-reset-panel");
+    document.getElementById("seat-reset-btn")?.addEventListener("click", () => {
+      if (resetPanel) resetPanel.hidden = !resetPanel.hidden;
+    });
+    document.getElementById("seat-reset-cancel")?.addEventListener("click", () => {
+      if (resetPanel) resetPanel.hidden = true;
+    });
+    document.querySelectorAll("[data-reset-floor]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const [w, h] = String(btn.dataset.resetFloor || "1600x1100").split("x").map(Number);
+        const hasItems = tables.length || rooms.length;
+        if (hasItems && !confirm("Slet alle borde og rum og start forfra?")) return;
+        await resetFloorPlan(w, h);
       });
     });
 
@@ -1268,6 +1423,7 @@
     wireUi();
     applyFloorSize();
     applyZoom();
+    fitFloorInView();
     renderCanvas();
     renderProps();
     renderPool();

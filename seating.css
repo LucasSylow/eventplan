@@ -283,6 +283,58 @@
   background: rgba(255, 255, 255, 0.16);
   border-color: rgba(255, 255, 255, 0.3);
 }
+.seat-floor-preset.is-active {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+.seat-reset-btn {
+  appearance: none;
+  border: 1px solid rgba(254, 202, 202, 0.35);
+  background: rgba(239, 68, 68, 0.14);
+  color: #fecaca;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.14s ease, border-color 0.14s ease;
+}
+.seat-reset-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(254, 202, 202, 0.5);
+}
+.seat-reset-panel {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.16);
+}
+.seat-reset-panel[hidden] { display: none !important; }
+.seat-reset-panel p {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--panel-muted);
+  font-weight: 550;
+}
+.seat-reset-cancel {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  justify-self: start;
+  padding: 2px 0;
+}
+.seat-reset-cancel:hover { color: #fff; }
 
 .seat-tool {
   display: grid;
@@ -560,30 +612,67 @@ body.is-toolbox-dragging * {
 }
 
 .seat-canvas-wrap {
+  position: relative;
   overflow: auto;
   background:
-    linear-gradient(transparent 23px, color-mix(in srgb, var(--line) 50%, transparent) 24px),
-    linear-gradient(90deg, transparent 23px, color-mix(in srgb, var(--line) 50%, transparent) 24px),
-    color-mix(in srgb, var(--bg) 80%, var(--bg-2));
-  background-size: 24px 24px, 24px 24px, auto;
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 40%),
+    color-mix(in srgb, var(--bg) 88%, #9aa7b8);
+}
+.seat-floor-badge {
+  position: sticky;
+  top: 10px;
+  left: 10px;
+  z-index: 6;
+  width: fit-content;
+  margin: 10px 0 0 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-2) 92%, transparent);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  box-shadow: 0 8px 18px rgba(15, 23, 40, 0.08);
+  pointer-events: none;
 }
 .seat-canvas {
   min-width: 100%;
   min-height: 100%;
   outline: none;
+  padding: 28px;
+  box-sizing: content-box;
 }
 .seat-canvas-inner {
   position: relative;
   width: 1600px;
   height: 1100px;
   will-change: transform;
+  transform-origin: 0 0;
+  border-radius: 18px;
+  border: 2px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  box-shadow:
+    0 18px 40px rgba(15, 23, 40, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  background:
+    linear-gradient(transparent 23px, color-mix(in srgb, var(--line) 55%, transparent) 24px),
+    linear-gradient(90deg, transparent 23px, color-mix(in srgb, var(--line) 55%, transparent) 24px),
+    linear-gradient(180deg, #f7f9fc, #eef2f7);
+  background-size: 24px 24px, 24px 24px, auto;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.seat-canvas-inner.is-resizing {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 18px 40px rgba(15, 23, 40, 0.14);
 }
 
 .ed-table {
   position: absolute;
-  border: 1.5px solid color-mix(in srgb, var(--accent) 40%, var(--line));
-  background: color-mix(in srgb, var(--bg-2) 94%, var(--accent) 6%);
-  box-shadow: 0 12px 28px rgba(15, 23, 40, 0.1);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
   cursor: grab;
   user-select: none;
   touch-action: none;
@@ -591,45 +680,77 @@ body.is-toolbox-dragging * {
   transform-origin: center center;
 }
 .ed-table.is-dragging { cursor: grabbing; }
-.ed-table.is-round,
-.ed-table.is-oval { border-radius: 999px; }
-.ed-table.is-rect { border-radius: 16px; }
-.ed-table.is-square { border-radius: 14px; }
 .ed-table.is-selected {
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent),
-    0 14px 32px rgba(15, 23, 40, 0.14);
   z-index: 4;
 }
-.ed-table.is-over {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+.ed-table.is-selected .ed-table-surface {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent) 50%, transparent),
+    0 14px 28px rgba(15, 23, 40, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
-.ed-table-core {
+.ed-table.is-over .ed-table-surface {
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 12px 24px rgba(15, 23, 40, 0.14);
+}
+.ed-chairs {
   position: absolute;
-  inset: 28px;
+  inset: -10px;
+  pointer-events: none;
+  z-index: 0;
+}
+.ed-chair {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 5px 5px 4px 4px;
+  background: #c4cdd8;
+  border: 1px solid #9aa7b8;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 4px rgba(15, 23, 40, 0.12);
+}
+.ed-chair.is-filled {
+  background: color-mix(in srgb, var(--accent) 55%, #c4cdd8);
+  border-color: color-mix(in srgb, var(--accent) 45%, #9aa7b8);
+}
+.ed-table-surface {
+  position: absolute;
+  inset: 12px;
   display: grid;
   place-content: center;
   justify-items: center;
   gap: 2px;
-  pointer-events: none;
   text-align: center;
   z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.28), transparent 42%),
+    linear-gradient(145deg, #d7b48a 0%, #c49a6c 42%, #a97848 100%);
+  border: 2px solid #8b5e34;
+  box-shadow:
+    0 10px 22px rgba(15, 23, 40, 0.14),
+    inset 0 0 0 3px rgba(255, 255, 255, 0.12),
+    inset 0 0 18px rgba(90, 50, 20, 0.18);
 }
-.ed-table.is-round .ed-table-core,
-.ed-table.is-oval .ed-table-core { inset: 22%; }
+.ed-table.is-round .ed-table-surface,
+.ed-table.is-oval .ed-table-surface { border-radius: 999px; }
+.ed-table.is-rect .ed-table-surface { border-radius: 18px; }
+.ed-table.is-square .ed-table-surface { border-radius: 16px; }
 .ed-table-name {
   font-size: 13px;
-  font-weight: 750;
-  color: var(--text);
-  max-width: 100%;
+  font-weight: 800;
+  color: #3b2412;
+  max-width: 90%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .ed-table-meta {
   font-size: 11px;
-  font-weight: 650;
-  color: var(--muted);
+  font-weight: 700;
+  color: rgba(59, 36, 18, 0.72);
 }
 .ed-side {
   position: absolute;

@@ -97,6 +97,16 @@
           <button type="button" class="seat-floor-preset" data-floor="1600x1100">Standard</button>
           <button type="button" class="seat-floor-preset" data-floor="2200x1500">Stor</button>
         </div>
+        <button type="button" class="seat-reset-btn" id="seat-reset-btn">Slet plan &amp; start forfra</button>
+        <div class="seat-reset-panel" id="seat-reset-panel" hidden>
+          <p>Vælg rumstørrelse, så ryddes borde og rum. Gæster beholdes, men fjernes fra bordene.</p>
+          <div class="seat-floor-presets">
+            <button type="button" class="seat-floor-preset" data-reset-floor="1200x800">Lille</button>
+            <button type="button" class="seat-floor-preset" data-reset-floor="1600x1100">Standard</button>
+            <button type="button" class="seat-floor-preset" data-reset-floor="2200x1500">Stor</button>
+          </div>
+          <button type="button" class="seat-reset-cancel" id="seat-reset-cancel">Annuller</button>
+        </div>
 
         <p class="seat-side-title">Borde</p>
         <button type="button" class="seat-tool" data-add-shape="round">
@@ -194,6 +204,7 @@
       </aside>
 
       <main class="seat-canvas-wrap" id="seat-canvas-wrap">
+        <div class="seat-floor-badge" id="seat-floor-badge">Rum 1600 × 1100</div>
         <div class="seat-canvas" id="seat-canvas" tabindex="0">
           <div class="seat-canvas-inner" id="seat-canvas-inner"></div>
         </div>
