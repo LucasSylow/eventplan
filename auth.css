@@ -281,6 +281,30 @@ html:has(.auth-body) {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
+.field-phone {
+  position: relative;
+  display: block;
+}
+.field-phone-flag {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  pointer-events: none;
+  line-height: 0;
+  z-index: 1;
+}
+.field-phone-flag svg {
+  display: block;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.field-phone input {
+  padding-left: 44px;
+}
+
 .auth-submit {
   margin-top: 6px;
   width: 100%;

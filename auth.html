@@ -280,7 +280,16 @@
           </label>
           <label class="field">
             <span>Telefonnummer</span>
-            <input type="tel" name="phone" required maxlength="30" placeholder="+45 12 34 56 78" autocomplete="tel" />
+            <span class="field-phone">
+              <span class="field-phone-flag" aria-hidden="true" title="Danmark">
+                <svg viewBox="0 0 22 16" width="22" height="16">
+                  <rect width="22" height="16" rx="2" fill="#C8102E"/>
+                  <rect x="6.5" width="3" height="16" fill="#fff"/>
+                  <rect y="6.5" width="22" height="3" fill="#fff"/>
+                </svg>
+              </span>
+              <input type="tel" name="phone" required maxlength="30" placeholder="+45 12 34 56 78" autocomplete="tel" />
+            </span>
           </label>
           <label class="field">
             <span>Adgangskode</span>
