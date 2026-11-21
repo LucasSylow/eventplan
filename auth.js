@@ -1,21 +1,7 @@
 (() => {
-  const cfg = window.EVENTPLAN_CONFIG;
   const overlay = document.getElementById("auth-overlay");
   const card = document.getElementById("auth-card");
   if (!overlay || !card) return;
-
-  if (!cfg?.supabaseUrl || !cfg?.supabaseAnonKey || !window.supabase) {
-    console.error("Supabase config mangler");
-    return;
-  }
-
-  const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-    },
-  });
 
   const tabs = document.querySelectorAll(".auth-tab");
   const tabWrap = document.querySelector(".auth-tabs");
@@ -25,7 +11,25 @@
   const sub = document.getElementById("auth-sub");
   const statusEl = document.getElementById("auth-status");
 
+  let client = null;
   let mode = "signup";
+
+  function getClient() {
+    if (client) return client;
+    const cfg = window.EVENTPLAN_CONFIG;
+    const lib = window.supabase;
+    if (!cfg?.supabaseUrl || !cfg?.supabaseAnonKey || !lib?.createClient) {
+      return null;
+    }
+    client = lib.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
+    return client;
+  }
 
   function setStatus(message, type) {
     if (!statusEl) return;
@@ -70,12 +74,16 @@
   function openAuth(nextMode = "signup") {
     switchMode(nextMode === "login" ? "login" : "signup");
     overlay.hidden = false;
-    requestAnimationFrame(() => overlay.classList.add("is-open"));
+    // force reflow so CSS transition runs
+    void overlay.offsetWidth;
+    overlay.classList.add("is-open");
     document.body.classList.add("auth-open");
     const firstInput = overlay.querySelector(
-      nextMode === "login" ? "#login-form input[name='email']" : "#signup-form input[name='first_name']"
+      nextMode === "login"
+        ? "#login-form input[name='email']"
+        : "#signup-form input[name='first_name']"
     );
-    firstInput?.focus();
+    window.setTimeout(() => firstInput?.focus(), 50);
   }
 
   function closeAuth() {
@@ -87,18 +95,20 @@
     setStatus("");
   }
 
-  window openAuth;
   window.EventplanAuth = { open: openAuth, close: closeAuth };
 
-  document.querySelectorAll("[data-auth-open]").forEach((el) => {
-    el.addEventListener("click", (e) => {
+  // Event delegation so buttons always work
+  document.addEventListener("click", (e) => {
+    const openBtn = e.target.closest("[data-auth-open]");
+    if (openBtn) {
       e.preventDefault();
-      openAuth(el.getAttribute("data-auth-open") || "signup");
-    });
-  });
-
-  document.querySelectorAll("[data-auth-close]").forEach((el) => {
-    el.addEventListener("click", closeAuth);
+      openAuth(openBtn.getAttribute("data-auth-open") || "signup");
+      return;
+    }
+    if (e.target.closest("[data-auth-close]")) {
+      e.preventDefault();
+      closeAuth();
+    }
   });
 
   document.addEventListener("keydown", (e) => {
@@ -123,6 +133,11 @@
   signupForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     setStatus("");
+    const sb = getClient();
+    if (!sb) {
+      setStatus("Kunne ikke forbinde til login-systemet. Genindlæs siden.", "error");
+      return;
+    }
     setLoading(signupForm, true);
 
     const fd = new FormData(signupForm);
@@ -133,7 +148,7 @@
     const password = String(fd.get("password") || "");
 
     try {
-      const { data, error } = await client.auth.signUp({
+      const { data, error } = await sb.auth.signUp({
         email,
         password,
         options: {
@@ -168,6 +183,11 @@
   loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     setStatus("");
+    const sb = getClient();
+    if (!sb) {
+      setStatus("Kunne ikke forbinde til login-systemet. Genindlæs siden.", "error");
+      return;
+    }
     setLoading(loginForm, true);
 
     const fd = new FormData(loginForm);
@@ -175,7 +195,7 @@
     const password = String(fd.get("password") || "");
 
     try {
-      const { error } = await client.auth.signInWithPassword({ email, password });
+      const { error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
       setStatus("Du er logget ind — sender dig videre…", "ok");
       window.location.href = "account.html";
@@ -188,7 +208,6 @@
     }
   });
 
-  // Deep links: ?auth=login|signup
   const params = new URLSearchParams(window.location.search);
   const authParam = params.get("auth");
   if (authParam === "login" || authParam === "signup") {
