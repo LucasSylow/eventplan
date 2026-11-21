@@ -29,18 +29,78 @@
   };
 
   const roomCatalog = {
-    entrance: { label: "Indgang", width: 140, height: 48, badge: "IN" },
-    exit: { label: "Udgang", width: 140, height: 48, badge: "UD" },
-    toilet: { label: "Toilet", width: 110, height: 80, badge: "WC" },
-    kitchen: { label: "Køkken", width: 160, height: 100, badge: "KØ" },
-    bar: { label: "Bar", width: 180, height: 70, badge: "BR" },
-    stage: { label: "Scene", width: 240, height: 110, badge: "SC" },
-    dancefloor: { label: "Dansegulv", width: 220, height: 160, badge: "DN" },
-    wardrobe: { label: "Garderobe", width: 140, height: 70, badge: "GA" },
-    gift: { label: "Gavbord", width: 150, height: 70, badge: "GV" },
-    wall: { label: "Væg", width: 220, height: 18, badge: "VG" },
-    plant: { label: "Plante", width: 56, height: 56, badge: "PL" },
-    speaker: { label: "Højttaler", width: 56, height: 56, badge: "LY" },
+    entrance: {
+      label: "Indgang",
+      width: 140,
+      height: 48,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 20V6.5A2.5 2.5 0 0 1 6.5 4H14v16H6.5A2.5 2.5 0 0 1 4 17.5V20z" stroke="currentColor" stroke-width="1.7"/><path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11A2.5 2.5 0 0 1 17.5 20H14" stroke="currentColor" stroke-width="1.7"/><path d="M9 12h8M14 9l3 3-3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    },
+    exit: {
+      label: "Udgang",
+      width: 140,
+      height: 48,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 20V6.5A2.5 2.5 0 0 1 6.5 4H14v16H6.5A2.5 2.5 0 0 1 4 17.5V20z" stroke="currentColor" stroke-width="1.7"/><path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11A2.5 2.5 0 0 1 17.5 20H14" stroke="currentColor" stroke-width="1.7"/><path d="M17 12H9M12 9l-3 3 3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    },
+    toilet: {
+      label: "Toilet",
+      width: 110,
+      height: 80,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="6.5" r="2.2" stroke="currentColor" stroke-width="1.7"/><path d="M5.5 20v-5.2A2.8 2.8 0 0 1 8.3 12h0a2.8 2.8 0 0 1 2.8 2.8V20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="16.2" cy="6.5" r="2.2" stroke="currentColor" stroke-width="1.7"/><path d="M13.2 20l1.4-7.2A2.4 2.4 0 0 1 17 10.5h0a2.4 2.4 0 0 1 2.4 2.3L20.8 20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    },
+    kitchen: {
+      label: "Køkken",
+      width: 160,
+      height: 100,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><path d="M7 4v7a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M9 13v7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M16 4v16M14 4c0 2.5 2 3.5 2 6M18 4c0 2.5-2 3.5-2 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    },
+    bar: {
+      label: "Bar",
+      width: 180,
+      height: 70,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><path d="M7 4h10l-3.4 5.2a4.6 4.6 0 1 1-3.2 0L7 4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 14.5V20M9.5 20h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    },
+    stage: {
+      label: "Scene",
+      width: 240,
+      height: 110,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 17h16v3H4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M6 17V9.5L12 6l6 3.5V17" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 6v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    },
+    dancefloor: {
+      label: "Dansegulv",
+      width: 220,
+      height: 160,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M4 12h16M12 4v16" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 7.5h.01M16.5 7.5h.01M7.5 16.5h.01M16.5 16.5h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`,
+    },
+    wardrobe: {
+      label: "Garderobe",
+      width: 140,
+      height: 70,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><path d="M7 8.5c0-2.8 2.2-5 5-5s5 2.2 5 5c0 2-1.2 3.7-2.9 4.5L12 20l-2.1-7A5 5 0 0 1 7 8.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 3.5V2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    },
+    gift: {
+      label: "Gavbord",
+      width: 150,
+      height: 70,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="10" rx="1.5" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 10h17V8.2A1.7 1.7 0 0 0 18.8 6.5H5.2A1.7 1.7 0 0 0 3.5 8.2V10z" stroke="currentColor" stroke-width="1.7"/><path d="M12 6.5V20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    },
+    wall: {
+      label: "Væg",
+      width: 220,
+      height: 18,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><path d="M3 8h18M3 12h18M3 16h18M8 8v8M16 8v8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    },
+    plant: {
+      label: "Plante",
+      width: 56,
+      height: 56,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 14c0-4 2.5-7.5 7-8-1.2 4-3.8 6.5-7 8zM12 14c0-4-2.5-7.5-7-8 1.2 4 3.8 6.5 7 8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 14v6M9.5 20h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    },
+    speaker: {
+      label: "Højttaler",
+      width: 56,
+      height: 56,
+      icon: `<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3.5" width="11" height="17" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="9.5" cy="14" r="3" stroke="currentColor" stroke-width="1.7"/><circle cx="9.5" cy="7.5" r="1.3" fill="currentColor"/><path d="M17 9.5c1.2.9 1.2 4.1 0 5M19.5 7.5c2.2 1.7 2.2 7.3 0 9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+    },
   };
 
   let currentUser = null;
@@ -200,6 +260,67 @@
     });
   }
 
+  function guestInitial(guest) {
+    const name = String(guest?.name || guest?.email || "?").trim();
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 1).toUpperCase() || "?";
+  }
+
+  function guestColor(seed) {
+    const palette = [
+      "#3b82f6", "#2563eb", "#0ea5e9", "#14b8a6", "#10b981",
+      "#f59e0b", "#f97316", "#ef4444", "#ec4899", "#a855f7",
+      "#6366f1", "#06b6d4",
+    ];
+    const str = String(seed || "gæst");
+    let hash = 0;
+    for (let i = 0; i < str.length; i += 1) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+    return palette[hash % palette.length];
+  }
+
+  function guestAvatarUrl(guest) {
+    return guest?.avatar_url || guest?.resolved_avatar || "";
+  }
+
+  function buildAvatarEl(guest, className) {
+    const wrap = document.createElement("div");
+    wrap.className = className;
+    wrap.style.setProperty("--avatar-color", guestColor(guest.id || guest.email || guest.name));
+    const url = guestAvatarUrl(guest);
+    if (url) {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "";
+      img.referrerPolicy = "no-referrer";
+      img.decoding = "async";
+      img.addEventListener("error", () => {
+        wrap.classList.remove("has-photo");
+        wrap.textContent = guestInitial(guest);
+        img.remove();
+      });
+      wrap.classList.add("has-photo");
+      wrap.appendChild(img);
+    } else {
+      wrap.textContent = guestInitial(guest);
+    }
+    return wrap;
+  }
+
+  async function enrichGuestAvatars(eventId) {
+    const { data, error } = await client.rpc("guest_avatars_for_event", { p_event_id: eventId });
+    if (error || !data?.length) return;
+    const map = {};
+    data.forEach((row) => {
+      if (row.email && row.avatar_url) map[row.email.toLowerCase()] = row.avatar_url;
+    });
+    guests.forEach((guest) => {
+      const email = (guest.email || "").toLowerCase();
+      if (guest.avatar_url) return;
+      if (email && map[email]) guest.resolved_avatar = map[email];
+    });
+  }
+
   function renderPool() {
     if (!poolEl) return;
     const unplaced = guests.filter((g) => !g.table_id);
@@ -212,7 +333,21 @@
       const chip = document.createElement("div");
       chip.className = "seat-chip";
       chip.draggable = true;
-      chip.textContent = guest.name || guest.email || "Gæst";
+      chip.title = guest.email || guest.name || "Gæst";
+
+      const avatar = buildAvatarEl(guest, "seat-chip-avatar");
+      const copy = document.createElement("div");
+      copy.className = "seat-chip-copy";
+      const name = document.createElement("strong");
+      name.textContent = guest.name || guest.email || "Gæst";
+      copy.appendChild(name);
+      if (guest.email && guest.name) {
+        const sub = document.createElement("span");
+        sub.textContent = guest.email;
+        copy.appendChild(sub);
+      }
+
+      chip.append(avatar, copy);
       chip.addEventListener("dragstart", (e) => {
         dragGuestId = guest.id;
         chip.classList.add("is-dragging");
@@ -237,7 +372,7 @@
     if (selectedKind === "room") {
       const meta = roomCatalog[item.kind] || { label: item.kind };
       propsEl.innerHTML = `
-        <div class="seat-prop-badge">${meta.badge || "RU"} · ${meta.label}</div>
+        <div class="seat-prop-badge"><span class="seat-prop-icon">${meta.icon || ""}</span>${meta.label}</div>
         <div class="seat-field">
           <label for="prop-name">Navn</label>
           <input id="prop-name" type="text" maxlength="40" />
@@ -381,7 +516,11 @@
     chip.className = "ed-guest";
     chip.draggable = true;
     chip.title = "Træk for at flytte · dobbeltklik for at fjerne";
-    chip.textContent = guest.name || guest.email || "Gæst";
+    chip.append(buildAvatarEl(guest, "ed-guest-avatar"));
+    const label = document.createElement("span");
+    label.className = "ed-guest-name";
+    label.textContent = guest.name || guest.email || "Gæst";
+    chip.appendChild(label);
     chip.addEventListener("dragstart", (e) => {
       dragGuestId = guest.id;
       chip.classList.add("is-dragging");
@@ -428,11 +567,11 @@
       applyItemStyles(el, room, "room");
       el.dataset.id = room.id;
       el.dataset.kind = "room";
-      const meta = roomCatalog[room.kind] || { label: room.kind, badge: "?" };
+      const meta = roomCatalog[room.kind] || { label: room.kind, icon: "" };
       el.innerHTML = `
         <div class="ed-room-badge"></div>
         <div class="ed-room-label"></div>`;
-      el.querySelector(".ed-room-badge").textContent = meta.badge || "RU";
+      el.querySelector(".ed-room-badge").innerHTML = meta.icon || "";
       el.querySelector(".ed-room-label").textContent = room.label || meta.label;
       if (room.id === selectedId && selectedKind === "room") appendHandles(el);
       el.addEventListener("pointerdown", (e) => onItemPointerDown(e, room, el, "room"));
@@ -970,6 +1109,7 @@
     tables = tableRows || [];
     guests = guestRows || [];
     rooms = roomRows || [];
+    await enrichGuestAvatars(eventId);
 
     wireUi();
     applyZoom();
