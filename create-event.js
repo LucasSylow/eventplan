@@ -14,7 +14,6 @@
   const crumbStep = document.getElementById("create-crumb-step");
   const selectedPlanLabel = document.getElementById("selected-plan-label");
   const selectedCategoryLabel = document.getElementById("selected-category-label");
-  const selectedCategoryPill = document.getElementById("selected-category-pill");
   const form = document.getElementById("event-details-form");
   const formError = document.getElementById("create-form-error");
   const mapBox = document.getElementById("map-box");
@@ -119,7 +118,6 @@
       btn.classList.toggle("is-active", btn.dataset.selectCategory === category);
     });
     if (selectedCategoryLabel) selectedCategoryLabel.textContent = categoryNames[category];
-    if (selectedCategoryPill) selectedCategoryPill.textContent = categoryNames[category];
     showStep(2);
   }
 
