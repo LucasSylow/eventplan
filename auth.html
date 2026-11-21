@@ -1,94 +1,14 @@
 <!DOCTYPE html>
-<html lang="da" data-theme="dark">
+<html lang="da">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Log ind eller opret dig — Eventplan</title>
-  <meta name="description" content="Opret din Eventplan-konto eller log ind for at planlægge events." />
-  <link rel="icon" href="assets/logo-mark-white.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="auth.css" />
+  <title>Eventplan</title>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode") === "login" ? "login" : "signup";
+    window.location.replace(`index.html?auth=${mode}`);
+  </script>
 </head>
-<body class="auth-body">
-  <div class="auth-bg" aria-hidden="true">
-    <span class="orb orb-a"></span>
-    <span class="orb orb-b"></span>
-    <span class="orb orb-c"></span>
-  </div>
-
-  <main class="auth-shell">
-    <a class="auth-brand" href="index.html" aria-label="Tilbage til Eventplan">
-      <img class="brand-logo" src="assets/logo-white.png" alt="Eventplan" width="150" height="38" />
-    </a>
-
-    <section class="auth-card" id="auth-card">
-      <div class="auth-tabs" role="tablist" aria-label="Konto">
-        <button class="auth-tab is-active" type="button" data-tab="signup" role="tab" aria-selected="true">Opret bruger</button>
-        <button class="auth-tab" type="button" data-tab="login" role="tab" aria-selected="false">Log ind</button>
-        <span class="auth-tab-pill" aria-hidden="true"></span>
-      </div>
-
-      <div class="auth-copy">
-        <h1 id="auth-title">Opret din konto</h1>
-        <p id="auth-sub">Kom i gang på under et minut — så kan du oprette dit første event.</p>
-      </div>
-
-      <form class="auth-form" id="signup-form" autocomplete="on">
-        <div class="field-row">
-          <label class="field">
-            <span>Fornavn</span>
-            <input type="text" name="first_name" required maxlength="80" placeholder="Anna" />
-          </label>
-          <label class="field">
-            <span>Efternavn</span>
-            <input type="text" name="last_name" required maxlength="80" placeholder="Jensen" />
-          </label>
-        </div>
-        <label class="field">
-          <span>Email</span>
-          <input type="email" name="email" required maxlength="120" placeholder="dig@email.dk" autocomplete="email" />
-        </label>
-        <label class="field">
-          <span>Telefonnummer</span>
-          <input type="tel" name="phone" required maxlength="30" placeholder="+45 12 34 56 78" autocomplete="tel" />
-        </label>
-        <label class="field">
-          <span>Adgangskode</span>
-          <input type="password" name="password" required minlength="6" placeholder="Mindst 6 tegn" autocomplete="new-password" />
-        </label>
-        <button class="btn-primary auth-submit" type="submit">
-          <span class="btn-label">Opret konto</span>
-          <span class="btn-spinner" aria-hidden="true"></span>
-        </button>
-      </form>
-
-      <form class="auth-form" id="login-form" hidden autocomplete="on">
-        <label class="field">
-          <span>Email</span>
-          <input type="email" name="email" required maxlength="120" placeholder="dig@email.dk" autocomplete="email" />
-        </label>
-        <label class="field">
-          <span>Adgangskode</span>
-          <input type="password" name="password" required minlength="6" placeholder="Din adgangskode" autocomplete="current-password" />
-        </label>
-        <button class="btn-primary auth-submit" type="submit">
-          <span class="btn-label">Log ind</span>
-          <span class="btn-spinner" aria-hidden="true"></span>
-        </button>
-      </form>
-
-      <p class="auth-status" id="auth-status" role="status" aria-live="polite" hidden></p>
-      <p class="auth-foot">
-        <a href="index.html">← Tilbage til forsiden</a>
-      </p>
-    </section>
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="auth.js"></script>
-</body>
+<body></body>
 </html>

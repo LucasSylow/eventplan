@@ -1,5 +1,9 @@
 (() => {
   const cfg = window.EVENTPLAN_CONFIG;
+  const overlay = document.getElementById("auth-overlay");
+  const card = document.getElementById("auth-card");
+  if (!overlay || !card) return;
+
   if (!cfg?.supabaseUrl || !cfg?.supabaseAnonKey || !window.supabase) {
     console.error("Supabase config mangler");
     return;
@@ -20,7 +24,6 @@
   const title = document.getElementById("auth-title");
   const sub = document.getElementById("auth-sub");
   const statusEl = document.getElementById("auth-status");
-  const card = document.getElementById("auth-card");
 
   let mode = "signup";
 
@@ -62,19 +65,59 @@
         : "Kom i gang på under et minut — så kan du oprette dit første event.";
     }
     setStatus("");
-    card?.classList.remove("shake");
-    void card?.offsetWidth;
   }
+
+  function openAuth(nextMode = "signup") {
+    switchMode(nextMode === "login" ? "login" : "signup");
+    overlay.hidden = false;
+    requestAnimationFrame(() => overlay.classList.add("is-open"));
+    document.body.classList.add("auth-open");
+    const firstInput = overlay.querySelector(
+      nextMode === "login" ? "#login-form input[name='email']" : "#signup-form input[name='first_name']"
+    );
+    firstInput?.focus();
+  }
+
+  function closeAuth() {
+    overlay.classList.remove("is-open");
+    document.body.classList.remove("auth-open");
+    window.setTimeout(() => {
+      if (!overlay.classList.contains("is-open")) overlay.hidden = true;
+    }, 280);
+    setStatus("");
+  }
+
+  window openAuth;
+  window.EventplanAuth = { open: openAuth, close: closeAuth };
+
+  document.querySelectorAll("[data-auth-open]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      openAuth(el.getAttribute("data-auth-open") || "signup");
+    });
+  });
+
+  document.querySelectorAll("[data-auth-close]").forEach((el) => {
+    el.addEventListener("click", closeAuth);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay.classList.contains("is-open")) closeAuth();
+  });
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => switchMode(tab.dataset.tab));
   });
 
-  async function redirectIfLoggedIn() {
-    const { data } = await client.auth.getSession();
-    if (data.session) {
-      window.location.href = "account.html";
-    }
+  function translateAuthError(msg) {
+    const m = String(msg || "").toLowerCase();
+    if (m.includes("invalid login")) return "Forkert email eller adgangskode.";
+    if (m.includes("already registered") || m.includes("user already"))
+      return "Der findes allerede en bruger med den email.";
+    if (m.includes("password")) return "Adgangskoden skal være mindst 6 tegn.";
+    if (m.includes("email")) return "Tjek at emailen er gyldig.";
+    if (m.includes("rate")) return "For mange forsøg. Prøv igen om lidt.";
+    return msg;
   }
 
   signupForm?.addEventListener("submit", async (e) => {
@@ -94,15 +137,10 @@
         email,
         password,
         options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-            phone,
-          },
+          data: { first_name: firstName, last_name: lastName, phone },
           emailRedirectTo: `${window.location.origin}/account.html`,
         },
       });
-
       if (error) throw error;
 
       if (data.session) {
@@ -119,9 +157,9 @@
       const emailInput = loginForm?.querySelector('input[name="email"]');
       if (emailInput) emailInput.value = email;
     } catch (err) {
-      const msg = err?.message || "Kunne ikke oprette konto.";
-      setStatus(translateAuthError(msg), "error");
-      card?.classList.add("shake");
+      setStatus(translateAuthError(err?.message || "Kunne ikke oprette konto."), "error");
+      card.classList.add("shake");
+      window.setTimeout(() => card.classList.remove("shake"), 450);
     } finally {
       setLoading(signupForm, false);
     }
@@ -142,28 +180,18 @@
       setStatus("Du er logget ind — sender dig videre…", "ok");
       window.location.href = "account.html";
     } catch (err) {
-      const msg = err?.message || "Kunne ikke logge ind.";
-      setStatus(translateAuthError(msg), "error");
-      card?.classList.add("shake");
+      setStatus(translateAuthError(err?.message || "Kunne ikke logge ind."), "error");
+      card.classList.add("shake");
+      window.setTimeout(() => card.classList.remove("shake"), 450);
     } finally {
       setLoading(loginForm, false);
     }
   });
 
-  function translateAuthError(msg) {
-    const m = msg.toLowerCase();
-    if (m.includes("invalid login")) return "Forkert email eller adgangskode.";
-    if (m.includes("already registered") || m.includes("user already"))
-      return "Der findes allerede en bruger med den email.";
-    if (m.includes("password")) return "Adgangskoden skal være mindst 6 tegn.";
-    if (m.includes("email")) return "Tjek at emailen er gyldig.";
-    if (m.includes("rate")) return "For mange forsøg. Prøv igen om lidt.";
-    return msg;
-  }
-
-  // Deep-link support: auth.html?mode=login
+  // Deep links: ?auth=login|signup
   const params = new URLSearchParams(window.location.search);
-  if (params.get("mode") === "login") switchMode("login");
-
-  redirectIfLoggedIn();
+  const authParam = params.get("auth");
+  if (authParam === "login" || authParam === "signup") {
+    openAuth(authParam);
+  }
 })();
