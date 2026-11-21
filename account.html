@@ -21,7 +21,29 @@
   </script>
 </head>
 <body class="dash-body">
-  <div class="dash-app">
+  <section class="setup-screen" id="setup-screen" hidden aria-live="polite">
+    <div class="setup-glow setup-glow-a"></div>
+    <div class="setup-glow setup-glow-b"></div>
+    <div class="setup-inner">
+      <p class="setup-brand">Eventplan</p>
+      <h1 class="setup-title" id="setup-title">
+        <span class="setup-line">Hej <span id="setup-name">dig</span>,</span>
+        <span class="setup-line setup-line-delay">vi sætter din konto op</span>
+      </h1>
+      <div class="setup-loader" aria-hidden="true">
+        <span class="setup-orbit"></span>
+        <span class="setup-core"></span>
+      </div>
+      <p class="setup-status" id="setup-status">Gør klar til dine events…</p>
+      <div class="setup-steps" aria-hidden="true">
+        <span class="is-active"></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="dash-app" id="dash-app">
     <aside class="dash-sidebar" id="dash-sidebar">
       <div class="dash-sidebar-top">
         <a class="dash-brand" href="index.html" aria-label="Eventplan">

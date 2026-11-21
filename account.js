@@ -21,12 +21,17 @@
   const profileMenu = document.getElementById("dash-profile-menu");
   const profileName = document.getElementById("dash-profile-name");
   const profileEmail = document.getElementById("dash-profile-email");
-  const app = document.querySelector(".dash-app");
+  const app = document.getElementById("dash-app") || document.querySelector(".dash-app");
   const menuBtn = document.getElementById("dash-menu-btn");
   const backdrop = document.getElementById("dash-backdrop");
+  const setupScreen = document.getElementById("setup-screen");
+  const setupName = document.getElementById("setup-name");
+  const setupStatus = document.getElementById("setup-status");
 
   let menuOpen = false;
   let menuCloseTimer = null;
+  let setupRunning = false;
+  let hydratedOnce = false;
 
   function pickName(profile, user) {
     const meta = user?.user_metadata || {};
@@ -177,18 +182,7 @@
     else openProfileMenu();
   }
 
-  async function hydrateUser(user) {
-    if (!user) {
-      window.location.href = "auth.html?mode=login";
-      return;
-    }
-
-    const { data: profile } = await client
-      .from("profiles")
-      .select("first_name, last_name, email, phone")
-      .eq("id", user.id)
-      .maybeSingle();
-
+  function fillDashboard(user, profile) {
     const { first, last } = pickName(profile, user);
     const name = `${first} ${last}`.trim() || "dig";
     const email = profile?.email || user.email || "";
@@ -205,6 +199,79 @@
     if (avatarInitials) avatarInitials.textContent = chars;
     if (menuInitials) menuInitials.textContent = chars;
     applyAvatar(avatarUrl, name);
+    return { first, name };
+  }
+
+  function wait(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  async function runSetup(userId, firstName) {
+    if (!setupScreen || setupRunning) return;
+    setupRunning = true;
+    app?.classList.add("is-setup-pending");
+    if (setupName) setupName.textContent = firstName || "dig";
+    setupScreen.hidden = false;
+
+    const steps = setupScreen.querySelectorAll(".setup-steps span");
+    const messages = [
+      "Gør klar til dine events…",
+      "Tilpasser dit workspace…",
+      "Næsten klar…",
+    ];
+
+    for (let i = 0; i < messages.length; i += 1) {
+      if (setupStatus) setupStatus.textContent = messages[i];
+      steps.forEach((el, idx) => el.classList.toggle("is-active", idx <= i));
+      await wait(i === 0 ? 1400 : 1100);
+    }
+
+    if (setupStatus) setupStatus.textContent = "Din konto er klar";
+    await client
+      .from("profiles")
+      .update({ onboarding_done: true, updated_at: new Date().toISOString() })
+      .eq("id", userId);
+
+    await wait(500);
+    setupScreen.classList.add("is-leaving");
+    await wait(520);
+    setupScreen.hidden = true;
+    setupScreen.classList.remove("is-leaving");
+    app?.classList.remove("is-setup-pending");
+    setupRunning = false;
+  }
+
+  async function fetchProfile(userId) {
+    let profile = null;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const { data } = await client
+        .from("profiles")
+        .select("first_name, last_name, email, phone, onboarding_done")
+        .eq("id", userId)
+        .maybeSingle();
+      profile = data;
+      if (profile) break;
+      await wait(300);
+    }
+    return profile;
+  }
+
+  async function hydrateUser(user, { allowSetup = true } = {}) {
+    if (!user) {
+      window.location.href = "auth.html?mode=login";
+      return;
+    }
+
+    const profile = await fetchProfile(user.id);
+    const { first } = fillDashboard(user, profile);
+    hydratedOnce = true;
+
+    const createdMs = new Date(user.created_at || 0).getTime();
+    const isFreshAccount = Number.isFinite(createdMs) && Date.now() - createdMs < 15 * 60 * 1000;
+    const needsSetup =
+      allowSetup &&
+      ((profile && profile.onboarding_done === false) || (!profile && isFreshAccount));
+    if (needsSetup) await runSetup(user.id, first);
   }
 
   async function load() {
@@ -214,9 +281,8 @@
       return;
     }
 
-    // Fresh user payload (better metadata after Google login)
     const { data: userData } = await client.auth.getUser();
-    await hydrateUser(userData.user || sessionData.session.user);
+    await hydrateUser(userData.user || sessionData.session.user, { allowSetup: true });
   }
 
   document.querySelectorAll("[data-theme-set]").forEach((btn) => {
@@ -275,8 +341,12 @@
       window.location.href = "auth.html?mode=login";
       return;
     }
-    if (session?.user && (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "USER_UPDATED")) {
-      hydrateUser(session.user);
+    if (
+      session?.user &&
+      !setupRunning &&
+      (event === "USER_UPDATED" || (event === "SIGNED_IN" && hydratedOnce))
+    ) {
+      hydrateUser(session.user, { allowSetup: false });
     }
   });
 
