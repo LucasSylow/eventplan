@@ -483,9 +483,14 @@ html[data-theme="dark"] .dash-badge.ok {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
   box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 28%, transparent);
 }
 .dash-create-btn:hover { filter: brightness(1.05); }
+
+.ov-create-btn {
+  text-decoration: none;
+}
 
 .dash-icon-btn {
   position: relative;

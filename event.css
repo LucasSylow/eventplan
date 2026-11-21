@@ -1,0 +1,101 @@
+.event-shell { gap: 18px; }
+
+.event-head .dash-empty-kicker a {
+  color: inherit;
+}
+.event-head .dash-empty-kicker a:hover { color: var(--accent); }
+
+.event-head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.event-plan-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.85fr);
+  gap: 14px;
+}
+
+.event-card-main { min-height: 320px; }
+
+.event-empty {
+  flex: 1;
+  min-height: 220px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
+  background:
+    radial-gradient(circle at 28% 18%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 52%),
+    color-mix(in srgb, var(--bg) 62%, var(--bg-2));
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 28px 18px;
+}
+.event-empty p {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+.event-empty span {
+  color: var(--muted);
+  font-size: 13.5px;
+  max-width: 36ch;
+  line-height: 1.45;
+}
+
+.event-meta {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.event-meta div {
+  padding: 12px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+  border: 1px solid var(--line);
+}
+.event-meta dt {
+  margin: 0 0 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.event-meta dd {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.event-map {
+  margin-top: 12px;
+  min-height: 180px;
+}
+.event-map iframe {
+  height: 180px;
+}
+
+.dash-create-btn { text-decoration: none; }
+
+@media (max-width: 900px) {
+  .event-grid { grid-template-columns: 1fr; }
+}

@@ -97,10 +97,10 @@
           </label>
 
           <div class="dash-top-actions">
-            <button class="dash-create-btn" type="button" id="dash-create">
+            <a class="dash-create-btn" href="create-event.html" id="dash-create">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
               Opret
-            </button>
+            </a>
             <button class="dash-icon-btn has-dot" type="button" aria-label="Kladder">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M8 4h8a2 2 0 012 2v13l-6-3-6 3V6a2 2 0 012-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
             </button>
@@ -129,12 +129,12 @@
                 <h2><span class="ov-accent" aria-hidden="true"></span>Mine events</h2>
                 <div class="ov-card-actions">
                   <span class="ov-count" id="events-count">0</span>
-                  <button class="ov-create-btn" type="button" id="overview-create">
+                  <a class="ov-create-btn" href="create-event.html" id="overview-create">
                     <span class="ov-create-ico" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
                     </span>
                     Opret
-                  </button>
+                  </a>
                 </div>
               </div>
               <div class="ov-events" id="overview-events">
@@ -222,32 +222,6 @@
           Log ud
         </button>
       </div>
-    </div>
-  </div>
-
-  <div class="ov-modal" id="create-event-modal" hidden>
-    <div class="ov-modal-backdrop" data-close-modal></div>
-    <div class="ov-modal-card" role="dialog" aria-modal="true" aria-labelledby="create-event-title">
-      <div class="ov-modal-head">
-        <h2 id="create-event-title">Opret event</h2>
-        <button type="button" class="dash-icon-btn" data-close-modal aria-label="Luk">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        </button>
-      </div>
-      <form id="create-event-form" class="ov-modal-form">
-        <label class="field">
-          <span>Titel</span>
-          <input type="text" name="title" required maxlength="120" placeholder="Fx Anna’s fødselsdag" />
-        </label>
-        <label class="field">
-          <span>Dato</span>
-          <input type="date" name="starts_at" required />
-        </label>
-        <p class="ov-modal-error" id="create-event-error" hidden></p>
-        <button class="btn-primary ov-modal-submit" type="submit">
-          <span class="btn-label">Opret event</span>
-        </button>
-      </form>
     </div>
   </div>
 

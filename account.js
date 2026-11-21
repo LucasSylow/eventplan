@@ -35,10 +35,6 @@
   const calLabel = document.getElementById("cal-label");
   const calMonth = document.getElementById("cal-month");
   const calTrack = document.getElementById("cal-track");
-  const createModal = document.getElementById("create-event-modal");
-  const createForm = document.getElementById("create-event-form");
-  const createError = document.getElementById("create-event-error");
-
   let menuOpen = false;
   let menuCloseTimer = null;
   let setupRunning = false;
@@ -254,7 +250,7 @@
     events.forEach((event) => {
       const link = document.createElement("a");
       link.className = "dash-sublink";
-      link.href = `#event-${event.id}`;
+      link.href = `event.html?id=${encodeURIComponent(event.id)}`;
       link.dataset.eventId = event.id;
       link.innerHTML = `<span></span><span class="dash-sub-arrow" aria-hidden="true">›</span>`;
       link.querySelector("span").textContent = event.title || "Untitled event";
@@ -439,25 +435,6 @@
     renderCalendar();
   }
 
-  function openCreateModal() {
-    if (!createModal) return;
-    createModal.hidden = false;
-    if (createError) {
-      createError.hidden = true;
-      createError.textContent = "";
-    }
-    const dateInput = createForm?.querySelector('input[name="starts_at"]');
-    if (dateInput && !dateInput.value) {
-      const today = new Date();
-      dateInput.value = today.toISOString().slice(0, 10);
-    }
-    createForm?.querySelector('input[name="title"]')?.focus();
-  }
-
-  function closeCreateModal() {
-    if (createModal) createModal.hidden = true;
-  }
-
   function fillDashboard(user, profile) {
     const { first, last } = pickName(profile, user);
     const name = `${first} ${last}`.trim() || "dig";
@@ -600,13 +577,9 @@
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape") return;
-    closeProfileMenu();
-    closeCreateModal();
+    if (e.key === "Escape") closeProfileMenu();
   });
 
-  document.getElementById("dash-create")?.addEventListener("click", openCreateModal);
-  document.getElementById("overview-create")?.addEventListener("click", openCreateModal);
   document.getElementById("cal-prev")?.addEventListener("click", () => {
     calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1);
     renderCalendar("prev");
@@ -614,55 +587,6 @@
   document.getElementById("cal-next")?.addEventListener("click", () => {
     calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1);
     renderCalendar("next");
-  });
-
-  createModal?.querySelectorAll("[data-close-modal]").forEach((el) => {
-    el.addEventListener("click", closeCreateModal);
-  });
-
-  createForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (!currentUserId) return;
-    if (createError) {
-      createError.hidden = true;
-      createError.textContent = "";
-    }
-
-    const fd = new FormData(createForm);
-    const titleValue = String(fd.get("title") || "").trim();
-    const dateValue = String(fd.get("starts_at") || "").trim();
-    if (!titleValue || !dateValue) return;
-
-    const startsAt = new Date(`${dateValue}T12:00:00`);
-    const { data: created, error } = await client
-      .from("events")
-      .insert({
-        owner_id: currentUserId,
-        title: titleValue,
-        starts_at: startsAt.toISOString(),
-        status: "active",
-      })
-      .select("id, title")
-      .single();
-
-    if (error) {
-      if (createError) {
-        createError.hidden = false;
-        createError.textContent = error.message || "Kunne ikke oprette event.";
-      }
-      return;
-    }
-
-    await client.from("event_activity").insert({
-      owner_id: currentUserId,
-      event_id: created.id,
-      kind: "created",
-      message: `Du oprettede “${created.title}”`,
-    });
-
-    createForm.reset();
-    closeCreateModal();
-    await loadOverviewData(currentUserId);
   });
 
   logoutBtn?.addEventListener("click", async () => {

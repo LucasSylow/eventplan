@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="da" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Opret event — Eventplan</title>
+  <link rel="icon" href="assets/logo-mark-white.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="create-event.css" />
+  <script>
+    (function () {
+      var saved = localStorage.getItem("eventlink-theme");
+      document.documentElement.setAttribute(
+        "data-theme",
+        saved === "light" || saved === "dark" ? saved : "light"
+      );
+    })();
+  </script>
+</head>
+<body class="dash-body">
+  <div class="dash-app" id="dash-app">
+    <aside class="dash-sidebar" id="dash-sidebar">
+      <div class="dash-sidebar-top">
+        <a class="dash-brand" href="index.html" aria-label="Eventplan">
+          <img class="dash-brand-word dark-only" src="assets/logo-white.png" alt="Eventplan" height="26" />
+          <img class="dash-brand-word light-only" src="assets/logo-blue.png" alt="Eventplan" height="26" />
+        </a>
+        <nav class="dash-nav" aria-label="Dashboard">
+          <a class="dash-nav-link" href="account.html">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 01-1 1h-5v-6H10v6H5a1 1 0 01-1-1v-9.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+            Oversigt
+          </a>
+          <div class="dash-nav-group is-open">
+            <button class="dash-nav-link dash-nav-toggle is-active" type="button" aria-expanded="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 3.5V7M16 3.5V7M3.5 10h17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              <span>Events</span>
+              <svg class="dash-chevron" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M8 10l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="dash-subnav" id="events-subnav">
+              <p class="dash-sub-empty">Du har ingen events</p>
+            </div>
+          </div>
+          <a class="dash-nav-link" href="account.html">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M12 15.2a3.2 3.2 0 100-6.4 3.2 3.2 0 000 6.4z" stroke="currentColor" stroke-width="1.7"/><path d="M19.4 13.2a7.4 7.4 0 000-2.4l2-1.5-1.8-3.1-2.3.7a7.5 7.5 0 00-2.1-1.2L14.8 3h-3.6l-.4 2.7a7.5 7.5 0 00-2.1 1.2l-2.3-.7-1.8 3.1 2 1.5a7.4 7.4 0 000 2.4l-2 1.5 1.8 3.1 2.3-.7a7.5 7.5 0 002.1 1.2l.4 2.7h3.6l.4-2.7a7.5 7.5 0 002.1-1.2l2.3.7 1.8-3.1-2-1.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            Indstillinger
+          </a>
+        </nav>
+      </div>
+      <div class="dash-sidebar-bottom">
+        <div class="dash-theme-pill" role="group" aria-label="Tema">
+          <button type="button" data-theme-set="light" class="is-active">Light</button>
+          <button type="button" data-theme-set="dark">Dark</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="dash-main">
+      <header class="dash-topbar">
+        <div class="dash-topbar-inner">
+          <button class="dash-icon-btn dash-menu-btn" type="button" id="dash-menu-btn" aria-label="Åbn menu">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+          <label class="dash-search">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.7"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <input type="search" placeholder="Søg eller skriv en kommando…" />
+            <kbd>⌘ F</kbd>
+          </label>
+          <div class="dash-top-actions">
+            <a class="dash-create-btn" href="create-event.html">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Opret
+            </a>
+            <button class="dash-avatar" type="button" id="dash-avatar" aria-label="Profil">
+              <span class="dash-avatar-fallback" id="dash-avatar-initials">EP</span>
+              <img class="dash-avatar-img" id="dash-avatar-img" alt="" hidden />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="dash-content create-content">
+        <div class="create-shell">
+          <header class="create-head">
+            <p class="create-crumb"><a href="account.html">Dashboard</a> / <strong id="create-crumb-step">Vælg pakke</strong></p>
+            <div class="create-steps" aria-label="Trin">
+              <span class="is-active" data-step-indicator="1">1. Pakke</span>
+              <span data-step-indicator="2">2. Detaljer</span>
+            </div>
+          </header>
+
+          <section class="create-step is-active" id="step-plan" data-step="1">
+            <div class="create-intro">
+              <h1>Vælg pakke til dit event</h1>
+              <p>Engangsbetaling — ingen abonnement. Betaling sætter vi op senere; vælg bare den pakke, der passer.</p>
+            </div>
+
+            <div class="plan-grid">
+              <article class="plan-card" data-plan="gratis">
+                <div class="plan-cube plan-cube-gold" aria-hidden="true"></div>
+                <h2>Gratis</h2>
+                <p class="plan-price">0 kr <span>engangsbetaling</span></p>
+                <button type="button" class="plan-btn plan-btn-outline" data-select-plan="gratis">Vælg Gratis</button>
+                <div class="plan-features">
+                  <p>Til mindre events</p>
+                  <ul>
+                    <li>Op til 30 gæster</li>
+                    <li>Invitation via link eller mail</li>
+                    <li>Lokation med navigation</li>
+                    <li>To-do liste til forberedelsen</li>
+                  </ul>
+                </div>
+              </article>
+
+              <article class="plan-card plan-card-popular" data-plan="premium">
+                <p class="plan-badge">★ Mest populær</p>
+                <div class="plan-cube plan-cube-blue" aria-hidden="true"></div>
+                <h2>Premium</h2>
+                <p class="plan-price">75 kr <span>engangsbetaling</span></p>
+                <button type="button" class="plan-btn plan-btn-solid" data-select-plan="premium">Vælg Premium →</button>
+                <div class="plan-features">
+                  <p>Til de fleste fester</p>
+                  <ul>
+                    <li>Op til 100 gæster</li>
+                    <li>Invitation via link eller mail</li>
+                    <li>Lokation med navigation</li>
+                    <li>Medarrangører</li>
+                    <li>Budget & indkøbsliste</li>
+                    <li>Redigér invitationen</li>
+                    <li>Fælleschat i appen</li>
+                    <li>Gæster kan uploade billeder</li>
+                    <li>To-do liste</li>
+                  </ul>
+                </div>
+              </article>
+
+              <article class="plan-card" data-plan="pro">
+                <div class="plan-cube plan-cube-violet" aria-hidden="true"></div>
+                <h2>Pro</h2>
+                <p class="plan-price">150 kr <span>engangsbetaling</span></p>
+                <button type="button" class="plan-btn plan-btn-outline" data-select-plan="pro">Vælg Pro</button>
+                <div class="plan-features">
+                  <p>Til store events</p>
+                  <ul>
+                    <li>Ubegrænset antal gæster</li>
+                    <li>Alt fra Premium</li>
+                    <li>Invitation, chat og billeder</li>
+                    <li>Budget, to-do og medarrangører</li>
+                  </ul>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="create-step" id="step-details" data-step="2" hidden>
+            <div class="create-intro create-intro-row">
+              <div>
+                <h1>Fortæl om dit event</h1>
+                <p>Udfyld de vigtigste detaljer. Lokation kan du også tilføje senere.</p>
+              </div>
+              <button type="button" class="create-back" id="back-to-plans">← Skift pakke</button>
+            </div>
+
+            <form class="create-form" id="event-details-form">
+              <div class="create-form-grid">
+                <label class="field create-field-full">
+                  <span>Eventnavn</span>
+                  <input type="text" name="title" required maxlength="120" placeholder="Fx Annas 30-års fødselsdag" />
+                </label>
+
+                <label class="field create-field-full">
+                  <span>Beskrivelse</span>
+                  <textarea name="description" rows="4" maxlength="2000" placeholder="Hvad skal gæsterne vide? Dresscode, program, praktisk info…"></textarea>
+                </label>
+
+                <label class="field create-field-full">
+                  <span>Lokation <em>(valgfrit)</em></span>
+                  <div class="location-row">
+                    <input type="text" name="location" id="location-input" maxlength="200" placeholder="Adresse eller sted" />
+                    <button type="button" class="location-preview-btn" id="preview-location">Vis på kort</button>
+                  </div>
+                </label>
+
+                <div class="map-box" id="map-box" hidden>
+                  <iframe id="map-frame" title="Kort over lokation" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+
+                <label class="field">
+                  <span>Dato</span>
+                  <input type="date" name="date" required />
+                </label>
+                <label class="field">
+                  <span>Tidspunkt</span>
+                  <input type="time" name="time" required value="18:00" />
+                </label>
+              </div>
+
+              <p class="create-form-error" id="create-form-error" hidden></p>
+
+              <div class="create-form-actions">
+                <p class="create-selected-plan">Valgt pakke: <strong id="selected-plan-label">Gratis</strong></p>
+                <button class="btn-primary create-submit" type="submit" id="create-submit">
+                  Opret event
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+  <script src="create-event.js"></script>
+</body>
+</html>
