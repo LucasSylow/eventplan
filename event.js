@@ -123,7 +123,7 @@
     const [{ data: event, error }, { data: events }] = await Promise.all([
       client
         .from("events")
-        .select("id, title, description, location, plan, starts_at, starts_time")
+        .select("id, title, description, location, plan, starts_at, ends_at, starts_time")
         .eq("id", eventId)
         .eq("owner_id", user.id)
         .maybeSingle(),
@@ -151,6 +151,10 @@
     }
     if (planEl) planEl.textContent = planNames[event.plan] || event.plan || "Gratis";
     if (dateEl) dateEl.textContent = formatDate(event.starts_at);
+    const endDateEl = document.getElementById("event-end-date");
+    if (endDateEl) {
+      endDateEl.textContent = event.ends_at ? formatDate(event.ends_at) : "Ikke sat";
+    }
     if (timeEl) {
       timeEl.textContent =
         event.starts_time ||

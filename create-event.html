@@ -105,12 +105,12 @@
                 <p class="plan-price">0 kr <span>engangsbetaling</span></p>
                 <button type="button" class="plan-btn plan-btn-outline" data-select-plan="gratis">Vælg Gratis</button>
                 <div class="plan-features">
-                  <p>Til mindre events</p>
+                  <p>Inkluderet</p>
                   <ul>
-                    <li>Op til 30 gæster</li>
-                    <li>Invitation via link eller mail</li>
-                    <li>Lokation med navigation</li>
-                    <li>To-do liste til forberedelsen</li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Op til 30 gæster</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Invitation via link eller mail</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Lokation med navigation</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>To-do liste til forberedelsen</span></li>
                   </ul>
                 </div>
               </article>
@@ -122,17 +122,17 @@
                 <p class="plan-price">75 kr <span>engangsbetaling</span></p>
                 <button type="button" class="plan-btn plan-btn-solid" data-select-plan="premium">Vælg Premium →</button>
                 <div class="plan-features">
-                  <p>Til de fleste fester</p>
+                  <p>Inkluderet</p>
                   <ul>
-                    <li>Op til 100 gæster</li>
-                    <li>Invitation via link eller mail</li>
-                    <li>Lokation med navigation</li>
-                    <li>Medarrangører</li>
-                    <li>Budget & indkøbsliste</li>
-                    <li>Redigér invitationen</li>
-                    <li>Fælleschat i appen</li>
-                    <li>Gæster kan uploade billeder</li>
-                    <li>To-do liste</li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Op til 100 gæster</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Invitation via link eller mail</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Lokation med navigation</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Medarrangører</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Budget &amp; indkøbsliste</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Redigér invitationen</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Fælleschat i appen</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Gæster kan uploade billeder</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>To-do liste</span></li>
                   </ul>
                 </div>
               </article>
@@ -143,12 +143,12 @@
                 <p class="plan-price">150 kr <span>engangsbetaling</span></p>
                 <button type="button" class="plan-btn plan-btn-outline" data-select-plan="pro">Vælg Pro</button>
                 <div class="plan-features">
-                  <p>Til store events</p>
+                  <p>Inkluderet</p>
                   <ul>
-                    <li>Ubegrænset antal gæster</li>
-                    <li>Alt fra Premium</li>
-                    <li>Invitation, chat og billeder</li>
-                    <li>Budget, to-do og medarrangører</li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Ubegrænset antal gæster</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Alt fra Premium</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Invitation, chat og billeder</span></li>
+                    <li><span class="plan-check" aria-hidden="true"></span><span>Budget, to-do og medarrangører</span></li>
                   </ul>
                 </div>
               </article>
@@ -176,26 +176,52 @@
                   <textarea name="description" rows="4" maxlength="2000" placeholder="Hvad skal gæsterne vide? Dresscode, program, praktisk info…"></textarea>
                 </label>
 
-                <label class="field create-field-full">
+                <div class="field create-field-full location-field">
                   <span>Lokation <em>(valgfrit)</em></span>
-                  <div class="location-row">
-                    <input type="text" name="location" id="location-input" maxlength="200" placeholder="Adresse eller sted" />
-                    <button type="button" class="location-preview-btn" id="preview-location">Vis på kort</button>
+                  <div class="location-wrap">
+                    <input type="text" name="location" id="location-input" maxlength="200" placeholder="Begynd at skrive en adresse…" autocomplete="off" />
+                    <div class="location-suggestions" id="location-suggestions" hidden></div>
                   </div>
-                </label>
+                  <p class="field-hint">Vælg et forslag, eller tryk Enter — så henter vi kortet automatisk.</p>
+                </div>
 
                 <div class="map-box" id="map-box" hidden>
+                  <div class="map-box-head">
+                    <span>Kortpreview</span>
+                    <button type="button" class="map-clear" id="map-clear">Skjul</button>
+                  </div>
                   <iframe id="map-frame" title="Kort over lokation" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
 
-                <label class="field">
-                  <span>Dato</span>
-                  <input type="date" name="date" required />
-                </label>
-                <label class="field">
+                <div class="field">
+                  <span>Startdato</span>
+                  <div class="date-field" data-date-field="start">
+                    <input type="hidden" name="date" id="start-date-value" required />
+                    <button type="button" class="date-trigger" id="start-date-trigger">
+                      <span id="start-date-label">Vælg dato</span>
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 3.5V7M16 3.5V7M3.5 10h17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                    </button>
+                    <div class="date-popover" id="start-date-pop" hidden></div>
+                  </div>
+                </div>
+
+                <div class="field">
                   <span>Tidspunkt</span>
                   <input type="time" name="time" required value="18:00" />
-                </label>
+                </div>
+
+                <div class="field create-field-full">
+                  <span>Slutdato <em>(valgfrit)</em></span>
+                  <div class="date-field" data-date-field="end">
+                    <input type="hidden" name="end_date" id="end-date-value" />
+                    <button type="button" class="date-trigger" id="end-date-trigger">
+                      <span id="end-date-label">Tilføj slutdato</span>
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 3.5V7M16 3.5V7M3.5 10h17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                    </button>
+                    <button type="button" class="date-clear" id="end-date-clear" hidden>Fjern</button>
+                    <div class="date-popover" id="end-date-pop" hidden></div>
+                  </div>
+                </div>
               </div>
 
               <p class="create-form-error" id="create-form-error" hidden></p>
