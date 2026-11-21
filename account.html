@@ -163,11 +163,15 @@
         </div>
       </header>
 
-      <main class="dash-content" id="dash-content">
+      <main class="dash-content is-booting" id="dash-content" aria-busy="true">
+        <div class="dash-boot" id="dash-boot" aria-live="polite">
+          <div class="dash-boot-spinner" aria-hidden="true"></div>
+          <p>Henter dit dashboard…</p>
+        </div>
         <div class="ov-shell">
           <header class="dash-page-head">
             <p class="dash-empty-kicker">Dashboard</p>
-            <h1 id="dash-title">Velkommen</h1>
+            <h1 id="dash-title"><span class="dash-title-skel" aria-hidden="true"></span></h1>
             <p id="dash-sub">Dit overblik over events, aktivitet og medarrangører.</p>
           </header>
 

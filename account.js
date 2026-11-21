@@ -10,6 +10,7 @@
     },
   });
 
+  const dashContent = document.getElementById("dash-content");
   const title = document.getElementById("dash-title");
   const sub = document.getElementById("dash-sub");
   const logoutBtn = document.getElementById("logout-btn");
@@ -748,26 +749,43 @@
     return profile;
   }
 
+  function setBooting(isBooting) {
+    if (!dashContent) return;
+    dashContent.classList.toggle("is-booting", Boolean(isBooting));
+    dashContent.setAttribute("aria-busy", isBooting ? "true" : "false");
+  }
+
   async function hydrateUser(user, { allowSetup = true } = {}) {
     if (!user) {
       window.location.href = "auth.html?mode=login";
       return;
     }
 
-    const profile = await fetchProfile(user.id);
-    const { first } = fillDashboard(user, profile);
-    await loadOverviewData(user.id);
-    hydratedOnce = true;
+    setBooting(true);
+    // Show name ASAP from auth metadata while profile/overview loads
+    fillDashboard(user, null);
 
-    const createdMs = new Date(user.created_at || 0).getTime();
-    const isFreshAccount = Number.isFinite(createdMs) && Date.now() - createdMs < 15 * 60 * 1000;
-    const needsSetup =
-      allowSetup &&
-      ((profile && profile.onboarding_done === false) || (!profile && isFreshAccount));
-    if (needsSetup) await runSetup(user.id, first);
+    try {
+      const profile = await fetchProfile(user.id);
+      const { first } = fillDashboard(user, profile);
+      await loadOverviewData(user.id);
+      hydratedOnce = true;
+      setBooting(false);
+
+      const createdMs = new Date(user.created_at || 0).getTime();
+      const isFreshAccount = Number.isFinite(createdMs) && Date.now() - createdMs < 15 * 60 * 1000;
+      const needsSetup =
+        allowSetup &&
+        ((profile && profile.onboarding_done === false) || (!profile && isFreshAccount));
+      if (needsSetup) await runSetup(user.id, first);
+    } catch (err) {
+      setBooting(false);
+      throw err;
+    }
   }
 
   async function load() {
+    setBooting(true);
     const { data: sessionData } = await client.auth.getSession();
     if (!sessionData.session) {
       window.location.href = "auth.html?mode=login";
