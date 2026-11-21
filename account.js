@@ -41,6 +41,7 @@
   let hydratedOnce = false;
   let currentUserId = null;
   let cachedEvents = [];
+  let cachedGuestStats = {};
   let calCursor = new Date();
   calCursor.setDate(1);
 
@@ -244,6 +245,27 @@
     return d.toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
   }
 
+  function parseLocationParts(location) {
+    const raw = String(location || "").trim();
+    if (!raw) return { place: "", city: "" };
+    const parts = raw.split(",").map((part) => part.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      return { place: parts[0], city: parts.slice(1).join(", ") };
+    }
+    return { place: raw, city: "" };
+  }
+
+  function eventTimeLabel(event) {
+    if (event?.starts_time) return String(event.starts_time).slice(0, 5);
+    return formatTimeShort(event?.starts_at) || "Heldags";
+  }
+
+  function mapsEmbedUrl(location) {
+    const q = String(location || "").trim();
+    if (!q) return "";
+    return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=14&output=embed`;
+  }
+
   function renderSidebarEvents(events) {
     if (!eventsSubnav) return;
     eventsSubnav.innerHTML = "";
@@ -434,18 +456,30 @@
 
       let tip = "";
       if (dayEvents.length) {
-        const items = dayEvents
-          .slice(0, 3)
-          .map((event) => {
-            const time = formatTimeShort(event.starts_at);
-            return `<div class="ov-cal-tip-item"><strong></strong><span>${time || "Heldags"}</span></div>`;
-          })
-          .join("");
+        const primary = dayEvents[0];
+        const hasLocation = Boolean(String(primary.location || "").trim());
+        const mapBlock = hasLocation
+          ? `<div class="ov-cal-tip-map" data-map-q="" aria-hidden="true"><span class="ov-cal-tip-map-ph">Kort</span></div>`
+          : "";
         const more =
-          dayEvents.length > 3
-            ? `<p class="ov-cal-tip-more">+${dayEvents.length - 3} mere</p>`
-            : "";
-        tip = `<div class="ov-cal-tip" role="tooltip"><p class="ov-cal-tip-kicker">Events</p><div class="ov-cal-tip-list">${items}</div>${more}</div>`;
+          dayEvents.length > 1
+            ? `<p class="ov-cal-tip-more">+${dayEvents.length - 1} mere · klik for admin</p>`
+            : `<p class="ov-cal-tip-more">Klik for eventadministration</p>`;
+        tip = `
+          <div class="ov-cal-tip" role="tooltip">
+            <p class="ov-cal-tip-title"></p>
+            <div class="ov-cal-tip-stats">
+              <span><b class="tip-attending"></b> deltager</span>
+              <span><b class="tip-invited"></b> inviteret</span>
+            </div>
+            ${mapBlock}
+            <div class="ov-cal-tip-meta">
+              <p class="ov-cal-tip-place"></p>
+              <p class="ov-cal-tip-city"></p>
+              <p class="ov-cal-tip-time"></p>
+            </div>
+            ${more}
+          </div>`;
       }
 
       cells.push(
@@ -462,12 +496,46 @@
     calMonth.querySelectorAll(".ov-cal-day.has-event").forEach((btn) => {
       const key = btn.dataset.calKey;
       const dayEvents = byDay[key] || [];
-      btn.querySelectorAll(".ov-cal-tip-item strong").forEach((el, index) => {
-        el.textContent = dayEvents[index]?.title || "Event";
-      });
+      const primary = dayEvents[0];
+      if (!primary) return;
+
+      const stats = cachedGuestStats[primary.id] || { invited: 0, attending: 0 };
+      const loc = parseLocationParts(primary.location);
+      const titleEl = btn.querySelector(".ov-cal-tip-title");
+      const placeEl = btn.querySelector(".ov-cal-tip-place");
+      const cityEl = btn.querySelector(".ov-cal-tip-city");
+      const timeEl = btn.querySelector(".ov-cal-tip-time");
+      const mapEl = btn.querySelector(".ov-cal-tip-map");
+
+      if (titleEl) titleEl.textContent = primary.title || "Event";
+      btn.querySelector(".tip-attending").textContent = String(stats.attending);
+      btn.querySelector(".tip-invited").textContent = String(stats.invited);
+      if (placeEl) {
+        placeEl.textContent = loc.place || "Lokation ikke sat";
+        placeEl.hidden = false;
+      }
+      if (cityEl) {
+        cityEl.textContent = loc.city;
+        cityEl.hidden = !loc.city;
+      }
+      if (timeEl) timeEl.textContent = eventTimeLabel(primary);
+      if (mapEl && primary.location) {
+        mapEl.dataset.mapQ = primary.location;
+      }
+
+      const ensureMap = () => {
+        if (!mapEl || mapEl.dataset.ready === "1") return;
+        const q = mapEl.dataset.mapQ;
+        const src = mapsEmbedUrl(q);
+        if (!src) return;
+        mapEl.dataset.ready = "1";
+        mapEl.innerHTML = `<iframe src="${src}" title="Kort" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1"></iframe>`;
+      };
+
+      btn.addEventListener("mouseenter", ensureMap);
+      btn.addEventListener("focus", ensureMap);
       btn.addEventListener("click", () => {
-        const first = dayEvents[0];
-        if (first?.id) window.location.href = `event.html?id=${encodeURIComponent(first.id)}`;
+        if (primary.id) window.location.href = `event.html?id=${encodeURIComponent(primary.id)}`;
       });
     });
   }
@@ -478,7 +546,7 @@
       await Promise.all([
         client
           .from("events")
-          .select("id, title, starts_at, created_at, status")
+          .select("id, title, starts_at, starts_time, created_at, status, location")
           .eq("owner_id", userId)
           .order("created_at", { ascending: false }),
         client
@@ -508,6 +576,7 @@
     });
 
     cachedEvents = events || [];
+    cachedGuestStats = guestStats;
     renderSidebarEvents(cachedEvents);
     renderOverviewEvents(cachedEvents, guestStats);
     renderCollaborators(collabs || []);

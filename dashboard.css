@@ -1071,7 +1071,7 @@ html[data-theme="dark"] .ov-event-status {
 }
 .ov-cal-day.has-event:hover,
 .ov-cal-day.has-event:focus-visible {
-  z-index: 8;
+  z-index: 20;
   filter: brightness(1.03);
 }
 
@@ -1080,13 +1080,13 @@ html[data-theme="dark"] .ov-event-status {
   left: 50%;
   bottom: calc(100% + 10px);
   transform: translateX(-50%) translateY(6px) scale(0.96);
-  width: max(196px, 100%);
-  min-width: 188px;
-  padding: 12px 13px;
+  width: 228px;
+  min-width: 228px;
+  padding: 12px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.65);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 255, 0.82));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 255, 0.86));
   backdrop-filter: blur(28px) saturate(1.5);
   -webkit-backdrop-filter: blur(28px) saturate(1.5);
   box-shadow:
@@ -1099,10 +1099,12 @@ html[data-theme="dark"] .ov-event-status {
   text-align: left;
   color: #0f1728;
   isolation: isolate;
+  display: grid;
+  gap: 8px;
 }
 html[data-theme="dark"] .ov-cal-tip {
   background:
-    linear-gradient(180deg, rgba(24, 34, 54, 0.94), rgba(14, 22, 38, 0.88));
+    linear-gradient(180deg, rgba(24, 34, 54, 0.95), rgba(14, 22, 38, 0.9));
   border-color: rgba(255, 255, 255, 0.18);
   color: #f4f7ff;
   box-shadow:
@@ -1125,56 +1127,123 @@ html[data-theme="dark"] .ov-cal-tip {
   margin-left: -5.5px;
   margin-top: -5.5px;
   transform: rotate(45deg);
-  background: rgba(248, 250, 255, 0.88);
+  background: rgba(248, 250, 255, 0.9);
   border-right: 1px solid rgba(255, 255, 255, 0.65);
   border-bottom: 1px solid rgba(255, 255, 255, 0.65);
   box-shadow: 2px 2px 6px rgba(15, 23, 40, 0.08);
 }
 html[data-theme="dark"] .ov-cal-tip::after {
-  background: rgba(16, 24, 40, 0.92);
+  background: rgba(16, 24, 40, 0.94);
   border-right-color: rgba(255, 255, 255, 0.18);
   border-bottom-color: rgba(255, 255, 255, 0.18);
 }
-.ov-cal-tip-kicker {
-  margin: 0 0 7px;
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #4b5d7a;
+.ov-cal-tip-title {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 780;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #0c1526;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-html[data-theme="dark"] .ov-cal-tip-kicker {
+html[data-theme="dark"] .ov-cal-tip-title {
+  color: #f4f7ff;
+}
+.ov-cal-tip-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+.ov-cal-tip-stats span {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #5a6d88;
+  letter-spacing: 0.01em;
+}
+html[data-theme="dark"] .ov-cal-tip-stats span {
   color: #9db0cc;
 }
-.ov-cal-tip-list {
-  display: grid;
-  gap: 7px;
+.ov-cal-tip-stats b {
+  font-size: 11.5px;
+  font-weight: 750;
+  color: #15233b;
+  margin-right: 2px;
 }
-.ov-cal-tip-item {
+html[data-theme="dark"] .ov-cal-tip-stats b {
+  color: #e8eefc;
+}
+.ov-cal-tip-map {
+  position: relative;
+  width: 100%;
+  height: 92px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #d9e6f7, #eef3fb 55%, #dfeaf7);
+  border: 1px solid rgba(15, 23, 40, 0.08);
+}
+html[data-theme="dark"] .ov-cal-tip-map {
+  background: linear-gradient(135deg, #1a2740, #243552);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.ov-cal-tip-map-ph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7f9c;
+}
+.ov-cal-tip-map iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+  filter: saturate(1.05) contrast(1.02);
+}
+.ov-cal-tip-meta {
   display: grid;
   gap: 2px;
 }
-.ov-cal-tip-item strong {
-  font-size: 13.5px;
-  font-weight: 750;
-  color: #0f1728;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
+.ov-cal-tip-place,
+.ov-cal-tip-city,
+.ov-cal-tip-time {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.3;
 }
-html[data-theme="dark"] .ov-cal-tip-item strong {
-  color: #f4f7ff;
+.ov-cal-tip-place {
+  font-weight: 700;
+  color: #15233b;
 }
-.ov-cal-tip-item span {
-  font-size: 11.5px;
+html[data-theme="dark"] .ov-cal-tip-place {
+  color: #e8eefc;
+}
+.ov-cal-tip-city {
+  font-weight: 600;
+  color: #5a6d88;
+}
+html[data-theme="dark"] .ov-cal-tip-city {
+  color: #9db0cc;
+}
+.ov-cal-tip-time {
+  margin-top: 2px;
   font-weight: 650;
-  color: #53657f;
+  color: #3f5473;
 }
-html[data-theme="dark"] .ov-cal-tip-item span {
-  color: #a8bad3;
+html[data-theme="dark"] .ov-cal-tip-time {
+  color: #b7c7de;
 }
 .ov-cal-tip-more {
-  margin: 7px 0 0;
-  font-size: 11.5px;
+  margin: 0;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--accent);
 }
