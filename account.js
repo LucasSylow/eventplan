@@ -27,11 +27,26 @@
   const setupScreen = document.getElementById("setup-screen");
   const setupName = document.getElementById("setup-name");
   const setupStatus = document.getElementById("setup-status");
+  const eventsSubnav = document.getElementById("events-subnav");
+  const overviewEvents = document.getElementById("overview-events");
+  const overviewCollab = document.getElementById("overview-collab");
+  const overviewActivity = document.getElementById("overview-activity");
+  const eventsCount = document.getElementById("events-count");
+  const calLabel = document.getElementById("cal-label");
+  const calMonth = document.getElementById("cal-month");
+  const calTrack = document.getElementById("cal-track");
+  const createModal = document.getElementById("create-event-modal");
+  const createForm = document.getElementById("create-event-form");
+  const createError = document.getElementById("create-event-error");
 
   let menuOpen = false;
   let menuCloseTimer = null;
   let setupRunning = false;
   let hydratedOnce = false;
+  let currentUserId = null;
+  let cachedEvents = [];
+  let calCursor = new Date();
+  calCursor.setDate(1);
 
   function pickName(profile, user) {
     const meta = user?.user_metadata || {};
@@ -182,6 +197,267 @@
     else openProfileMenu();
   }
 
+  function formatDate(value) {
+    if (!value) return "Ingen dato";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "Ingen dato";
+    return d.toLocaleDateString("da-DK", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  function formatRelative(value) {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    const diff = Date.now() - d.getTime();
+    const mins = Math.round(diff / 60000);
+    if (mins < 1) return "nu";
+    if (mins < 60) return `${mins} min`;
+    const hours = Math.round(mins / 60);
+    if (hours < 24) return `${hours} t`;
+    const days = Math.round(hours / 24);
+    if (days < 7) return `${days} d`;
+    return formatDate(value);
+  }
+
+  function monthLabel(date) {
+    const label = date.toLocaleDateString("da-DK", { month: "long", year: "numeric" });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+
+  function eventDayKeys(events) {
+    const keys = new Set();
+    (events || []).forEach((event) => {
+      const raw = event.starts_at || event.created_at;
+      if (!raw) return;
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return;
+      keys.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
+    });
+    return keys;
+  }
+
+  function renderSidebarEvents(events) {
+    if (!eventsSubnav) return;
+    eventsSubnav.innerHTML = "";
+
+    if (!events?.length) {
+      const empty = document.createElement("p");
+      empty.className = "dash-sub-empty";
+      empty.textContent = "Du har ingen events";
+      eventsSubnav.appendChild(empty);
+      return;
+    }
+
+    events.forEach((event) => {
+      const link = document.createElement("a");
+      link.className = "dash-sublink";
+      link.href = `#event-${event.id}`;
+      link.dataset.eventId = event.id;
+      link.innerHTML = `<span></span><span class="dash-sub-arrow" aria-hidden="true">›</span>`;
+      link.querySelector("span").textContent = event.title || "Untitled event";
+      eventsSubnav.appendChild(link);
+    });
+  }
+
+  function renderOverviewEvents(events) {
+    if (!overviewEvents) return;
+    if (eventsCount) eventsCount.textContent = String(events?.length || 0);
+    overviewEvents.innerHTML = "";
+
+    if (!events?.length) {
+      overviewEvents.innerHTML = `
+        <div class="ov-empty" id="events-empty-state">
+          <div class="ov-empty-orb" aria-hidden="true"></div>
+          <p>Ingen events</p>
+          <span>Opret dit første event og få overblikket her.</span>
+        </div>`;
+      return;
+    }
+
+    events.forEach((event, index) => {
+      const row = document.createElement("article");
+      row.className = "ov-event";
+      row.style.animationDelay = `${index * 0.04}s`;
+      row.innerHTML = `
+        <div class="ov-event-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="3.5" y="5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 3.5V7M16 3.5V7M3.5 10h17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <strong></strong>
+          <span></span>
+        </div>
+        <span class="ov-event-status">Aktiv</span>`;
+      row.querySelector("strong").textContent = event.title || "Untitled event";
+      row.querySelector("span:not(.ov-event-status)").textContent = formatDate(
+        event.starts_at || event.created_at
+      );
+      overviewEvents.appendChild(row);
+    });
+  }
+
+  function renderCollaborators(list) {
+    if (!overviewCollab) return;
+    overviewCollab.innerHTML = "";
+    if (!list?.length) {
+      overviewCollab.innerHTML = `
+        <div class="ov-empty ov-empty-sm">
+          <p>Ingen</p>
+          <span>Når du inviterer medarrangører, vises de her.</span>
+        </div>`;
+      return;
+    }
+
+    list.forEach((person) => {
+      const el = document.createElement("div");
+      el.className = "ov-person";
+      const avatar = document.createElement("div");
+      avatar.className = "ov-person-avatar";
+      if (person.avatar_url) {
+        const img = document.createElement("img");
+        img.src = person.avatar_url;
+        img.alt = person.name || "";
+        img.referrerPolicy = "no-referrer";
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = (person.name || "?").slice(0, 2).toUpperCase();
+      }
+      const label = document.createElement("span");
+      label.textContent = person.name || "Medarrangør";
+      el.append(avatar, label);
+      overviewCollab.appendChild(el);
+    });
+  }
+
+  function renderActivity(list) {
+    if (!overviewActivity) return;
+    overviewActivity.innerHTML = "";
+    if (!list?.length) {
+      overviewActivity.innerHTML = `
+        <div class="ov-empty ov-empty-sm">
+          <p>Ingen aktivitet endnu</p>
+          <span>Handlingerne på dine events dukker op her.</span>
+        </div>`;
+      return;
+    }
+
+    list.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "ov-activity-item";
+      row.innerHTML = `
+        <span class="ov-activity-dot" aria-hidden="true"></span>
+        <div>
+          <strong></strong>
+          <span></span>
+        </div>
+        <span class="ov-activity-time"></span>`;
+      row.querySelector("strong").textContent = item.message || "Aktivitet";
+      row.querySelector("div span").textContent = item.event_title || "Event";
+      row.querySelector(".ov-activity-time").textContent = formatRelative(item.created_at);
+      overviewActivity.appendChild(row);
+    });
+  }
+
+  function renderCalendar(direction) {
+    if (!calMonth || !calLabel) return;
+    const year = calCursor.getFullYear();
+    const month = calCursor.getMonth();
+    calLabel.textContent = monthLabel(calCursor);
+
+    if (calTrack && direction) {
+      calTrack.classList.remove("is-slide-left", "is-slide-right");
+      void calTrack.offsetWidth;
+      calTrack.classList.add(direction === "next" ? "is-slide-left" : "is-slide-right");
+    }
+
+    const firstDay = new Date(year, month, 1);
+    const startWeekday = (firstDay.getDay() + 6) % 7; // Monday first
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevDays = new Date(year, month, 0).getDate();
+    const marked = eventDayKeys(cachedEvents);
+    const today = new Date();
+
+    const weekdays = ["Ma", "Ti", "On", "To", "Fr", "Lø", "Sø"]
+      .map((d) => `<span>${d}</span>`)
+      .join("");
+
+    const cells = [];
+    for (let i = 0; i < startWeekday; i += 1) {
+      const day = prevDays - startWeekday + i + 1;
+      cells.push(`<button type="button" class="ov-cal-day is-muted" tabindex="-1">${day}</button>`);
+    }
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const key = `${year}-${month}-${day}`;
+      const isToday =
+        today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+      const classes = ["ov-cal-day"];
+      if (isToday) classes.push("is-today");
+      if (marked.has(key)) classes.push("has-event");
+      cells.push(`<button type="button" class="${classes.join(" ")}">${day}</button>`);
+    }
+    while (cells.length % 7 !== 0) {
+      const day = cells.length - (startWeekday + daysInMonth) + 1;
+      cells.push(`<button type="button" class="ov-cal-day is-muted" tabindex="-1">${day}</button>`);
+    }
+
+    calMonth.innerHTML = `<div class="ov-cal-weekdays">${weekdays}</div><div class="ov-cal-days">${cells.join("")}</div>`;
+  }
+
+  async function loadOverviewData(userId) {
+    currentUserId = userId;
+    const [{ data: events }, { data: collabs }, { data: activity }] = await Promise.all([
+      client
+        .from("events")
+        .select("id, title, starts_at, created_at, status")
+        .eq("owner_id", userId)
+        .order("created_at", { ascending: false }),
+      client
+        .from("event_collaborators")
+        .select("id, name, avatar_url, event_id")
+        .eq("owner_id", userId)
+        .order("created_at", { ascending: false }),
+      client
+        .from("event_activity")
+        .select("id, message, created_at, event_id, events(title)")
+        .eq("owner_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(12),
+    ]);
+
+    cachedEvents = events || [];
+    renderSidebarEvents(cachedEvents);
+    renderOverviewEvents(cachedEvents);
+    renderCollaborators(collabs || []);
+    renderActivity(
+      (activity || []).map((item) => ({
+        ...item,
+        event_title: item.events?.title || "Event",
+      }))
+    );
+    renderCalendar();
+  }
+
+  function openCreateModal() {
+    if (!createModal) return;
+    createModal.hidden = false;
+    if (createError) {
+      createError.hidden = true;
+      createError.textContent = "";
+    }
+    const dateInput = createForm?.querySelector('input[name="starts_at"]');
+    if (dateInput && !dateInput.value) {
+      const today = new Date();
+      dateInput.value = today.toISOString().slice(0, 10);
+    }
+    createForm?.querySelector('input[name="title"]')?.focus();
+  }
+
+  function closeCreateModal() {
+    if (createModal) createModal.hidden = true;
+  }
+
   function fillDashboard(user, profile) {
     const { first, last } = pickName(profile, user);
     const name = `${first} ${last}`.trim() || "dig";
@@ -191,8 +467,7 @@
 
     if (title) title.textContent = `Hej ${first || name}`;
     if (sub) {
-      sub.textContent =
-        "Dit overblik kommer her snart. Navigationen er klar — indhold følger.";
+      sub.textContent = "Dit overblik over events, aktivitet og medarrangører.";
     }
     if (profileName) profileName.textContent = name === "dig" ? "Din konto" : name;
     if (profileEmail) profileEmail.textContent = email;
@@ -264,6 +539,7 @@
 
     const profile = await fetchProfile(user.id);
     const { first } = fillDashboard(user, profile);
+    await loadOverviewData(user.id);
     hydratedOnce = true;
 
     const createdMs = new Date(user.created_at || 0).getTime();
@@ -324,11 +600,69 @@
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeProfileMenu();
+    if (e.key !== "Escape") return;
+    closeProfileMenu();
+    closeCreateModal();
   });
 
-  document.getElementById("dash-create")?.addEventListener("click", () => {
-    if (sub) sub.textContent = "Opret event kommer snart — skallen er klar.";
+  document.getElementById("dash-create")?.addEventListener("click", openCreateModal);
+  document.getElementById("overview-create")?.addEventListener("click", openCreateModal);
+  document.getElementById("cal-prev")?.addEventListener("click", () => {
+    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1);
+    renderCalendar("prev");
+  });
+  document.getElementById("cal-next")?.addEventListener("click", () => {
+    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1);
+    renderCalendar("next");
+  });
+
+  createModal?.querySelectorAll("[data-close-modal]").forEach((el) => {
+    el.addEventListener("click", closeCreateModal);
+  });
+
+  createForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!currentUserId) return;
+    if (createError) {
+      createError.hidden = true;
+      createError.textContent = "";
+    }
+
+    const fd = new FormData(createForm);
+    const titleValue = String(fd.get("title") || "").trim();
+    const dateValue = String(fd.get("starts_at") || "").trim();
+    if (!titleValue || !dateValue) return;
+
+    const startsAt = new Date(`${dateValue}T12:00:00`);
+    const { data: created, error } = await client
+      .from("events")
+      .insert({
+        owner_id: currentUserId,
+        title: titleValue,
+        starts_at: startsAt.toISOString(),
+        status: "active",
+      })
+      .select("id, title")
+      .single();
+
+    if (error) {
+      if (createError) {
+        createError.hidden = false;
+        createError.textContent = error.message || "Kunne ikke oprette event.";
+      }
+      return;
+    }
+
+    await client.from("event_activity").insert({
+      owner_id: currentUserId,
+      event_id: created.id,
+      kind: "created",
+      message: `Du oprettede “${created.title}”`,
+    });
+
+    createForm.reset();
+    closeCreateModal();
+    await loadOverviewData(currentUserId);
   });
 
   logoutBtn?.addEventListener("click", async () => {
