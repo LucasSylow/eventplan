@@ -102,7 +102,7 @@
     if (m.includes("email")) return "Tjek at emailen er gyldig.";
     if (m.includes("rate")) return "For mange forsøg. Prøv igen om lidt.";
     if (m.includes("provider is not enabled") || m.includes("unsupported provider"))
-      return "Social login er ikke aktiveret endnu. Tjek Google/Facebook i Supabase.";
+      return "Google-login er ikke aktiveret endnu. Tjek Google i Supabase.";
     if (m.includes("redirect")) return "Redirect-URL er ikke tilladt. Tilføj siden i Supabase Auth.";
     return msg;
   }
@@ -118,20 +118,14 @@
     setSocialLoading(true, provider);
     try {
       const { error } = await sb.auth.signInWithOAuth({
-        provider,
+        provider: "google",
         options: {
           redirectTo: accountUrl(),
-          queryParams:
-            provider === "google"
-              ? { access_type: "online", prompt: "select_account" }
-              : undefined,
+          queryParams: { access_type: "online", prompt: "select_account" },
         },
       });
       if (error) throw error;
-      setStatus(
-        provider === "google" ? "Sender dig til Google…" : "Sender dig til Facebook…",
-        "ok"
-      );
+      setStatus("Sender dig til Google…", "ok");
     } catch (err) {
       setStatus(
         translateAuthError(err?.message || "Kunne ikke starte social login."),
