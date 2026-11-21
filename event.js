@@ -47,6 +47,7 @@
   const state = {
     guests: [],
     tables: [],
+    rooms: [],
     todos: [],
     wishes: [],
     collabs: [],
@@ -347,12 +348,62 @@
     renderTodoRows(document.getElementById("overview-todo-list"), openTodos, { compact: true });
   }
 
+  function guestInviteUrl(token) {
+    if (!token) return "";
+    return `${window.location.origin}/guest-rsvp.html?token=${encodeURIComponent(token)}`;
+  }
+
+  function renderGuestOverview() {
+    const box = document.getElementById("guest-overview");
+    if (!box) return;
+    const c = guestCounts();
+    const responseRate = c.all
+      ? Math.round(((c.attending + c.declined + c.maybe) / c.all) * 100)
+      : 0;
+    box.innerHTML = `
+      <div class="ev-stat"><b>${c.all}</b><span>inviteret</span></div>
+      <div class="ev-stat"><b>${c.attending}</b><span>deltager</span></div>
+      <div class="ev-stat"><b>${c.maybe}</b><span>måske</span></div>
+      <div class="ev-stat"><b>${c.declined}</b><span>kan ikke</span></div>
+      <div class="ev-stat"><b>${c.invited}</b><span>ikke svaret</span></div>
+      <div class="ev-stat"><b>${responseRate}%</b><span>har svaret</span></div>`;
+  }
+
+  function showGuestInviteBox(token, hint) {
+    const box = document.getElementById("guest-invite-box");
+    const input = document.getElementById("guest-invite-url");
+    const hintEl = document.getElementById("guest-invite-hint");
+    if (!box || !input) return;
+    input.value = guestInviteUrl(token);
+    box.hidden = false;
+    if (hintEl) {
+      hintEl.hidden = !hint;
+      hintEl.textContent = hint || "";
+    }
+  }
+
+  async function ensureGuestInviteToken({ rotate = false } = {}) {
+    if (!currentEvent?.id) return null;
+    const rpc = rotate ? "rotate_guest_invite_token" : "ensure_guest_invite_token";
+    const { data, error } = await client.rpc(rpc, { p_event_id: currentEvent.id });
+    if (error) {
+      alert(error.message);
+      return null;
+    }
+    currentEvent.guest_invite_token = data;
+    return data;
+  }
+
   function renderGuests() {
+    renderGuestOverview();
+    if (currentEvent?.guest_invite_token) {
+      showGuestInviteBox(currentEvent.guest_invite_token);
+    }
     const list = document.getElementById("guest-list");
     if (!list) return;
     const items = state.guests.filter((g) => guestFilter === "all" || g.status === guestFilter);
     if (!items.length) {
-      list.innerHTML = `<div class="ev-empty">Ingen gæster i denne kategori endnu.</div>`;
+      list.innerHTML = `<div class="ev-empty">Ingen gæster i denne kategori endnu. Inviter en gæst eller del invitationslinket.</div>`;
       return;
     }
     list.innerHTML = "";
@@ -381,6 +432,7 @@
       row.querySelector(".ev-guest-copy span").textContent = [
         guest.email || "Ingen email",
         `Inviteret ${formatDateShort(guest.created_at)}`,
+        guest.table_id ? "Placeret ved bord" : "Ikke placeret",
       ].join(" · ");
       row.querySelector(".ev-badge").textContent = statusLabels[guest.status] || guest.status;
       row.querySelector("select").value = guest.status || "invited";
@@ -427,16 +479,29 @@
 
     if (!floor) return;
     floor.innerHTML = "";
-    if (!state.tables.length) {
+    if (!state.tables.length && !state.rooms.length) {
       floor.innerHTML = `<div class="ev-empty">Ingen bordplan endnu</div>`;
       return;
     }
 
-    const maxX = Math.max(...state.tables.map((t) => (t.x || 0) + (t.width || 150)), 400);
-    const maxY = Math.max(...state.tables.map((t) => (t.y || 0) + (t.height || 96)), 300);
+    const items = [...state.tables, ...state.rooms];
+    const maxX = Math.max(...items.map((t) => (t.x || 0) + (t.width || 150)), 400);
+    const maxY = Math.max(...items.map((t) => (t.y || 0) + (t.height || 96)), 300);
     const scale = Math.min(1, 560 / maxX, 320 / maxY);
     floor.style.width = `${Math.max(560, maxX * scale + 40)}px`;
     floor.style.height = `${Math.max(280, maxY * scale + 40)}px`;
+
+    state.rooms.forEach((room) => {
+      const el = document.createElement("div");
+      el.className = `seat-preview-room is-${room.kind || "wall"}`;
+      el.style.left = `${(room.x || 0) * scale + 16}px`;
+      el.style.top = `${(room.y || 0) * scale + 16}px`;
+      el.style.width = `${(room.width || 120) * scale}px`;
+      el.style.height = `${(room.height || 56) * scale}px`;
+      if (room.rotation) el.style.transform = `rotate(${room.rotation}deg)`;
+      el.textContent = room.label || room.kind || "Rum";
+      floor.appendChild(el);
+    });
 
     state.tables.forEach((table) => {
       const el = document.createElement("div");
@@ -709,6 +774,7 @@
     const [
       { data: guests },
       { data: tables },
+      { data: rooms },
       { data: todos },
       { data: wishes },
       { data: collabs },
@@ -716,6 +782,7 @@
     ] = await Promise.all([
       client.from("event_guests").select("*").eq("event_id", eventId).order("created_at", { ascending: true }),
       client.from("event_tables").select("*").eq("event_id", eventId).order("created_at", { ascending: true }),
+      client.from("event_room_items").select("*").eq("event_id", eventId).order("created_at", { ascending: true }),
       client.from("event_todos").select("*").eq("event_id", eventId).order("sort_order", { ascending: true }),
       client.from("event_wishlist_items").select("*").eq("event_id", eventId).order("sort_order", { ascending: true }),
       client.from("event_collaborators").select("*").eq("event_id", eventId).order("created_at", { ascending: true }),
@@ -723,6 +790,7 @@
     ]);
     state.guests = guests || [];
     state.tables = tables || [];
+    state.rooms = rooms || [];
     state.todos = todos || [];
     state.wishes = wishes || [];
     state.collabs = collabs || [];
@@ -732,7 +800,7 @@
   async function fetchEventForUser(eventId, user) {
     const { data: owned } = await client
       .from("events")
-      .select("id, title, description, location, plan, starts_at, ends_at, starts_time, owner_id, wishlist_external_url")
+      .select("id, title, description, location, plan, starts_at, ends_at, starts_time, owner_id, wishlist_external_url, guest_invite_token")
       .eq("id", eventId)
       .eq("owner_id", user.id)
       .maybeSingle();
@@ -749,7 +817,7 @@
 
     const { data: shared } = await client
       .from("events")
-      .select("id, title, description, location, plan, starts_at, ends_at, starts_time, owner_id, wishlist_external_url")
+      .select("id, title, description, location, plan, starts_at, ends_at, starts_time, owner_id, wishlist_external_url, guest_invite_token")
       .eq("id", eventId)
       .maybeSingle();
     return { event: shared, owner: false };
@@ -771,6 +839,30 @@
       const form = document.getElementById("guest-form");
       if (form) form.hidden = true;
     });
+    document.getElementById("guest-invite-link-btn")?.addEventListener("click", async () => {
+      const token = await ensureGuestInviteToken();
+      if (!token) return;
+      showGuestInviteBox(token, "Linket er klar — del det med dine gæster.");
+      logActivity("Gæste-invitationslink oprettet");
+    });
+    document.getElementById("guest-invite-copy")?.addEventListener("click", async () => {
+      const input = document.getElementById("guest-invite-url");
+      const url = input?.value || "";
+      if (!url) return;
+      try {
+        await navigator.clipboard.writeText(url);
+        showGuestInviteBox(currentEvent.guest_invite_token, "Kopieret til udklipsholder.");
+      } catch {
+        input.select();
+        prompt("Kopiér invitationslinket:", url);
+      }
+    });
+    document.getElementById("guest-invite-rotate")?.addEventListener("click", async () => {
+      if (!confirm("Opret et nyt link? Det gamle virker så ikke længere.")) return;
+      const token = await ensureGuestInviteToken({ rotate: true });
+      if (!token) return;
+      showGuestInviteBox(token, "Nyt link oprettet. Det gamle virker ikke længere.");
+    });
     document.getElementById("guest-form")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
@@ -786,7 +878,7 @@
       state.guests.push(data);
       e.target.reset();
       e.target.hidden = true;
-      logActivity(`Gæst tilføjet: ${data.name || data.email}`);
+      logActivity(`Gæst inviteret: ${data.name || data.email}`);
       renderGuests();
       renderSeating();
       renderOverview();

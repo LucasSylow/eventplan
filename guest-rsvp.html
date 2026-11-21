@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="da" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RSVP — Eventplan</title>
+  <link rel="icon" href="assets/logo-mark-white.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="event.css" />
+  <style>
+    .rsvp-page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 42%),
+        radial-gradient(circle at 88% 90%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 40%),
+        var(--bg);
+    }
+    .rsvp-card {
+      width: min(460px, 100%);
+      padding: 28px 24px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: var(--bg-2);
+      box-shadow: 0 24px 60px rgba(15, 23, 40, 0.12);
+      display: grid;
+      gap: 14px;
+      animation: evPanelIn 0.4s ease both;
+    }
+    .rsvp-card h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: -0.04em;
+    }
+    .rsvp-card .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .rsvp-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .rsvp-meta span {
+      font-size: 12px;
+      font-weight: 650;
+      color: var(--muted);
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+    }
+    .rsvp-form {
+      display: grid;
+      gap: 10px;
+    }
+    .rsvp-form label {
+      display: grid;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .rsvp-form input,
+    .rsvp-form select {
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+    .rsvp-form input:focus,
+    .rsvp-form select:focus {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+    }
+    .rsvp-status {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .rsvp-status label {
+      cursor: pointer;
+    }
+    .rsvp-status input { position: absolute; opacity: 0; pointer-events: none; }
+    .rsvp-status span {
+      display: grid;
+      place-items: center;
+      min-height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    }
+    .rsvp-status input:checked + span {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      color: var(--accent);
+    }
+    .rsvp-done {
+      text-align: center;
+      display: grid;
+      gap: 8px;
+    }
+  </style>
+  <script>
+    (function () {
+      var saved = localStorage.getItem("eventlink-theme");
+      document.documentElement.setAttribute(
+        "data-theme",
+        saved === "light" || saved === "dark" ? saved : "light"
+      );
+    })();
+  </script>
+</head>
+<body>
+  <main class="rsvp-page">
+    <div class="rsvp-card" id="rsvp-card">
+      <p class="dash-empty-kicker" style="justify-self:start">Eventplan</p>
+      <h1 id="rsvp-title">Henter invitation…</h1>
+      <p class="lead" id="rsvp-sub">Vent et øjeblik.</p>
+      <div class="rsvp-meta" id="rsvp-meta" hidden></div>
+      <form class="rsvp-form" id="rsvp-form" hidden>
+        <label>
+          Dit navn
+          <input type="text" name="name" required maxlength="120" placeholder="Fx Anna Nielsen" />
+        </label>
+        <label>
+          Email <em style="font-style:normal;font-weight:550;opacity:.75">(valgfrit)</em>
+          <input type="email" name="email" maxlength="160" placeholder="dig@email.dk" />
+        </label>
+        <div>
+          <p class="lead" style="margin-bottom:8px">Kommer du?</p>
+          <div class="rsvp-status">
+            <label><input type="radio" name="status" value="attending" checked /><span>Deltager</span></label>
+            <label><input type="radio" name="status" value="maybe" /><span>Måske</span></label>
+            <label><input type="radio" name="status" value="declined" /><span>Kan ikke</span></label>
+          </div>
+        </div>
+        <button type="submit" class="ev-btn" id="rsvp-submit">Send svar</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+  <script>
+    (() => {
+      const cfg = window.EVENTPLAN_CONFIG;
+      if (!cfg?.supabaseUrl || !cfg?.supabaseAnonKey || !window.supabase) return;
+      const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      });
+
+      const title = document.getElementById("rsvp-title");
+      const sub = document.getElementById("rsvp-sub");
+      const meta = document.getElementById("rsvp-meta");
+      const form = document.getElementById("rsvp-form");
+      const submitBtn = document.getElementById("rsvp-submit");
+      const token = new URLSearchParams(window.location.search).get("token");
+
+      function formatDate(value) {
+        if (!value) return "";
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "";
+        return d.toLocaleDateString("da-DK", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+
+      async function boot() {
+        if (!token) {
+          title.textContent = "Ugyldigt link";
+          sub.textContent = "Invitationslinket mangler eller er forkert.";
+          return;
+        }
+
+        const { data: rows, error } = await client.rpc("get_guest_invite", { p_token: token });
+        const invite = Array.isArray(rows) ? rows[0] : rows;
+        if (error || !invite) {
+          title.textContent = "Invitation ikke fundet";
+          sub.textContent = "Linket kan være udløbet eller slettet.";
+          return;
+        }
+
+        title.textContent = invite.event_title || "Event";
+        sub.textContent = "Fortæl os, om du kommer.";
+        meta.innerHTML = "";
+        if (invite.starts_at) {
+          const s = document.createElement("span");
+          s.textContent = formatDate(invite.starts_at);
+          meta.appendChild(s);
+        }
+        if (invite.event_location) {
+          const s = document.createElement("span");
+          s.textContent = invite.event_location;
+          meta.appendChild(s);
+        }
+        meta.hidden = !meta.childElementCount;
+        form.hidden = false;
+      }
+
+      form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+        const name = String(fd.get("name") || "").trim();
+        const email = String(fd.get("email") || "").trim();
+        const status = String(fd.get("status") || "attending");
+        if (!name) return;
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Sender…";
+        }
+
+        const { error } = await client.rpc("rsvp_guest_invite", {
+          p_token: token,
+          p_name: name,
+          p_email: email || null,
+          p_status: status,
+        });
+
+        if (error) {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Send svar";
+          }
+          sub.textContent = error.message;
+          return;
+        }
+
+        form.hidden = true;
+        const labels = { attending: "deltager", maybe: "måske kommer", declined: "desværre ikke kan" };
+        title.textContent = "Tak for dit svar!";
+        sub.textContent = `Vi har noteret, at du ${labels[status] || "har svaret"}.`;
+        meta.hidden = true;
+      });
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

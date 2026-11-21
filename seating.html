@@ -52,7 +52,7 @@
           <button type="button" class="seat-zoom-label" id="seat-zoom-label" title="Nulstil zoom">100%</button>
           <button type="button" class="seat-icon-btn" id="seat-zoom-in" title="Zoom ind">+</button>
         </div>
-        <div class="seat-toolbar-group" role="group" aria-label="Bordværktøjer">
+        <div class="seat-toolbar-group" role="group" aria-label="Elementværktøjer">
           <button type="button" class="seat-icon-btn" id="seat-rotate-ccw" title="Roter venstre" disabled>
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true"><path d="M7 8H4v3M4.5 11A7.5 7.5 0 1 0 7 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
@@ -76,7 +76,12 @@
 
     <div class="seat-workspace">
       <aside class="seat-tools">
-        <p class="seat-side-title">Tilføj bord</p>
+        <div class="seat-panel-brand">
+          <strong>Rum &amp; borde</strong>
+          <span>Byg lokalet, som det ser ud</span>
+        </div>
+
+        <p class="seat-side-title">Borde</p>
         <button type="button" class="seat-tool" data-add-shape="round">
           <span class="seat-tool-preview is-round"></span>
           <span>Rundbord</span>
@@ -93,7 +98,58 @@
           <span class="seat-tool-preview is-square"></span>
           <span>Kvadratisk</span>
         </button>
-        <p class="seat-hint">Træk borde for at flytte dem. Træk i hjørnerne for at ændre størrelse. Slip gæster direkte på et bord.</p>
+
+        <p class="seat-side-title">Rum</p>
+        <button type="button" class="seat-tool" data-add-room="entrance">
+          <span class="seat-room-icon">IN</span>
+          <span>Indgang</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="exit">
+          <span class="seat-room-icon">UD</span>
+          <span>Udgang</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="toilet">
+          <span class="seat-room-icon">WC</span>
+          <span>Toilet</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="kitchen">
+          <span class="seat-room-icon">KØ</span>
+          <span>Køkken</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="bar">
+          <span class="seat-room-icon">BR</span>
+          <span>Bar</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="stage">
+          <span class="seat-room-icon">SC</span>
+          <span>Scene</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="dancefloor">
+          <span class="seat-room-icon">DN</span>
+          <span>Dansegulv</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="wardrobe">
+          <span class="seat-room-icon">GA</span>
+          <span>Garderobe</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="gift">
+          <span class="seat-room-icon">GV</span>
+          <span>Gavbord</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="wall">
+          <span class="seat-room-icon">VG</span>
+          <span>Væg / skillerum</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="plant">
+          <span class="seat-room-icon">PL</span>
+          <span>Plante</span>
+        </button>
+        <button type="button" class="seat-tool" data-add-room="speaker">
+          <span class="seat-room-icon">LY</span>
+          <span>Højttaler</span>
+        </button>
+
+        <p class="seat-hint">Træk elementer rundt. Slip gæster på den side af bordet, de skal sidde. Dobbeltklik på en gæst for at fjerne dem.</p>
       </aside>
 
       <main class="seat-canvas-wrap" id="seat-canvas-wrap">
@@ -103,9 +159,12 @@
       </main>
 
       <aside class="seat-inspector">
-        <p class="seat-side-title">Egenskaber</p>
+        <div class="seat-panel-brand">
+          <strong>Egenskaber</strong>
+          <span>Detaljer for det valgte</span>
+        </div>
         <div class="seat-props" id="seat-props">
-          <p class="seat-props-empty">Vælg et bord for at redigere navn, form, pladser og størrelse.</p>
+          <p class="seat-props-empty">Vælg et bord eller rum-element for at redigere det.</p>
         </div>
 
         <p class="seat-side-title">Uplacerede gæster</p>

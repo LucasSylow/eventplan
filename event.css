@@ -262,6 +262,52 @@ html[data-theme="dark"] .event-role-pill { color: #7decc0; }
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
+.guest-overview {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.guest-invite-box {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg-2));
+}
+.guest-invite-box strong {
+  display: block;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+}
+.guest-invite-box > div > p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.guest-invite-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+.guest-invite-row input {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 11px;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+.guest-invite-hint {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--accent);
+}
 .ev-guest-filters {
   display: flex;
   gap: 6px;
@@ -382,6 +428,25 @@ html[data-theme="dark"] .ev-badge.maybe { background: rgba(255,180,60,.16); colo
   min-width: 100%;
   min-height: 320px;
 }
+.seat-preview-room {
+  position: absolute;
+  display: grid;
+  place-content: center;
+  padding: 4px 6px;
+  border-radius: 10px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 35%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-2));
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.seat-preview-room.is-entrance,
+.seat-preview-room.is-exit { border-radius: 999px; }
+.seat-preview-room.is-wall { border-radius: 4px; border-style: solid; }
 .seat-preview-table {
   position: absolute;
   display: grid;
@@ -944,4 +1009,6 @@ html[data-theme="dark"] .todo-chip.is-person { color: #7decc0; }
   .event-grid { grid-template-columns: 1fr; }
   .todo-composer { grid-template-columns: 1fr; }
   .wish-form-grid { grid-template-columns: 1fr; }
+  .guest-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .guest-invite-row { grid-template-columns: 1fr; }
 }

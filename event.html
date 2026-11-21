@@ -184,13 +184,34 @@
               <div class="ev-toolbar">
                 <div>
                   <h2 class="ev-section-title">Gæster</h2>
-                  <p class="ev-section-sub">Inviterede, svar og status samlet ét sted.</p>
+                  <p class="ev-section-sub">Se hvem der er inviteret, og om de deltager — eller del et invitationslink.</p>
                 </div>
-                <button type="button" class="ev-btn" id="guest-add-btn">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  Tilføj gæst
-                </button>
+                <div class="ev-toolbar-actions">
+                  <button type="button" class="ev-btn ev-btn-ghost" id="guest-invite-link-btn">
+                    Opret invitationslink
+                  </button>
+                  <button type="button" class="ev-btn" id="guest-add-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Inviter gæst
+                  </button>
+                </div>
               </div>
+
+              <div class="guest-overview" id="guest-overview"></div>
+
+              <div class="guest-invite-box" id="guest-invite-box" hidden>
+                <div>
+                  <strong>Invitationslink</strong>
+                  <p>Del linket, så gæster selv kan svare om de kommer.</p>
+                </div>
+                <div class="guest-invite-row">
+                  <input type="text" id="guest-invite-url" readonly />
+                  <button type="button" class="ev-btn" id="guest-invite-copy">Kopiér</button>
+                  <button type="button" class="ev-btn ev-btn-ghost" id="guest-invite-rotate">Nyt link</button>
+                </div>
+                <p class="guest-invite-hint" id="guest-invite-hint" hidden></p>
+              </div>
+
               <div class="ev-guest-filters" id="guest-filters">
                 <button type="button" class="is-active" data-guest-filter="all">Alle</button>
                 <button type="button" data-guest-filter="attending">Deltager</button>
@@ -207,7 +228,7 @@
                   <option value="maybe">Måske</option>
                   <option value="declined">Kan ikke</option>
                 </select>
-                <button type="submit" class="ev-btn">Gem</button>
+                <button type="submit" class="ev-btn">Send invitation</button>
                 <button type="button" class="ev-btn ev-btn-ghost" id="guest-form-cancel">Annuller</button>
               </form>
               <div class="ev-guest-list" id="guest-list"></div>
