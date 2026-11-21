@@ -18,6 +18,7 @@
   const avatarInitials = document.getElementById("dash-avatar-initials");
   const menuAvatarImg = document.getElementById("dash-menu-avatar-img");
   const menuInitials = document.getElementById("dash-menu-initials");
+  const profileRoot = document.getElementById("dash-profile");
   const profileMenu = document.getElementById("dash-profile-menu");
   const profileName = document.getElementById("dash-profile-name");
   const profileEmail = document.getElementById("dash-profile-email");
@@ -824,7 +825,7 @@
   });
 
   document.addEventListener("click", (e) => {
-    if (menuOpen && !profileMenu?.contains(e.target) && !avatarBtn?.contains(e.target)) {
+    if (menuOpen && !profileRoot?.contains(e.target)) {
       closeProfileMenu();
     }
     if (notifOpen && !notifRoot?.contains(e.target)) {

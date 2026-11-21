@@ -1673,11 +1673,14 @@ html[data-theme="dark"] .ov-cal-tip-time {
 }
 .dash-backdrop[hidden] { display: none !important; }
 
+.dash-profile {
+  position: relative;
+}
 .dash-profile-menu {
-  position: fixed;
-  top: 70px;
-  right: 18px;
-  z-index: 50;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 55;
   width: min(280px, calc(100vw - 24px));
   padding: 0;
   border: 0;
