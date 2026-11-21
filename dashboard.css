@@ -406,16 +406,21 @@ html[data-theme="dark"] .dash-badge.ok {
 }
 
 .dash-topbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 22px;
   border-bottom: 1px solid var(--line);
   background: color-mix(in srgb, var(--bg) 70%, transparent);
   backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 20;
+  padding: 14px 18px;
+}
+
+.dash-topbar-inner {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .dash-menu-btn {
@@ -429,7 +434,6 @@ html[data-theme="dark"] .dash-badge.ok {
   align-items: center;
   gap: 10px;
   min-width: 0;
-  max-width: 560px;
   padding: 10px 12px;
   border-radius: 14px;
   border: 1px solid var(--line);
@@ -464,6 +468,7 @@ html[data-theme="dark"] .dash-badge.ok {
   align-items: center;
   gap: 8px;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .dash-create-btn {
@@ -568,7 +573,7 @@ html[data-theme="dark"] .dash-badge.ok {
 
 .dash-content {
   flex: 1;
-  padding: 20px 18px 36px;
+  padding: 22px 18px 40px;
   display: flex;
   flex-direction: column;
 }
@@ -578,7 +583,7 @@ html[data-theme="dark"] .dash-badge.ok {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .dash-page-head {
@@ -1115,8 +1120,8 @@ html[data-theme="dark"] .ov-event-status {
 
 .dash-profile-menu {
   position: fixed;
-  top: 64px;
-  right: 16px;
+  top: 70px;
+  right: 18px;
   z-index: 50;
   width: min(280px, calc(100vw - 24px));
   padding: 0;
